@@ -1,0 +1,49 @@
+<% layout('../layout/index') %>
+
+<div class="panel-heading">
+	Devices
+	<span style="float: right;"><a href="/device/add">Add new device</a></span>
+</div>
+<div class="panel-body">
+	<table class="table table-sm">
+	  <thead>
+	    <tr>
+	      <th scope="col">#</th>
+	      <th scope="col">Station</th>
+	      <th scope="col">Name </th>
+	      <th scope="col">Description</th>
+	      <!-- <th scope="col">Measurement Description</th> -->
+	      <th scope="col">Note</th>
+	      <th scope="col">Action</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <script type="text/javascript">
+	    	var i = 1;
+	    </script>
+	    <% devices.forEach(function(device) { %>
+	    	<tr>
+		    	<td>
+		    		<script type="text/javascript">
+				    	document.write(i);
+				    	i = i + 1;
+				    </script>
+				</td>
+				<td> <%= device.station %> </td>
+				<td> <%= device.name %> </td>
+				<td> <%= device.description %> </td>
+				<td> <%= device.information %> </td>
+				<td> <%= device.note %> </td>
+				<td class="text-center">
+					<a class='btn btn-info btn-xs' href="/device/edit/<%= device.id %>">
+						<span class="glyphicon glyphicon-edit"></span>Edit</a>
+					<a href="/device/delete/<%= device.id %>" class="btn btn-danger btn-xs">
+						<span class="glyphicon glyphicon-remove"></span> Del</a>
+				</td>
+			</tr>	
+	    <% }); %>
+
+	  </tbody>
+	</table>
+</div>
+

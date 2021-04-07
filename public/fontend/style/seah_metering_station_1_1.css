@@ -1,0 +1,170 @@
+body {
+  font-family: "Gothic Regular", sans-serif;
+  font-size: 14px;
+}
+
+div#wrapper {
+  width: 100%;
+  height: auto;
+}
+
+div#title {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  font-size: 36px;
+  height: auto;
+  padding: 16px 0;
+  color: #000000;
+}
+
+.image-style {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+table.table-note-1 {
+  background-color: #FFFFFF;
+  width: 100%;
+}
+
+th.title-note-1 {
+  width: 40%;
+  text-align: center;
+}
+
+th.data-note-1 {
+  width: 40%;
+  padding: 7px;
+}
+
+div.data-border {
+  border: 2px solid steelblue;
+}
+
+table.table-note-2 {
+  background-color: #FFFFFF;
+  width: 100%;
+}
+
+th.title-table-2 {
+  text-align: center;
+  padding: 7px;
+}
+
+tbody.body-note-2 {
+  background-color: turquoise;
+}
+
+th.col-1-note-2 {
+  width: 40%;
+  padding: 10px;
+}
+
+div.bkg-purple {
+  width: 60%;
+  height: 20px;
+  background-color: #ad03fc;
+  margin: 0 auto;
+}
+
+div.bkg-green {
+  width: 60%;
+  height: 20px;
+  background-color: #0bfc03;
+  margin: 0 auto;
+}
+
+div.bkg-orange {
+  width: 60%;
+  height: 20px;
+  background-color: #fc6f03;
+  margin: 0 auto;
+}
+
+div.bkg-blue {
+  width: 60%;
+  height: 20px;
+  background-color: #036bfc;
+  margin: 0 auto;
+}
+
+div.image-container {
+  padding: 0;
+}
+
+div#graph-wrapper {
+  position: relative;
+  margin: 0;
+}
+
+div#table_note {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+table.table-anotation-big {
+  background-color: #FFFFFF;
+  width: 230px;
+  position: absolute;
+}
+
+th.title-anotation-small-table {
+  width: 20%;
+  text-align: center;
+}
+
+th.data-anotation-big {
+  width: 40%;
+  padding: 7px;
+}
+
+div.anotation-big-data-border {
+  border: 1px solid #000000;
+  background-color: #fac7c6;
+}
+
+table#anotation-1 {
+  top: 22%;
+  left: 42%;
+}
+
+table#anotation-2 {
+  top: 57%;
+  left: 27%;
+}
+
+table.table-anotation-small {
+  background-color: #FFFFFF;
+  width: 100px;
+  position: absolute;
+}
+
+th.title-anotation-small-1 {
+  width: 100%;
+  text-align: center;
+}
+
+th.data-anotation-small-1 {
+  width: 70%;
+  padding: 3px;
+}
+
+div.anotation-small-data-border {
+  border: 1px solid #000000;
+  background-color: #01ffff;
+}
+
+table#anotation-2 {
+  top: 38%;
+  left: 40%;
+}
+
+table#anotation-3 {
+  top: 38%;
+  left: 53%;
+}

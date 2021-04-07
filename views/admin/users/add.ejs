@@ -1,0 +1,68 @@
+<% layout('../layout/index') %>
+<% block('css', `
+
+
+`) %>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <h1>
+    Users
+    <small>Add</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="/"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">User</li>
+  </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+  <form method="post" action="/admin/users/add">
+    <div class="form-row">
+      <div class="col-md-4 mb-3 col-sm-6">
+        <label>Name</label>
+        <input type="text" class="form-control" name="name" placeholder="Name..."
+          value="">
+      </div>
+      <div class="col-md-4 mb-3 col-sm-6">
+        <label>Email</label>
+        <input type="text" class="form-control" name="email" placeholder="Email..."
+          value="" required>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label>Phone</label>
+        <input type="text" class="form-control" name="phone" placeholder="Phone..."
+          value="">
+      </div>
+      <div class="col-md-4 mb-3 col-sm-6">
+        <label>Password</label>
+        <input type="text" class="form-control" name="password" placeholder="Pass..."
+          value="" required>
+      </div>
+      <div class="col-md-4 mb-3 col-sm-6">
+        <label>Role</label>
+        <input type="text" class="form-control" name="role" placeholder="Role..."
+          value="1" required>
+      </div>
+     </div>
+      
+    <div class="form-row">
+      <div class="col-md-12 mb-3 col-sm-6">
+      <br>
+        <button class="btn btn-success" type="submit">Add </button>
+      </div>
+    </div>
+   
+  </form>
+
+</section>
+
+
+
+<% block('script', `
+
+
+
+`) -%>
+

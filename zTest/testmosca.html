@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <script src="mqtt.min.js"></script>
+  </head>
+  <body>
+    hihi
+    <script>
+      var client = mqtt.connect('http://127.0.0.1:3005');
+      console.log("Success");
+      client.subscribe("mqtt/write");
+
+      client.on("message", function(topic, payload) {
+        //alert([topic, payload].join(": "));
+        console.log(topic + " : " + payload);
+        client.end();
+      });
+
+      client.publish("mqtt/write", "hello world!");
+    </script>
+  </body>
+</html>

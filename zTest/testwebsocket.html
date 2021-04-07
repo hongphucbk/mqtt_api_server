@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Websockets support tester</title>
+    <script type="text/javascript">
+        function WebSocketSupport() {
+            if ("WebSocket" in window) {
+                document.getElementById("ws_support").innerHTML = "<h2>Trình  duyệt web của bạn hỗ trợ WebSocket</h2>";
+            } else {
+               document.getElementById("ws_support").innerHTML = "<h2>Trình    duyệt web của bạn không hỗ trợ không WebSocket</h2>";
+            }
+        }
+    </script>
+</head>
+<body onload="javascript: WebSocketSupport()">
+    <div id="ws_support"></div>
+</body>
+</html>

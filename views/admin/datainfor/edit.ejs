@@ -1,0 +1,57 @@
+<% layout('../layout/index') %>
+
+<div class="panel-heading">
+	Mesurement Edit: <%= measurement.name %>
+	<span style="float: right;"><a href="/measurement">Home</a></span>
+</div>
+<div class="panel-body">
+
+<form method="post" action="/measurement/edit/<%= measurement.id %>">
+  <div class="form-row">
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Name</label>
+      <input type="text" class="form-control" name="name" placeholder="Name..."
+        value="<%= measurement.name %>">
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Description</label>
+      <input type="text" class="form-control" name="description" placeholder="Description..."
+        value="<%= measurement.description %>" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Group</label>
+      <select class="form-control" name="group">
+        <option value="ControlBit">ControlBit</option>
+        <option value="ControlNumber">ControlNumber</option>
+        <option value="MonitorBit" selected="">MonitorBit</option>
+        <option value="MonitorNumber">MonitorNumber</option>
+      </select>
+    </div>
+    
+    <!-- <div class="col-md-4 mb-3">
+      <label>Group</label>
+      <input type="text" class="form-control" name="address" placeholder="Address..."
+        value="<%= measurement.group %>">
+    </div> -->
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Information</label>
+      <input type="text" class="form-control" name="information" placeholder="Information..."
+        value="<%= measurement.information %>" required>
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Note</label>
+      <input type="text" class="form-control" name="note" placeholder="Note..."
+        value="<%= measurement.note %>" required>
+    </div>
+   </div>
+    
+  <div class="form-row">
+    <div class="col-md-12 mb-3 col-sm-6">
+    <br>
+      <button class="btn btn-success" type="submit">Edit </button>
+    </div>
+  </div>
+ 
+</form>
+</div>
+

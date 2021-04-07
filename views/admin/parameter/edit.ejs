@@ -1,0 +1,59 @@
+<% layout('../layout/index') %>
+
+<div class="panel-heading">
+  Parameter > Add
+  <span style="float: right;"><a href="/admin/parameter">Home</a></span>
+</div>
+<div class="panel-body">
+
+<% if(typeof errors != "undefined"){%>
+<% errors.forEach(function(err){ %>
+  <div class="alert alert-danger">
+      <%= err %> 
+  </div>
+<% }) %>
+<% } %>
+
+
+<form method="post" action="/admin/parameter/edit/<%= parameter.id %>">
+  <div class="form-row">
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Code</label>
+      <input type="text" class="form-control" name="code" placeholder="Code..."
+        value="<%= parameter.code %>" required>
+    </div>
+
+    <!-- <div class="col-md-4 mb-3 col-sm-6">
+      <label>Map Tag</label>
+      <input type="text" class="form-control" name="maptag" placeholder="Map Tag..."
+        value="<%= parameter.maptag %>" required>
+    </div> -->
+
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Name</label>
+      <input type="text" class="form-control" name="name" placeholder="Name..."
+        value="<%= parameter.name %>">
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <label>Infor Data</label>
+      <input type="text" class="form-control" name="datainfo" placeholder="1 or 0"
+        value="<%= parameter.datainfo %>">
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Note</label>
+      <input type="text" class="form-control" name="note" placeholder="Note..."
+        value="<%= parameter.note %>">
+    </div>
+   </div>
+    
+  <div class="form-row">
+    <div class="col-md-12 mb-3 col-sm-6">
+    <br>
+      <button class="btn btn-success" type="submit">Edit </button>
+    </div>
+  </div>
+ 
+</form>
+</div>
+

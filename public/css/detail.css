@@ -1,0 +1,27 @@
+.light {
+  width: 100px;
+  height: 100px;
+  background: gray;
+  border-radius: 50%;
+  text-align:center;
+
+}
+
+.row{
+    margin-top:5px;
+    padding: 0 10px;
+}
+
+.clickable{
+    cursor: pointer;   
+}
+
+.panel-heading span {
+  margin-top: -10px;
+  font-size: 15px;
+}
+
+.panel-body-1{
+  text-align: center;
+  padding-left: 30px;
+}

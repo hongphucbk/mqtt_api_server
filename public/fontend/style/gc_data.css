@@ -1,0 +1,60 @@
+div#title {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  font-size: 36px;
+  height: auto;
+  padding: 16px 0;
+  color: #000000;
+}
+
+#table{
+  text-align: -webkit-center;
+  align-items: center;
+}
+
+.table {
+  border-collapse: collapse;
+  border: 3px solid black !important;
+  font-size: 14px;
+  width: 80%;
+}
+
+.center {
+  text-align: center;
+}
+
+th {
+  padding: 6px !important;
+}
+
+tr, td, th {
+  background-color: #3db389;
+  border-top: none !important;
+}
+
+thead {
+  font-size: 14px;
+  font-weight: bold;
+  border: 3px solid black !important;
+}
+
+.blue {
+  background-color: blue;
+  border: white 1px solid;
+  height: 20px;
+}
+
+.red {
+  background-color: red;
+  border: white 1px solid;
+  height: 20px;
+}
+
+.value {
+  background-color: #c9c1bf;
+  border: #8c8685 2px inset !important;
+  border-style: inset;
+  text-align: right;
+}

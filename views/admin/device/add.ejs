@@ -1,0 +1,67 @@
+<% layout('../layout/index') %>
+
+<div class="panel-heading">
+	Device Add new device
+	<span style="float: right;"><a href="/measurement">Home</a></span>
+</div>
+<div class="panel-body">
+
+<% if(typeof errors != "undefined"){%>
+<% errors.forEach(function(err){ %>
+  <div class="alert alert-danger">
+      <%= err %> 
+  </div>
+<% }) %>
+<% } %>
+
+
+<form method="post" action="/device/add">
+  <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label>Station</label>
+      <select class="form-control" name="station">
+        <% stations.forEach(function(station) { %>
+          <option value="<%= station.name %>"><%= station.description %></option>
+        <% }); %>
+      </select>
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Name</label>
+      <input type="text" class="form-control" name="name" placeholder="Name..."
+        value="">
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Description</label>
+      <input type="text" class="form-control" name="description" placeholder="Description..."
+        value="" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Active</label>
+      <select class="form-control" name="active">
+        <option value="1" selected="">1</option>
+        <option value="0">0</option>
+      </select>
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Information</label>
+      <input type="text" class="form-control" name="information" placeholder="Information..."
+        value="" required>
+    </div>
+    
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Note</label>
+      <input type="text" class="form-control" name="note" placeholder="Note..."
+        value="" >
+    </div>
+   </div>
+    
+  <div class="form-row">
+  	<div class="col-md-12 mb-3 col-sm-6">
+  	<br>
+      <button class="btn btn-success" type="submit">Submit </button>
+    </div>
+  </div>
+ 
+</form>
+</div>
+

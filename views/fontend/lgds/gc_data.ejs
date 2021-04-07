@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>GAS CHROMATOGRAPH</title>
+
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/2.1.2/go.js"></script>
+
+  <link rel="stylesheet" href="/fontend/style/style.css">
+  <link rel="stylesheet" href="/fontend/style/gc_data.css">
+</head>
+
+<body>
+  <div id="wrapper" class="container-fluid">
+    <div id="title">
+      GAS CHROMATOGRAPH
+    </div>
+    <div id="table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th></th>
+            <th class="center">LIVE</th>
+            <th class="center">KEYPAD</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="data_info">
+        </tbody>
+      </table>
+    </div>
+    
+    
+
+
+    <!-- Footer -->
+    <% include ../layout/footer %>
+
+    <script>
+      const data = [
+        {
+          "variable": "Methane CH4",
+          "live": "90.951",
+          "keypad": "90.634",
+          "unit": "%mol"
+        },
+        {
+          "variable": "Ethane C2H6",
+          "live": "3.478",
+          "keypad": "3.560",
+          "unit": "%mol"
+        },
+        {
+          "variable": "Propane C3H8",
+          "live": "1.315",
+          "keypad": "1.362",
+          "unit": "%mol"
+        },
+        {
+          "variable": "I-Butane I-C4H10",
+          "live": "0.287",
+          "keypad": "0.301",
+          "unit": "%mol"
+        },
+        {
+          "variable": "N-Butane N-C4H10",
+          "live": "0.300",
+          "keypad": "0.315",
+          "unit": "%mol"
+        },
+        {
+          "variable": "I-Pentane I-C5H12",
+          "live": "0.106",
+          "keypad": "0.112",
+          "unit": "%mol"
+        },
+        {
+          "variable": "N-Pentane N-C5H12",
+          "live": "0.071",
+          "keypad": "0.078",
+          "unit": "%mol"
+        },
+        {
+          "variable": "N-Hexane N-C6H14",
+          "live": "0.153",
+          "keypad": "0.146",
+          "unit": "%mol"
+        },
+        {
+          "variable": "Nitro gen N2",
+          "live": "0.874",
+          "keypad": "0.866",
+          "unit": "%mol"
+        },
+        {
+          "variable": "Cacbondioxit CO2",
+          "live": "2.464",
+          "keypad": "2.623",
+          "unit": "%mol"
+        },
+        {
+          "variable": "Heat Value",
+          "live": "39.174",
+          "keypad": "0.000",
+          "unit": "MJ/Sm3"
+        },
+        {
+          "variable": "Relative Demultive",
+          "live": "0.628",
+          "keypad": "0.000",
+          "unit": ""
+        }
+      ]
+      data.forEach(element => {
+        $("#data_info").append(`<tr><th>${element.variable}</th><th class="value">${element.live}</th><th class="value">${element.keypad}</th><th>${element.unit}</th></tr>`);
+      })
+    </script>
+</body>
+
+</html>

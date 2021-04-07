@@ -1,0 +1,70 @@
+<% layout('../layout/index') %>
+
+<% stylesheet('/css/detail.css') -%>
+
+<div class="panel-heading">
+	Station: <span style="color: green"> <%= station.description %></span>
+</div>
+<div class="panel-body">
+	<div class="row">
+		<div class="col-md-8">
+			<h4>THÔNG TIN HỆ THỐNG</h4>
+            
+    </div>
+    <div class="col-md-4">
+			<h4>THÔNG TIN KHÁCH HÀNG</h4>
+            
+              
+      </div>
+	</div>
+	<hr>
+	<div class="row">
+		
+	</div>
+
+	<div class="row">
+		
+	</div>
+</div>
+<% script('/js/detail.js') -%>
+<script type="text/javascript">
+	var socket = io("http://localhost:3001");
+    socket.emit('thongbao','hello');
+    socket.on('data', function(msg){
+      	// document.getElementById("Uab").innerHTML = msg.Uab ;
+      	// document.getElementById("Ubc").innerHTML = msg.Ubc ;
+      	// document.getElementById("Uca").innerHTML = msg.Uca ;
+      	// document.getElementById("Iab").innerHTML = msg.Iab ;
+      	// document.getElementById("Ibc").innerHTML = msg.Ibc ;
+      	// document.getElementById("Ica").innerHTML = msg.Ica ;
+      	// document.getElementById("Cosphi").innerHTML = msg.Cosphi ;
+      	// document.getElementById("Hz").innerHTML = msg.Hz ;
+      	// document.getElementById("Kwh_Day").innerHTML = msg.Kwh_Day ;
+      	// document.getElementById("Kwh_Total").innerHTML = msg.Kwh_Total ;
+      	// document.getElementById("Timestamp").innerHTML = formatDate(new Date());
+      	console.log(msg);
+      	// gauge.set(msg.Uab);
+      	// document.getElementById("preview-textfield").innerHTML = msg.Uab + " V";
+
+    });
+
+
+    function formatDate(date) {
+	  var monthNames = [
+	    "January", "February", "March",
+	    "April", "May", "June", "July",
+	    "August", "September", "October",
+	    "November", "December"
+	  ];
+
+	  var day = date.getDate();
+	  var monthIndex = date.getMonth();
+	  var year = date.getFullYear();
+	  var hour = date.getHours();
+	  var minute = date.getMinutes();
+	  var second = date.getSeconds();
+
+	  return day + ' ' + monthNames[monthIndex] + ' ' + year + ' ' + hour + ':' + minute +  ':' +second;
+	}
+
+</script>

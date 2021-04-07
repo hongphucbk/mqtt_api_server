@@ -1,0 +1,102 @@
+div#wrapper {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+div#title {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  font-size: 36px;
+  height: auto;
+  padding: 16px 0;
+}
+
+.table {
+  border-collapse: collapse;
+}
+
+tr, td, th {
+  border: 3px solid black !important;
+  padding: 5px 15px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+th.center-cell {
+  vertical-align: middle !important;
+}
+
+th.first-column {
+  width: 30%;
+  vertical-align: middle;
+}
+
+.large-button {
+  font-family: "Gothic Regular", sans-serif;
+  font-size: 20px;
+  color: #000000;
+  text-decoration: none;
+  margin: 20px auto;
+  padding: 20px 0;
+  
+  background-color: #bbb;
+  font-weight: bold;  
+  border: solid 5px #000;
+
+  border-width: 0 4px 5px 0;
+  border-radius: 5px;
+  border-color: transparent #ddd #999 transparent;
+  background-clip: padding-box; 
+}
+
+.small-button {
+  font-family: "Gothic Regular", sans-serif;
+  font-size: 14px;
+  color: #000000;
+  text-decoration: none;
+  margin: 10px auto;
+  padding: 10px 0;
+  
+  background-color: #bbb;
+  font-weight: bold;  
+  border: solid 5px #000;
+
+  border-width: 0 4px 5px 0;
+  border-radius: 5px;
+  border-color: transparent #ddd #999 transparent;
+  background-clip: padding-box; 
+}
+
+.bottom-button {
+  font-family: "Gothic Regular", sans-serif;
+  font-size: 14px;
+  margin: 10px auto;
+  padding: 10px;
+  width: 13%;
+  text-align: center;
+  
+  background-color: #bbb;
+  font-weight: bold;  
+  border: solid 5px #000;
+
+  border-width: 0 4px 5px 0;
+  border-radius: 5px;
+  border-color: transparent #ddd #999 transparent;
+  background-clip: padding-box; 
+}
+
+.large-button:hover, .small-button:hover, .bottom-button:hover{
+  border-width: 0 2px 3px 0; 
+  margin-right: 4px;
+  position: relative;
+  left: 2px;
+  top: 3px;
+  cursor: pointer;
+}
+
+a:hover {
+  text-decoration: none;
+}

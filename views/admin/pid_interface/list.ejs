@@ -1,0 +1,105 @@
+<% layout('../layout/index') %>
+<% block('css', `
+	
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+
+`) %>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <h1>
+    PID Interface Tags
+    <small>List</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Tags</li>
+  </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+	<div class="panel-heading">
+		PID
+		<span style="float: right;"><a href="/admin/pid-interface/add">Add new tag</a></span>
+	</div>
+	<div class="row">
+	  <div class="col-xs-12">
+	    <div class="box">
+	      <div class="box-header">
+	        <h3 class="box-title">All tags</h3>
+	      </div>
+	      <!-- /.box-header -->
+	      <div class="box-body">
+	        <table id="table1" class="table table-bordered table-striped">
+	          <thead>
+		          <tr>
+		            <th>#</th>
+		            <th>Name</th>
+		            <th>isBackgroud</th>
+		            <th>Phone</th>
+		            <th>Action</th>
+		          </tr>
+	          </thead>
+	          <tbody>
+	          <script type="text/javascript">
+				    	var i = 1;
+				    </script>
+	          <% tags.forEach(function(tag) { %>
+				    	<tr>
+					    	<td>
+					    		<script type="text/javascript">
+							    	document.write(i);
+							    	i = i + 1;
+							    </script>
+								</td>
+								<td> <%= tag.name %> </td>
+								<td> <%= tag.isBgColor %> </td>
+								<td> <%= tag.note %> </td>  
+								<td class="text-center">
+									<a class='btn btn-info btn-xs' href="/admin/pid-interface/edit/<%= tag.id %>">
+										<span class="glyphicon glyphicon-edit"></span>Edit</a>
+									<a href="/admin/pid-interface/delete/<%= tag.id %>" class="btn btn-danger btn-xs">
+										<span class="glyphicon glyphicon-remove"></span> Del</a>
+								</td>
+							</tr>	
+				    <% }); %>
+	          
+	          
+
+	          </tbody>
+	        </table>
+	      </div>
+	      <!-- /.box-body -->
+	    </div>
+	    <!-- /.box -->
+	  </div>
+	  <!-- /.col -->
+	</div>
+
+</section>
+
+
+
+<% block('script', `
+
+<!-- DataTables -->
+<script src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+
+<script>
+  $(function () {
+    $('#table1').DataTable({
+      'paging'      : true,
+      'lengthChange': true,
+      'searching'   : true,
+      'ordering'    : true,
+      'info'        : true,
+      'autoWidth'   : false
+    })
+  })
+</script>
+
+`) -%>
+

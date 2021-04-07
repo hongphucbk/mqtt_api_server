@@ -1,0 +1,401 @@
+<% layout('../layout/index') %>
+
+<% stylesheet('/css/detail.css') -%>
+
+<div class="panel-heading">
+	Station: <span style="color: green"> <%= station.description %></span>
+</div>
+<div class="panel-body">
+	<div class="row">
+		<div class="col-md-8">
+			<h4>THÔNG TIN HỆ THỐNG</h4>
+            <table class="table table-striped table-condensed">
+                  <thead class="thead-dark">
+                  <tr>
+                      <th rowspan="2">Measurement</th>
+                      <th rowspan="2">Unit</th>
+                      <th>Referent</th>
+                      <th>Duty</th>
+                      <th rowspan="2">Action</th>                                          
+                  </tr>
+                  <tr>                  
+                      <th><%= ("BH1") %> </th>
+                      <th>FC 1401</th>                                          
+                  </tr>
+              </thead>   
+              <tbody>
+
+                <% station_measurements.forEach(function(station_measurement) { %>
+                  <tr>
+                      <td id="<%= station_measurement.measurement  %>"><%= readName('T1') + station_measurement.measurement  %></td>
+                      <td><%= station_measurement.unit  %></td>
+                      <td>Editor</td>
+                      <td><span class="label label-success">Active</span></td>                                       
+                  </tr>
+                <% }); %>
+                
+                <tr>
+                    <td>VOLUME AT MEASUREMENT CONDITIONS</td>
+                    <td>M3</td>
+                    <td>Staff</td>
+                    <td><span class="label label-success">Active</span></td>                                        
+                </tr>
+                <tr>
+                    <td>VOLUME AT BASE CONDITIONS</td>
+                    <td>M3</td>
+                    <td>Staff</td>
+                    <td><span class="label label-success">Active</span></td>                                        
+                </tr>
+                <tr>
+                    <td>Vb OF CURRENT DAY</td>
+                    <td>M3</td>
+                    <td>-</td>
+                    <td><span class="label label-success">-</span></td>                                        
+                </tr>
+                <tr>
+                    <td>Vb OF LAST DAY</td>
+                    <td>SM3</td>
+                    <td>Staff</td>
+                    <td><span class="label label-success">-</span></td>                                        
+                </tr>
+                <tr>
+                    <td>Vm OF CURRENT DAY</td>
+                    <td>M3</td>
+                    <td>-</td>
+                    <td><span class="label label-success">-</span></td>                                        
+                </tr>
+                <tr>
+                    <td>Vm OF LAST DAY</td>
+                    <td>SM3</td>
+                    <td>Staff</td>
+                    <td><span class="label label-success">Active</span></td>                                        
+                </tr>                                  
+              </tbody>
+            </table>
+        </div>
+        <div class="col-md-4">
+			<h4>THÔNG TIN KHÁCH HÀNG</h4>
+            <table class="table table-striped table-condensed">
+                  <thead class="thead-dark">
+                  <tr>
+                      <th rowspan="2">Measurement</th>
+                      <th rowspan="2">Unit</th>
+                      <th>Referent</th>
+                      <th>Duty</th>                                          
+                  </tr>
+                  <tr>                  
+                      <th>FC 1402 </th>
+                      <th>FC 1401</th>                                          
+                  </tr>
+              </thead>   
+              <tbody>
+                <tr>
+                    <td>PRESSURE</td>
+                    <td>Bar</td>
+                    <td>Editor</td>
+                    <td><span class="label label-success">Active</span>
+                    </td>                                       
+                </tr>
+                <tr>
+                    <td>TEMPERATURE</td>
+                    <td><span>&#176;</span>C</td>
+                    <td>-</td>
+                    <td><span class="label label-important">-</span></td>                                       
+                </tr>
+                
+                <tr>
+                    <td>VOLUME AT MEASUREMENT CONDITIONS</td>
+                    <td>M3</td>
+                    <td>Staff</td>
+                    <td><span class="label label-success">Active</span></td>                                        
+                </tr>
+                <tr>
+                    <td>VOLUME AT BASE CONDITIONS</td>
+                    <td>M3</td>
+                    <td>Staff</td>
+                    <td><span class="label label-success">Active</span></td>                                        
+                </tr>
+                
+                <tr>
+                    <td>Vm OF CURRENT DAY</td>
+                    <td>M3</td>
+                    <td>-</td>
+                    <td><span class="label label-success">-</span></td>                                        
+                </tr>
+                <tr>
+                    <td>Vm OF LAST DAY</td>
+                    <td>SM3</td>
+                    <td>Staff</td>
+                    <td><span class="label label-success">Active</span></td>                                        
+                </tr>                                  
+              </tbody>
+            </table>
+        </div>
+	</div>
+	<hr>
+	<div class="row">
+		<div class="col-md-2">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">SDV 6101 OPEN</h3>
+					<span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+				</div>
+				<div class="panel-body panel-body-1">
+					<div style="text-align: center;">
+						<div class="light"></div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">SDV 6101 CLOSE</h3>
+					<span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+				</div>
+				<div class="panel-body panel-body-1">
+					<div style="text-align: center;">
+						<div class="light"></div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">SV 6101</h3>
+					<span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+				</div>
+				<div class="panel-body panel-body-1">
+					<div style="text-align: center;">
+						<div class="light"></div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">BEACON</h3>
+					<span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+				</div>
+				<div class="panel-body panel-body-1">
+					<div style="text-align: center;">
+						<div class="light"></div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-2">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h3 class="panel-title">HORN ALARM</h3>
+					<span class="pull-right clickable"><i class="glyphicon glyphicon-chevron-up"></i></span>
+				</div>
+				<div class="panel-body panel-body-1">
+					<div style="text-align: center;">
+						<div class="light"></div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4 mb-3 col-sm-6">			
+		</div>		
+	</div>
+
+	<div class="row">
+		<div class="col-md-2">
+			<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#sdv6101open">
+			  OPEN SDV 6101
+			</button>
+
+			<!-- Modal -->
+			<div class="modal fade" id="sdv6101open" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalLabel">Please confirm</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">×</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			        Open SDV-6101
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+			        <button type="button" class="btn btn-primary" data-dismiss="modal">Send</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+		</div>
+    <div class="col-md-2">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#resetAlarm">
+        RESET ALARM
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="resetAlarm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Please confirm</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              RESET ALARM
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mosGasDetector">
+        MOS GAS DETECTOR
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="mosGasDetector" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Please confirm</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Maintenance Overide Service - Gas detector
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#mosMAC">
+        MOS - MAC
+      </button>
+
+      <!-- Modal -->
+      <div class="modal fade" id="mosMAC" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Please confirm</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              Maintenance Overide Service - MAC
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+	</div>
+</div>
+<% script('/js/detail.js') -%>
+<script type="text/javascript">
+	var socket = io("http://localhost:3001");
+    socket.emit('thongbao','hello');
+    socket.on('data', function(msg){
+      	// document.getElementById("Uab").innerHTML = msg.Uab ;
+      	// document.getElementById("Ubc").innerHTML = msg.Ubc ;
+      	// document.getElementById("Uca").innerHTML = msg.Uca ;
+      	// document.getElementById("Iab").innerHTML = msg.Iab ;
+      	// document.getElementById("Ibc").innerHTML = msg.Ibc ;
+      	// document.getElementById("Ica").innerHTML = msg.Ica ;
+      	// document.getElementById("Cosphi").innerHTML = msg.Cosphi ;
+      	// document.getElementById("Hz").innerHTML = msg.Hz ;
+      	// document.getElementById("Kwh_Day").innerHTML = msg.Kwh_Day ;
+      	// document.getElementById("Kwh_Total").innerHTML = msg.Kwh_Total ;
+      	// document.getElementById("Timestamp").innerHTML = formatDate(new Date());
+      	console.log(msg);
+      	// gauge.set(msg.Uab);
+      	// document.getElementById("preview-textfield").innerHTML = msg.Uab + " V";
+
+    });
+
+
+    function formatDate(date) {
+	  var monthNames = [
+	    "January", "February", "March",
+	    "April", "May", "June", "July",
+	    "August", "September", "October",
+	    "November", "December"
+	  ];
+
+	  var day = date.getDate();
+	  var monthIndex = date.getMonth();
+	  var year = date.getFullYear();
+	  var hour = date.getHours();
+	  var minute = date.getMinutes();
+	  var second = date.getSeconds();
+
+	  return day + ' ' + monthNames[monthIndex] + ' ' + year + ' ' + hour + ':' + minute +  ':' +second;
+	}
+
+</script>
+<script type="text/javascript">
+  // var station_measurements = ["Temperature", "Pressure"]
+  // station_measurements.forEach(myFunction)
+  // function myFunction(item, index) {
+  //   document.getElementById(item).innerHTML = item; 
+  // }
+
+
+</script>
+
+
+<script type="text/javascript">
+  function httpGetAsync(theUrl, callback)
+  {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+  }
+
+  httpGetAsync("http://localhost:3000/api/station_measurements", function(result){
+    var stations1 = JSON.parse(result);
+    console.log(typeof (stations1))
+    stations1.forEach(function(res){
+      console.log(res.measurement)
+      document.getElementById(res.measurement).innerHTML = res.measurement; 
+      
+    })
+  
+  })
+
+  function myFunction(item, index) {
+    // document.getElementById(item).innerHTML = item; 
+    console.log(item)
+  }
+
+</script>

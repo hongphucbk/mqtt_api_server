@@ -1,0 +1,180 @@
+<% layout('../layout/index') %>
+<% block('css', `
+	
+  <!-- DataTables -->
+  <link rel="stylesheet" href="/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+
+`) %>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <h1>
+    Data Information
+    <small></small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="admin/station-para/<%= station._id %>"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Station</li>
+  </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+	<div class="panel-heading">
+		Các thông số của trạm
+		<!-- <span style="float: right;"><a href="/admin/station/add">Add new station</a></span> -->
+	</div>
+	<div class="row">
+	  <div class="col-xs-12">
+	    <div class="box">
+	      <div class="box-header">
+	        <h3 class="box-title">Station <span id="station_name"><%= station.name %></span></h3>
+	        <input hidden="" type="text" name="" id="station_obj_id" value="<%= station.id %>">
+	        <p  style="float: right; color: red"><span class="label label-success" id="notify"></span></p>
+	      </div>
+	      <!-- /.box-header -->
+	      <div class="box-body">
+	        	<table id="table1" class="table table-bordered table-striped">
+						  <thead>
+						    <tr>
+						      <th scope="col" style="width: 5%">#</th>
+						      <th scope="col" style="width: 20%">Name</th>
+						      <th scope="col" style="width: 20%">Value</th>
+						      <th scope="col" style="width: 20%">Time</th>
+						      <th scope="col" style="">Infos</th>
+						      <!-- <th scope="col">Note</th> -->
+						      <!-- <th scope="col">Action</th> -->
+						    </tr>
+						  </thead>
+						  <tbody>
+						    <script type="text/javascript">
+						    	var i = 1;
+						    </script>
+						    <% station_paras.forEach(function(station_para) { %>
+						    	<tr>
+							    	<td>
+							    		<script type="text/javascript">
+									    	document.write(i);
+									    	i = i + 1;
+									    </script>
+									</td>
+									<td id="<%= station_para.parameter.code %>"> <%= station_para.parameter.name %> </td>
+									<td id="<%= station.name %>_<%= station_para.maptag %>"></td>
+									<td class="<%= station.name %>_timestamp"></td>
+									<td> <%= station.information %> </td>
+									<!-- <td> <%= station.note %> </td>
+									<td class="text-center">
+										<a class='btn btn-info btn-xs' href="/admin/station/edit/<%= station.id %>">
+											<span class="glyphicon glyphicon-edit"></span>Edit</a>
+										<a href="/admin/station/delete/<%= station.id %>" class="btn btn-danger btn-xs">
+											<span class="glyphicon glyphicon-remove"></span>Del</a>
+									</td> -->
+								</tr>	
+						    <% }); %>
+
+						  </tbody>
+						</table>
+	      </div>
+	      <!-- /.box-body -->
+	    </div>
+	    <!-- /.box -->
+	  </div>
+	  <!-- /.col -->
+	</div>
+
+</section>
+
+
+
+<% block('script', `
+
+
+
+
+`) -%>
+
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+<script type="text/javascript">
+	var station_name = $('#station_name').text();
+	var station_obj_id = $('#station_obj_id').val();
+	
+	console.log(`Welcome to ` + station_name + ' station')
+</script>
+<script type="text/javascript">
+	var parameters;
+</script>
+<script type="text/javascript">
+  $.ajax({
+    url: '/api/parameter',
+    method: 'post',
+    data: {station_id: station_obj_id}
+    }).done(function(res) {
+      if (true) {
+        console.log(res);
+        parameters = res;
+      } else {
+          console.log('error...ajax');
+      }
+  });
+</script>
+
+<script type="text/javascript">
+  //var socket = io("http://127.0.0.1:3710");
+  var socket = io("http://14.225.11.51:3710");
+  socket.on("data_info", function(data){
+  	document.getElementById("notify").innerHTML = "Đã kết nối đến server thành công";
+    console.log(data);
+    console.log("data.station = " + data.station + ", station_name = " + station_name)
+    if (station_name == data.station) {
+    	// document.getElementById(station_id + "_tag1").innerHTML = data.value.tag1;
+    	// document.getElementById(station_id + "_tag2").innerHTML = data.value.tag2;
+    	// document.getElementById(station_id + "_tag3").innerHTML = data.value.tag3;
+    	parameters.forEach( function(parameter){
+    		console.log(parameter )
+    		//console.log(data.value.find( tag => tag.name === parameter.maptag))
+    		if(data.value.find( tag => tag.tag === parameter.maptag)){
+    			document.getElementById(station_name + "_" + parameter.maptag).innerHTML = data.value.find( tag => tag.tag === parameter.maptag).value;
+    		}
+    	})
+
+    	var date = new Date(data.timestamp);
+			console.log(date.toString() )
+    	var items = document.getElementsByClassName(station_name+"_timestamp"), i, len;
+			// loop through all elements having class name ".my-class"
+			for (i = 0, len = items.length; i < len; i++) {
+			    items[i].innerHTML = date.toLocaleString();
+			}
+
+			// "Wed Jun 29 2011 09:52:48 GMT-0700 (PDT)"
+
+    }
+
+  //   var person = {firstName:"John", lastName:"Doe", age:46};
+		// console.log(person["firstName"]);
+    // parameters.forEach( function(parameter){
+    // 	if (station_id == data.station) {
+
+
+    // 	}
+    // 		console.log("haha--")
+    // })
+    
+  })
+ //  socket.on('error', function (err) {
+ //    console.log("Không có kết nối đến Server");
+	// });
+
+ //  socket.on("connect_failed", function() {
+ //  	console.log("Không có kết nối đến Server connect failed");
+ //  })
+
+  socket.io.on("connect_error", function(err) {
+  	console.log("Không có kết nối đến Server " + err)
+  	document.getElementById("notify").innerHTML = "Không có kết nối đến Broker Server";
+
+  })
+
+</script>
+

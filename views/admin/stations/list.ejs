@@ -1,0 +1,98 @@
+<% layout('../layout/index') %>
+<% block('css', `
+	
+  
+
+`) %>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+  <h1>
+    Stations
+    <small>List</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Station</li>
+  </ol>
+</section>
+
+<!-- Main content -->
+<section class="content container-fluid">
+	<div class="panel-heading">
+		All Station
+		<span style="float: right;"><a href="/admin/station/add">Add new station</a></span>
+	</div>
+	<div class="row">
+	  <div class="col-xs-12">
+	    <div class="box">
+	      <div class="box-header">
+	        <h3 class="box-title">Station list</h3>
+	      </div>
+	      <!-- /.box-header -->
+	      <div class="box-body">
+	        	<table id="table1" class="table table-bordered table-striped">
+						  <thead>
+						    <tr>
+						      <th scope="col">#</th>
+						      <th scope="col">Name</th>
+						      <th scope="col">Description</th>
+						      <th scope="col">Addr</th>
+						      <th scope="col">Infos</th>
+						      <th scope="col">Active</th>
+						      <th scope="col">Priority</th>
+						      <th scope="col">Note</th>
+						      <th scope="col">Action</th>
+						    </tr>
+						  </thead>
+						  <tbody>
+						    <script type="text/javascript">
+						    	var i = 1;
+						    </script>
+						    <% stations.forEach(function(station) { %>
+						    	<tr>
+							    	<td>
+							    		<script type="text/javascript">
+									    	document.write(i);
+									    	i = i + 1;
+									    </script>
+									</td>
+									<td> <%= station.name %> </td>
+									<td> <%= station.description %> </td>
+									<td> <%= station.address %> </td>
+									<td> <%= station.information %> </td>
+									<td> <%= station.active %> </td>
+									<td> <%= station.priority %> </td>
+									<td> <%= station.note %> </td>
+									<td class="text-center">
+										<a class='btn btn-info btn-xs' href="/admin/station/edit/<%= station.id %>">
+											<span class="glyphicon glyphicon-edit"></span>Edit</a>
+
+										<% if(user.role >= 2){ %>
+										<a href="/admin/station/delete/<%= station.id %>" class="btn btn-danger btn-xs">
+											<span class="glyphicon glyphicon-remove"></span>Del</a>
+										<%}%>
+									</td>
+								</tr>	
+						    <% }); %>
+
+						  </tbody>
+						</table>
+	      </div>
+	      <!-- /.box-body -->
+	    </div>
+	    <!-- /.box -->
+	  </div>
+	  <!-- /.col -->
+	</div>
+
+</section>
+
+
+
+<% block('script', `
+
+
+
+`) -%>
+

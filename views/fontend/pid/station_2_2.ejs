@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>DKG | <%= station.description %></title>
+
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/2.1.2/go.js"></script>
+
+  <link rel="stylesheet" href="/fontend/style/style.css">
+  <link rel="stylesheet" href="/fontend/style/seah_metering_station_2_2.css">
+</head>
+
+<body>
+  <div id="wrapper" class="container-fluid">
+    <div id="title">
+      SEAH METERING STATION
+    </div>
+    
+    <div class="row container-fluid" id="graph-wrapper">
+      <div class="row" id="table_note">
+        <div class="col-7 col-sm-7 col-md-7 col-lg-7 col-xl-7">
+        </div>
+        <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+          <div class="row">
+            <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+              <table class="table-note-1">
+                <tbody>
+                  <tr>
+                    <th class="title-note-1">GD-</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        ...
+                      </div>
+                    </th>
+                    <th>%</th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">GD-</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        ...
+                      </div>
+                    </th>
+                    <th>%</th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">HR-</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        ...
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">BC-</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        ...
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">MAC-</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        ...
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-7 col-sm-7 col-md-7 col-lg-7 col-xl-7">
+              <table class="table-note-2">
+                <thead>
+                  <tr>
+                    <th colspan="2" class="title-table-2">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody class="body-note-2">
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-purple">
+  
+                      </div>
+                    </th>
+                    <th>Gas 20%</th>
+                  </tr>
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-green">
+  
+                      </div>
+                    </th>
+                    <th>Normal</th>
+                  </tr>
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-orange">
+  
+                      </div>
+                    </th>
+                    <th>Alarm or gas 60%</th>
+                  </tr>
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-blue">
+  
+                      </div>
+                    </th>
+                    <th>Abnormal</th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="table-anotation-big" id="anotation-1">
+        <tbody>
+          <tr>
+            <th class="title-anotation-big">EVF-</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                ...
+              </div>
+            </th>
+            <th>MMbtu/Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">SVF-</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                ...
+              </div>
+            </th>
+            <th>Sm<sup>3</sup>Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">HR-</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                ...
+              </div>
+            </th>
+            <th>M<sup>3</sup>Hr</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-3">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">PT-</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                ...
+              </div>
+            </th>
+            <th>Bar</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-5">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">TT-</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                ...
+              </div>
+            </th>
+            <th><sup>0</sup>C</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-big" id="anotation-2">
+        <tbody>
+          <tr>
+            <th class="title-anotation-big">EVF-</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                ...
+              </div>
+            </th>
+            <th>MMbtu/Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">SVF-</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                ...
+              </div>
+            </th>
+            <th>Sm<sup>3</sup>Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">HR-</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                ...
+              </div>
+            </th>
+            <th>M<sup>3</sup>Hr</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-4">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">PT-</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                ...
+              </div>
+            </th>
+            <th>Bar</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-6">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">TT-</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                ...
+              </div>
+            </th>
+            <th><sup>0</sup>C</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <img id="main_image" class="image-style" src="" />
+
+      <table class="table-anotation-small" id="anotation-7">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">PT-</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                ...
+              </div>
+            </th>
+            <th>Bar</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row">
+      <a class="bottom-button" href="./index.html">
+        OVERVIEW
+      </a>
+      <div class="bottom-button">
+        EVENT
+      </div>
+      <div class="bottom-button">
+        TREND
+      </div>
+      <div class="bottom-button">
+        ALARM
+      </div>
+      <div class="bottom-button">
+        REPORT
+      </div>
+      <div class="bottom-button">
+        F&G
+      </div>
+      <div class="bottom-button">
+        DATA COLLECTION
+      </div>
+    </div>
+  </div>
+  <script>
+    const open = true;
+    if (open === true) {
+      document.getElementById("main_image").setAttribute("src", "./material/image/2_branch_2_SDV_green.jpg");
+    } else {
+      document.getElementById("main_image").setAttribute("src", "./material/image/2_branch_2_SDV_red.jpg");
+    }
+  </script>
+</body>
+
+</html>

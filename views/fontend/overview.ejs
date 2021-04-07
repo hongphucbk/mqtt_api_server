@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DK GAS | Overview</title>
+
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/2.1.2/go.js"></script>
+  <link rel="stylesheet" href="fontend/style/style.css">
+  <link rel="stylesheet" href="fontend/style/overview.css">
+</head>
+
+<body>
+  <div id="wrapper" class="container-fluid">
+    <div id="title">
+      OVERVIEW
+    </div>
+    <div id="table_content">
+      <table class="table">
+        <thead>
+          <tr>
+            <th rowspan="2" class="center-cell">LGDS DKENT</th>
+            <th colspan="3">CUSTOMER STATION</th>
+          </tr>
+          <tr>
+            <th>P&ID</th>
+            <th>METERING SYSTEM</th>
+            <th>CAUSE AND EFFECT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="first-column">
+              <a target="_blank" href="/process-flow-diagram">
+                <div class="large-button">
+                  PROCESS FLOW DIAGRAM
+                </div>
+              </a>
+              <a target="_blank" href="pid/<%= main_station.id %>">
+                <div class="large-button">
+                  PIPING AND INSTRUMENT DIAGRAM
+                </div>
+              </a>
+              <a target="_blank" href="/outlet">
+                <div class="large-button">
+                  LGDS OUTLET
+                </div>
+              </a>
+              <a target="_blank" href="metering/<%= main_station.id %>">
+                <div class="large-button">
+                  LGDS METERING
+                </div>
+              </a>
+              <a target="_blank" href="/gc_data/<%= main_station.id %>">
+                <div class="large-button">
+                  GC DATA
+                </div>
+              </a>
+            </th>
+            <!-- P&ID -->
+            <td>
+              <% stations.forEach(function(station) { %>
+                <a target="_blank" href="pid/<%= station.id %>">
+                  <div class="small-button">
+                    <%= station.name %>
+                  </div>
+                </a>
+              <% }) %> 
+            </td>
+
+            <!-- METERING SYSTEM   -->
+            <td>
+              <% stations.forEach(function(station) { %>
+                <a target="_blank" href="metering/<%= station.id %>">
+                  <div class="small-button">
+                    <%= station.name %>
+                  </div>
+                </a>
+              <% }) %>
+            </td>
+
+            <td>
+              <div class="small-button">
+                SEAH STEEL STATION
+              </div>
+              <div class="small-button">
+                SINOMA SCIENCE STATION
+              </div>
+              <div class="small-button">
+                AMERICA/EFIRD STATION
+              </div>
+              <div class="small-button">
+                LICHENG STATION
+              </div>
+              <div class="small-button">
+                OT MOTOR/WONTAE STATION
+              </div>
+              <div class="small-button">
+                THE HOA STATION
+              </div>
+              <div class="small-button">
+                SAI-TEX STATION
+              </div>
+              <div class="small-button">
+                SOUTH BASIC CHEMICAL STATION
+              </div>
+              <div class="small-button">
+                SAM YANG STATION
+              </div>
+              <div class="small-button">
+                MCVN MDS STATION
+              </div>
+              <a target="_blank" href="./seah_metering_station_2_1.html">
+                <div class="small-button">
+                  KCC STATION
+                </div>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <% include layout/footer %>
+</body>
+
+</html>

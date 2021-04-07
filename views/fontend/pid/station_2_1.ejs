@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>DKG | <%= station.description %> </title>
+
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/2.1.2/go.js"></script>
+
+  <link rel="stylesheet" href="/fontend/style/style.css">
+  <link rel="stylesheet" href="/fontend/style/seah_metering_station_2_1.css">
+  <style type="text/css">
+    .data-border, .anotation-big-data-border, .anotation-small-data-border{
+      text-align: right
+    }
+
+    .data-value{
+      margin-right: 4px;
+    }
+    
+  </style>
+</head>
+
+<body>
+  <div id="wrapper" class="container-fluid">
+    <div id="title" style="padding-bottom: 1px !important">
+      <%= station.description %> P&ID
+    </div>
+    <input type="hidden" name="station_name" value="<%= station.name %>">
+    <div id="notify" style="color: white; float: right;"></div>
+    <div id="current-time"></div>
+    <input hidden="" type="text" name="" id="station_name" value="<%= station.name %>">
+    
+    <div class="row container-fluid" id="graph-wrapper">
+      <div class="row" id="table_note">
+        <div class="col-7 col-sm-7 col-md-7 col-lg-7 col-xl-7">
+        </div>
+        <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+          <div class="row">
+            <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+              <table class="table-note-1">
+                <tbody>
+                  <tr>
+                    <th class="title-note-1">GD1</th>
+                    <th class="data-note-1">
+                      <div class="data-border" id="<%= station.name %>_GD1_border">
+                        <span class="data-value" id="<%= station.name %>_GD1">...</span>
+                      </div>
+                    </th>
+                    <th>%</th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">GD2</th>
+                    <th class="data-note-1">
+                      <div class="data-border" id="<%= station.name %>_GD2_border">
+                        <span class="data-value" id="<%= station.name %>_GD2">...</span>
+                      </div>
+                    </th>
+                    <th>%</th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">HR</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        <span class="data-value" id="<%= station.name %>_HR">...</span>
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">BC</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        <span class="data-value" id="<%= station.name %>_BC">...</span>
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">MAC</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        <span class="data-value" id="<%= station.name %>_MAC">...</span>
+                      </div>
+                    </th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <th class="title-note-1">PT 3</th>
+                    <th class="data-note-1">
+                      <div class="data-border">
+                        <span class="data-value" id="<%= station.name %>_PT3">...</span>
+                      </div>
+                    </th>
+                    <th>Bar</th>
+                    <th></th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-7 col-sm-7 col-md-7 col-lg-7 col-xl-7">
+              <table class="table-note-2">
+                <thead>
+                  <tr>
+                    <th colspan="2" class="title-table-2">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody class="body-note-2">
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-purple">
+  
+                      </div>
+                    </th>
+                    <th>Gas 20%</th>
+                  </tr>
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-green">
+  
+                      </div>
+                    </th>
+                    <th>Normal</th>
+                  </tr>
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-orange">
+  
+                      </div>
+                    </th>
+                    <th>Alarm or gas 60%</th>
+                  </tr>
+                  <tr>
+                    <th class="col-1-note-2">
+                      <div class="bkg-blue">
+  
+                      </div>
+                    </th>
+                    <th>Abnormal</th>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <table class="table-anotation-big" id="anotation-1">
+        <tbody>
+          <tr>
+            <th class="title-anotation-big">EVF-1</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                <span class="data-value" id="<%= station.name %>_EVF1">...</span>
+              </div>
+            </th>
+            <th>MMbtu/Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">SVF-1</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                <span class="data-value" id="<%= station.name %>_SVF1">...</span>
+              </div>
+            </th>
+            <th>Sm<sup>3</sup>Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">GVF-1</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                <span class="data-value" id="<%= station.name %>_GVF1">...</span>
+              </div>
+            </th>
+            <th>M<sup>3</sup>Hr</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-3">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">PT-1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                <span class="data-value" id="<%= station.name %>_PT1">...</span>
+              </div>
+            </th>
+            <th>Bar</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-5">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">TT-1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                <span class="data-value" id="<%= station.name %>_TT1">...</span>
+              </div>
+            </th>
+            <th><sup>0</sup>C</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-big" id="anotation-2">
+        <tbody>
+          <tr>
+            <th class="title-anotation-big">EVF-2</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                <span class="data-value" id="<%= station.name %>_EVF2">...</span>
+              </div>
+            </th>
+            <th>MMbtu/Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">SVF-2</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                <span class="data-value" id="<%= station.name %>_SVF2">...</span>
+              </div>
+            </th>
+            <th>Sm<sup>3</sup>Hr</th>
+          </tr>
+          <tr>
+            <th class="title-anotation-big">GVF-2</th>
+            <th class="data-anotation-big">
+              <div class="anotation-big-data-border">
+                <span class="data-value" id="<%= station.name %>_GVF2">...</span>
+              </div>
+            </th>
+            <th>M<sup>3</sup>Hr</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-4">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">PT-2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                <span class="data-value" id="<%= station.name %>_PT2">...</span>
+              </div>
+            </th>
+            <th>Bar</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="table-anotation-small" id="anotation-6">
+        <thead>
+          <tr>
+            <th class="title-anotation-small-table">TT-2</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="data-anotation-small-1">
+              <div class="anotation-small-data-border">
+                <span class="data-value" id="<%= station.name %>_TT2">...</span>
+              </div>
+            </th>
+            <th><sup>0</sup>C</th>
+          </tr>
+        </tbody>
+      </table>
+
+      <img id="main_image" class="image-style" src="" />
+    </div>
+
+    <!-- Footer -->
+    <% include ../layout/footer %>
+
+  </div>
+  <script>
+    const open = true;
+    if (open === true) {
+      document.getElementById("main_image").setAttribute("src", "/fontend/material/image/s_2_1-compressed.jpg");
+    } else {
+      document.getElementById("main_image").setAttribute("src", "/fontend/material/image/2_branch_1_SDV_red.jpg");
+    }
+  </script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment-with-locales.min.js" integrity="sha512-qSnlnyh7EcD3vTqRoSP4LYsy2yVuqqmnkM9tW4dWo6xvAoxuVXyM36qZK54fyCmHoY1iKi9FJAUZrlPqmGNXFw==" crossorigin="anonymous"></script>
+
+  <script type="text/javascript">
+    var allTags = [];
+    $.ajax({
+      url: '/api/pid_interface',
+      method: 'get',
+      //data: {"station_id": station_obj_id}
+      }).done(function(res) {
+        if (true) {
+          //console.log(res);
+          allTags = res;
+        } else {
+          console.log('error...ajax');
+        }
+    });
+  </script>
+
+  <script type="text/javascript">
+    var station_name = $('#station_name').val();
+    var socket = io("http://14.225.11.51:3710");
+    socket.on('connect', ()=>{
+      document.getElementById("notify").innerHTML = "Connected to server";
+    })
+    socket.on("data_info", function(data){
+      //console.log(data);
+      
+      if (station_name == data.station) {
+        document.getElementById("current-time").innerHTML = moment().format('dddd, MMMM DD YYYY, h:mm:ss');
+
+        allTags.forEach( function(parameter){
+          //console.log(data.value.find( tag => tag.name === parameter.maptag))
+          if(data.value.find( tag => tag.tag === parameter.name)){
+            var vl = data.value.find( tag => tag.tag === parameter.name).value;
+
+            document.getElementById(station_name + "_" + parameter.name).innerHTML = vl;
+
+            if (parameter.isBgColor) {
+              var elem = document.querySelector('#'+ station_name+ '_' + parameter.name+ '_border');
+              var bg_cl = '#0bfc03';
+              if (vl >= 20 && vl < 60) {
+                bg_cl = '#ad03fc';
+              }
+              else if(vl >= 60) {
+                bg_cl = '#fc6f03'; 
+              }else{
+
+              }
+              // Set the background color to a light gray
+              elem.style.backgroundColor = bg_cl;
+
+            }
+          }
+        })
+
+
+        var date = new Date(data.timestamp);
+        console.log(date.toString() )
+        var items = document.getElementsByClassName(station_name+"_timestamp"), i, len;
+        // loop through all elements having class name ".my-class"
+        for (i = 0, len = items.length; i < len; i++) {
+            items[i].innerHTML = date.toLocaleString();
+        }
+
+        // "Wed Jun 29 2011 09:52:48 GMT-0700 (PDT)"
+
+      }
+      
+    })
+
+
+    socket.io.on("connect_error", function(err) {
+      console.log("Không có kết nối đến Server " + err)
+      document.getElementById("notify").innerHTML = "Không có kết nối đến Broker Server";
+
+    })
+
+  </script>
+</body>
+
+</html>

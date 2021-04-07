@@ -1,0 +1,100 @@
+<div class="row">
+	<!-- uncomment code for absolute positioning tweek see top comment in css -->
+	<div class="absolute-wrapper"> </div>
+	<!-- Menu -->
+	<div class="side-menu">
+		<nav class="navbar navbar-default" role="navigation">
+			<!-- Main Menu -->
+			<div class="side-menu-container">
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="#"><span class="glyphicon glyphicon-dashboard"></span> Dashboard</a></li>
+					<!-- Dropdown User-->
+					<li class="panel panel-default" id="dropdown">
+						<a data-toggle="collapse" href="#dropdown-lvl1">
+							<span class="glyphicon glyphicon-user"></span> User <span class="caret"></span>
+						</a>
+
+						<!-- Dropdown level 1 -->
+						<div id="dropdown-lvl1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<ul class="nav navbar-nav">
+									<li><a href="/users">List</a></li>
+									<li><a href="/users/add">Add</a></li>
+								</ul>
+							</div>
+						</div>
+					</li>
+					<!-- Station -->
+					<li class="panel panel-default" id="dropdown">
+						<a data-toggle="collapse" href="#dropdown-station-lvl1">
+							<span class="glyphicon glyphicon-stats"></span> Station <span class="caret"></span>
+						</a>
+
+						<!-- Dropdown level 1 -->
+						<div id="dropdown-station-lvl1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<ul class="nav navbar-nav">
+									<li><a href="/station">List</a></li>
+									<li><a href="/station/add">Add</a></li>									
+								</ul>
+							</div>
+						</div>
+					</li>
+					<!-- Measurement -->
+					<li class="panel panel-default" id="dropdown">
+						<a data-toggle="collapse" href="#dropdown-measurement-lvl1">
+							<span class="glyphicon glyphicon-stats"></span> Measurement <span class="caret"></span>
+						</a>
+
+						<!-- Dropdown level 1 -->
+						<div id="dropdown-measurement-lvl1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<ul class="nav navbar-nav">
+									<li><a href="/measurement">List</a></li>
+									<li><a href="/measurement/add">Add</a></li>									
+								</ul>
+							</div>
+						</div>
+					</li>
+					<!-- Station - Measurement -->
+					<li class="panel panel-default" id="dropdown">
+						<a data-toggle="collapse" href="#dropdown-station-measurement-lvl1">
+							<span class="glyphicon glyphicon-stats"></span> Config <span class="caret"></span>
+						</a>
+
+						<!-- Dropdown level 1 -->
+						<div id="dropdown-station-measurement-lvl1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<ul class="nav navbar-nav">
+									<li><a href="/station_measurement">List</a></li>
+									<li><a href="/station_measurement/add">Add</a></li>									
+								</ul>
+							</div>
+						</div>
+					</li>
+					<!-- Overall -->
+					<li class="panel panel-default" id="dropdown">
+						<a data-toggle="collapse" href="#dropdown-overview-lvl1">
+							<span class="glyphicon glyphicon-home"></span> Overall <span class="caret"></span>
+						</a>
+
+						<!-- Dropdown level 1 -->
+						<div id="dropdown-overview-lvl1" class="panel-collapse collapse">
+							<div class="panel-body">
+								<ul class="nav navbar-nav">
+									<li><a href="/overview">Overall</a></li>
+									<li><a href="/station/add">Add</a></li>									
+								</ul>
+							</div>
+						</div>
+					</li>
+
+					
+
+
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</nav>
+
+	</div>
+</div> 

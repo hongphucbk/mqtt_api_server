@@ -1,0 +1,99 @@
+body {
+  font-family: "Gothic Regular", sans-serif;
+  font-size: 10px;
+}
+
+div#wrapper {
+  width: 100%;
+  height: auto;
+}
+
+div#title {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  font-size: 36px;
+  height: auto;
+  padding: 16px 0;
+  color: #000000;
+}
+
+.image-style {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+div#graph-wrapper {
+  position: relative;
+}
+
+table.table-anotation-big {
+  background-color: #FFFFFF;
+  width: 180px;
+  position: absolute;
+}
+
+th.data-anotation-big {
+  width: 40%;
+  padding: 2px;
+}
+
+div.anotation-big-data-border {
+  background-color: #01ffff;
+}
+
+table#anotation-1 {
+  top: 1%;
+  right: 1%;
+}
+
+table#anotation-2 {
+  top: 9%;
+  right: 1%;
+}
+
+table#anotation-3 {
+  top: 17%;
+  right: 1%;
+}
+
+table#anotation-4 {
+  top: 25%;
+  right: 1%;
+}
+
+table#anotation-5 {
+  top: 34%;
+  right: 1%;
+}
+
+table#anotation-6 {
+  top: 42%;
+  right: 1%;
+}
+
+table#anotation-7 {
+  top: 51%;
+  right: 1%;
+}
+
+table#anotation-8 {
+  top: 60%;
+  right: 1%;
+}
+
+table#anotation-9 {
+  top: 70%;
+  right: 1%;
+}
+
+table#anotation-10 {
+  top: 79%;
+  right: 1%;
+}
+
+table#anotation-11 {
+  top: 88%;
+  right: 1%;
+}

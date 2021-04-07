@@ -1,0 +1,39 @@
+<% layout('../layout/index') %>
+
+<% stylesheet('/css/overview.css') -%>
+
+<div class="panel-heading">
+	Overview
+</div>
+<div class="panel-body" style="min-height: 500px; background-color: rgb(98, 158, 158);">
+	<div class="main">
+		<div class="area">
+			<div class="parent">TRẠM LGDS</div>
+		</div>
+		<div class="area"></div>
+		<div class="area-space"></div>
+		<div class="area">
+			<% stations.forEach(function(station) { %>
+				<a href="/overview/detail/<%= station.id %>">
+					<div class="station"><%= station.description %></div>
+				</a>
+			<% }); %>	
+		</div>
+		<div class="area-space"></div>
+		<div class="area">
+			<% stations.forEach(function(station) { %>
+				<div class="station-text">
+					EVF: <span class="label label-primary">11235.2</span> MMbtu/Hr<br>
+					SVF: <span class="label label-primary">11235.2</span> SM3/Hr<br>
+					GVF: <span class="label label-primary">11235.2</span> SM3/Hr<br>
+				</div>
+			<% }); %>	
+		</div>
+
+		
+	</div>
+	
+
+
+</div>
+

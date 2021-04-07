@@ -1,0 +1,85 @@
+@font-face {
+  font-family: "Gothic Regular";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Century Gothic Regular"),
+    url("../material/font/GOTHIC.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Gothic Italic";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Century Gothic Italic"),
+    url("../material/font/GOTHICI.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Gothic Bold";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Century Gothic Bold"),
+    url("../material/font/GOTHICB.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Gothic Bold Italic";
+  font-style: normal;
+  font-weight: normal;
+  src: local("Century Gothic Bold Italic"),
+    url("../material/font/GOTHICBI.woff") format("woff");
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+html,
+body {
+  font-family: "Gothic Regular", sans-serif;
+  font-size: 100%;
+  background: #629e9e;
+  width: 100%;
+  height: auto;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+div#wrapper {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.bottom-button {
+  font-family: "Gothic Regular", sans-serif;
+  font-size: 14px;
+  margin: 10px auto;
+  padding: 10px;
+  width: 13%;
+  text-align: center;
+  
+  background-color: #bbb;
+  font-weight: bold;  
+  border: solid 5px #000;
+
+  border-width: 0 4px 5px 0;
+  border-radius: 5px;
+  border-color: transparent #ddd #999 transparent;
+  background-clip: padding-box;
+  text-decoration: none;
+  color: #000000;
+}
+
+.bottom-button:hover{
+  border-width: 0 2px 3px 0; 
+  margin-right: 4px;
+  position: relative;
+  left: 2px;
+  top: 3px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #000000;
+}

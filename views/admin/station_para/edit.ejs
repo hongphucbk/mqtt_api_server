@@ -1,0 +1,69 @@
+<% layout('../layout/index') %>
+
+<div class="panel-heading">
+	Role Edit: <%= station.name %>
+	<span style="float: right;"><a href="/admin/station-para">Home</a></span>
+</div>
+<div class="panel-body">
+
+<form method="post" action="/admin/station-para/<%= station._id %>/edit/<%= station_para._id %>">
+  <div class="form-row">
+    <div class="col-md-2 mb-3">
+      <label>Station</label>
+      <input type="text" class="form-control" name="station" placeholder="Station..."
+        value="<%= station.name %>" readonly >
+    </div>
+    <div class="col-md-2 mb-3">
+      <label>Station</label>
+      <select class="form-control" name="station_id">
+          <option value="<%= station._id %>" selected><%= station.name %></option>
+      </select>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <label>Parameter</label>
+      <select class="form-control" name="parameter_id">
+        <% parameters.forEach(function(para) { %>
+          <% if ( !station_paras.find( ({ parameter }) => parameter.toString() === para._id.toString()  ) || 1) { %>
+            <option value="<%= para._id %>" 
+              <% if (para._id.toString() === station_para.parameter.toString()) { %>
+                selected=""
+              <% } %>
+              ><%= para.code %> - <%= para.name %></option>
+          <%}%>
+        <% }); %>
+      </select>
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Map Tag</label>
+      <input type="text" class="form-control" name="maptag" placeholder="Map Tag..."
+        value="<%= station_para.maptag %>" required>
+    </div>
+
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Priority</label>
+      <input type="text" class="form-control" name="priority" placeholder="Priority..."
+        value="<%= station_para.priority %>" >
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Active</label>
+      <input type="text" class="form-control" name="active" placeholder="Active..."
+        value="<%= station_para.active %>">
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Note</label>
+      <input type="text" class="form-control" name="note" placeholder="Note..."
+        value="<%= station_para.note %>" >
+    </div>
+   </div>
+    
+  <div class="form-row">
+    <div class="col-md-12 mb-3 col-sm-6">
+    <br>
+      <button class="btn btn-success" type="submit">Edit </button>
+    </div>
+  </div>
+ 
+</form>
+</div>
+
