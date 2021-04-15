@@ -5,7 +5,8 @@ var bodyParser = require('body-parser')
 
 const express = require('express')
 const app = express()
-const port = 5300;
+const port = process.env.PORT;
+
 
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
@@ -15,15 +16,13 @@ app.use((req, res, next) => {
   next()
 })
 
-var apiStationMeasurement = require('./api/routes/station_measurement.route');
-var apiParameter = require('./api/routes/parameter.route');
-var apiPidInterface = require('./api/routes/pid_interface.route');
+
 
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 
-app.use('/api/parameter', apiParameter);
-app.use('/api/pid_interface', apiPidInterface);
+//app.use('/api/parameter', apiParameter);
+//app.use('/api/pid_interface', apiPidInterface);
 
 const cookieParser = require('cookie-parser')
 app.use(cookieParser()) // use to read format cookie
@@ -35,23 +34,25 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.set('views', './views');
 
+app.use(express.json())
+
+
+
 //app.use(express.static(path.join(__dirname, 'public')));
 
 // Khai báo Router --------------------------------------------------
-var userRouter = require('./routes/user.route');
-var authRouter = require('./routes/auth.route');
-var stationRouter = require('./routes/station.route');
-var datainforRouter = require('./routes/datainfor.route');
-var parameterRouter = require('./routes/parameter.route');
-var stationParaRouter = require('./routes/station_para.route');
-var gcParaRouter = require('./routes/gc_parameter.route');
-var pidInterfaceRouter = require('./routes/pid_interface.route');
+const userRouter = require('./routes/user');
+const stationRouter = require('./routes/station');
+const deviceRouter = require('./routes/device');
 
-// var deviceRouter = require('./routes/device.route');
+app.use(userRouter)
+app.use(stationRouter)
+app.use(deviceRouter)
 
-var fontendRouter = require('./routes/fontend/fontend.route');
+//var authRouter = require('./routes/auth.route');
+//var stationRouter = require('./routes/station.route');
+//var datainforRouter = require('./routes/datainfor.route');
 
-// var emailRouter = require('./routes/email.route');
 
 //-------------------------------------------------------------------
 var mongoose = require('mongoose');
@@ -63,27 +64,27 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
 // }) 
 // Router -----------------------------------------------------------
 //app.use('/users', userRouter);
-app.use('/auth', authRouter);
+//app.use('/auth', authRouter);
 
 
 // app.use('/station_measurement', stationMeasurementRouter);
 // app.use('/device', deviceRouter);
-app.use('/', fontendRouter);
+// app.use('/', fontendRouter);
 
 // app.use('/email', emailRouter);
 
-app.group("/admin", (router) => {
-  router.use('/users', userRouter);
-  router.use('/station', stationRouter);
-  router.use('/datainfor', datainforRouter);
-  router.use('/parameter', parameterRouter);
-  router.use('/station-para', stationParaRouter);
-  router.use('/gc-parameter', gcParaRouter);
-  router.use('/pid-interface', pidInterfaceRouter);
-  //router.get("/users", loginController.store); // /api/v1/login 
-});
+// app.group("/admin", (router) => {
+//   //router.use('/users', userRouter);
+//   router.use('/station', stationRouter);
+//   router.use('/datainfor', datainforRouter);
+//   router.use('/parameter', parameterRouter);
+//   router.use('/station-para', stationParaRouter);
+//   router.use('/gc-parameter', gcParaRouter);
+//   router.use('/pid-interface', pidInterfaceRouter);
+//   //router.get("/users", loginController.store); // /api/v1/login 
+// });
 
-app.use('*', fontendRouter);
+//app.use('*', fontendRouter);
 
 //-------------------------------------------------------------------
 
@@ -131,3 +132,33 @@ app.listen(port, function(){
   //   .then(() => console.info('write point success'))
   //   .catch(console.error);
   // // https://vicanso.github.io/influxdb-nodejs/Client.html#findOneAndUpdate
+
+// Mqtt
+const mqtt = require('mqtt');
+var options = {
+    port: 5000,
+    host: 'mqtt://m11.cloudmqtt.com',
+    username: 'iot2021',
+    password: 'iot2021',
+};
+
+//var client = mqtt.connect('mqtt://m11.cloudmqtt.com', options);
+
+
+const client = mqtt.connect('mqtt://113.161.79.146', options );
+
+//exports.mqttClient = function() {
+const mqttClient = function() {
+    console.log("Connecting to MQTT Client");
+    client.on("connect", ack => {
+        console.log("MQTT Client Connected!");
+
+        client.on("message", (topic, message) => {
+            console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
+        });
+    });
+
+    client.on("error", err => {
+        console.log(err);
+    });
+}; // <-- semicolon added here
