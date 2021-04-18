@@ -20,11 +20,22 @@ const userSchema = mongoose.Schema({
             }
         }
     },
+    phone: {
+        type: String,
+        trim: true
+    },
+    role:{
+        type: String,
+        required: true,
+        unique: true,
+    },
     password: {
         type: String,
         required: true,
         minLength: 5
     },
+    stations: [{type: mongoose.Schema.Types.ObjectId, ref: 'Station'}],
+
     tokens: [{
         token: {
             type: String,

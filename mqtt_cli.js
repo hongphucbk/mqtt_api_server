@@ -9,6 +9,7 @@ var options = {
 };
 
 //var client = mqtt.connect('mqtt://m11.cloudmqtt.com', options);
+const DeviceData = require('./models/DeviceData')
 
 
 const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
@@ -20,8 +21,14 @@ client.on("connect", ack => {
   client.on("message", (topic, message) => {
     console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
 
-    let a = JSON.parse("{'value': 6000, 'unit': 'W', 'dataType': 'uint16', 'timeStamp': '2021-04-11 14:09:40.959970'} ") //JSON.parse(message.toString());
-    console.log(a)
+    let data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+    data.device = "607c3b277fafb40680689401"
+    data.paras = "power"
+    console.log(data)
+
+    let dt = new DeviceData(data)
+    dt.save();
+    //DeviceData.insertMany([data])
   });
 });
 

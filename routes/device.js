@@ -6,24 +6,28 @@ const auth = require('../middlewares/auth')
 
 const router = express.Router()
 
-router.post('/station/:station_id/device/add', auth, async (req, res) => {
+router.post('/device', auth, async (req, res) => {
     // Create a new device
-    let station_id = req.params.station_id;
+    //let station_id = req.params.station_id;
     //let id = req.body.id;
-    console.log(station_id)
+    //console.log(station_id)
     //let station = await Station.findOne({ _id: station_id });
-
     try {
         const device = new Device(req.body)
 
-        device.station =  mongoose.Types.ObjectId(station_id)
+        //device.station =  mongoose.Types.ObjectId(station_id)
 
         console.log(device)
         await device.save()
+
+
+        let doc = await Station.findOneAndUpdate({_id:req.body.station}, {$push: {devices: device._id}},{'upsert':true})
+        console.log(doc)
+
         //const token = await user.generateAuthToken()
-        res.status(201).send({ device })
+        res.status(201).send({result: 1, device })
     } catch (error) {
-        res.status(400).send(error)
+        res.status(400).send({result: 0,error})
     }
 })
 
@@ -42,11 +46,22 @@ router.post('/station/:station_id/device/add', auth, async (req, res) => {
 //     }
 // })
 
-router.get('/station/:station_id/devices', auth, async(req, res) => {
-    let id = req.params.station_id;
+router.get('/devices', auth, async(req, res) => {
+    //let id = req.params.station_id;
+    try{
+        let station_id = req.body.station_id
+        //let station = await Station.findOne({_id: station_id});
+        let devices = await Device.find({station: station_id})
+        res.status(201).send({result: 1, data: devices })
+    }
+    catch (error) {
+        res.status(400).send({result: 0,error})
+    }
+    
 
-    let station = await Station.findOne({_id: id});
-    res.send(station.devices)
+    
+
+    //res.send(station.devices)
 })
 
 

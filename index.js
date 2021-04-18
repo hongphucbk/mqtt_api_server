@@ -134,31 +134,61 @@ app.listen(port, function(){
   // // https://vicanso.github.io/influxdb-nodejs/Client.html#findOneAndUpdate
 
 // Mqtt
+// Mqtt
 const mqtt = require('mqtt');
 var options = {
     port: 5000,
-    host: 'mqtt://m11.cloudmqtt.com',
+    //host: 'mqtt://m11.cloudmqtt.com',
     username: 'iot2021',
     password: 'iot2021',
 };
 
 //var client = mqtt.connect('mqtt://m11.cloudmqtt.com', options);
+const DeviceData = require('./models/DeviceData')
 
 
-const client = mqtt.connect('mqtt://113.161.79.146', options );
+const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
 
-//exports.mqttClient = function() {
-const mqttClient = function() {
-    console.log("Connecting to MQTT Client");
-    client.on("connect", ack => {
-        console.log("MQTT Client Connected!");
+client.on("connect", ack => {
+  console.log("MQTT Client Connected!");
+  client.subscribe('inverterB/power');
 
-        client.on("message", (topic, message) => {
-            console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
-        });
-    });
+  client.subscribe('inverterB/#');
 
-    client.on("error", err => {
-        console.log(err);
-    });
-}; // <-- semicolon added here
+  client.on("message", (topic, message) => {
+    console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
+
+    const a = topic.split('/');
+
+
+
+    let data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+    data.device = process.env.DEVICE_ID
+    
+    data.timestamp = new Date()
+    //console.log(data)
+    
+    if (a[1] == "power") {
+      data.paras = "power"
+    }else if(a[1] == "powerGenerated"){
+      data.paras = "powerGenerated"
+    }else if(a[1] == "workingHours"){
+      data.paras = "workingHours"
+    }else{
+
+    }
+
+    try{
+      let dt = new DeviceData(data)
+      dt.save();
+    }catch(error){
+      console.log('error', error)
+    }
+    
+    //DeviceData.insertMany([data])
+  });
+});
+
+client.on("error", err => {
+  console.log(err);
+});

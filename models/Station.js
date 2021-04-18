@@ -13,9 +13,9 @@ const stationSchema = mongoose.Schema({
     describe: {
         type: String,
         required: false,
-        
     },
-    divices: [{type: mongoose.Schema.Types.ObjectId}],
+    devices: [{type: mongoose.Schema.Types.ObjectId, ref: 'Device'}],
+    users: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     // password: {
     //     type: String,
     //     required: true,

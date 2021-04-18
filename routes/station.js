@@ -2,19 +2,20 @@ const express = require('express')
 const User = require('../models/User')
 const Station = require('../models/Station')
 const auth = require('../middlewares/auth')
+const role = require('../middlewares/role')
 
 const router = express.Router()
 
-router.post('/station', auth, async (req, res) => {
+router.post('/station', auth, role(['SA']) ,async (req, res) => {
     // Create a new user
     try {
         const station = new Station(req.body)
         console.log(station)
         await station.save()
         //const token = await user.generateAuthToken()
-        res.status(201).send({ station })
+        res.status(201).send({"result": 1, station })
     } catch (error) {
-        res.status(400).send(error)
+        res.status(400).send({"result": 0, error})
     }
 })
 

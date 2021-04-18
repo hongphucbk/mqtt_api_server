@@ -3,24 +3,29 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const deviceSchema = mongoose.Schema({
-    name: {
+const deviceDataSchema = mongoose.Schema({
+    paras: {
         type: String,
         required: true,
         trim: true,
-        unique: true,
     },
-    code: {
-        type: String,
+    value: {
+        type: Number,
         required: true,
         trim: true,
-        unique: true,
     },
-    describe: {
+    unit: {
         type: String,
-        required: false,
+        trim: true,
     },
-    station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
+    dataType: {
+        type: String,
+        trim: true,
+    },
+    timestamp: {
+        type: Date,
+    },
+    device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
     // password: {
     //     type: String,
     //     required: true,
@@ -65,6 +70,6 @@ const deviceSchema = mongoose.Schema({
 //     return user
 // }
 
-const Device = mongoose.model('Device', deviceSchema)
+const DeviceData = mongoose.model('DeviceData', deviceDataSchema)
 
-module.exports = Device
+module.exports = DeviceData
