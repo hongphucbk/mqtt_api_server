@@ -148,43 +148,56 @@ const DeviceData = require('./models/DeviceData')
 
 
 const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
+let data;
 
 client.on("connect", ack => {
   console.log("MQTT Client Connected!");
-  client.subscribe('inverterB/power');
-
   client.subscribe('inverterB/#');
 
+  client.subscribe('SOLAR/#');
+
+  // client.subscribe('SOLAR/607c7e4cba23121608c8fc77/INVERTER7/power');
+
+  // {
+  //   //device_id: '607c7e4cba23121608c8fc77',
+  //   type: 'power',
+
+
+  // }
+  //client.subscribe('SOLAR/power/607c7e4cba23121608c8fc77/');
+
+
   client.on("message", (topic, message) => {
-    console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
-
-    const a = topic.split('/');
-
-
-
-    let data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-    data.device = process.env.DEVICE_ID
-    
-    data.timestamp = new Date()
-    //console.log(data)
-    
-    if (a[1] == "power") {
-      data.paras = "power"
-    }else if(a[1] == "powerGenerated"){
-      data.paras = "powerGenerated"
-    }else if(a[1] == "workingHours"){
-      data.paras = "workingHours"
-    }else{
-
-    }
-
+    //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
     try{
+      const str_topic = topic.split('/');
+    
+      if(str_topic[0] == "SOLAR"){
+        
+        data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+        data.device = str_topic[1] //process.env.DEVICE_ID
+        data.updated_at = new Date()
+
+        
+        data.paras =  str_topic[2];
+
+        // if (a[1] == "power") {
+        //   data.paras = "power"
+        // }else if(a[1] == "powerGenerated"){
+        //   data.paras = "powerGenerated"
+        // }else if(a[1] == "workingHours"){
+        //   data.paras = "workingHours"
+        // }else{
+
+      }
+      console.log(data, "\n---------------")
+      
       let dt = new DeviceData(data)
       dt.save();
     }catch(error){
       console.log('error', error)
     }
-    
+      
     //DeviceData.insertMany([data])
   });
 });

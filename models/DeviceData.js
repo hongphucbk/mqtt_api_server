@@ -25,6 +25,9 @@ const deviceDataSchema = mongoose.Schema({
     timestamp: {
         type: Date,
     },
+    updated_at: {
+        type: Date,
+    },
     device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
     // password: {
     //     type: String,
