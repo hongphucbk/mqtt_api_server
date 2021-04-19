@@ -177,7 +177,7 @@ client.on("connect", ack => {
         data = JSON.parse(message.toString()) //JSON.parse(message.toString());
         data.device = str_topic[1] //process.env.DEVICE_ID
         data.updated_at = new Date()
-
+        data.timestamp = data.timeStamp
         
         data.paras =  str_topic[2];
 
