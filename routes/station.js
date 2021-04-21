@@ -3,6 +3,8 @@ const User = require('../models/User')
 const Station = require('../models/Station')
 const auth = require('../middlewares/auth')
 const role = require('../middlewares/role')
+const Device = require('../models/Device')
+const DeviceData = require('../models/DeviceData')
 
 const router = express.Router()
 
@@ -37,6 +39,99 @@ router.post('/station', auth, role(['SA']) ,async (req, res) => {
 router.get('/stations', auth, async(req, res) => {
     let stations = await Station.find();
     res.send(stations)
+})
+
+router.get('/stations2', auth, async(req, res) => {
+  let stations = await Station.find();
+  let stationData = []
+  //let jsonStation = {}
+
+  for (let j = 0; j < stations.length; j++) {
+    let jsonStation = {
+      "_id": stations[j]._id,
+      "name": stations[j].name,
+      "describe": stations[j].describe,
+      
+      status: 'normal',
+      todayYield : {
+        value : 0,
+        unit: "kWh",
+        note: "Sum of daily yield (powerGenerated)"
+      },
+
+      power : {
+        value : 0,
+        unit: "kW",
+        note: "Sum of totalPower"
+      },
+
+      workingHours : {
+        value: 0,
+        unit: "h",
+        note: "Sum of workingHours"
+      },
+    }
+
+
+    let data = []
+    let d = {}
+    let devices = await Device.find({ station: stations[j]._id })
+
+    for (let i = 0; i < devices.length; i++) {
+      //console.log(devices[i])
+      d = {
+          _id : devices[i]._id,
+          name : devices[i].name,
+          code: devices[i].code,
+          describe : devices[i].describe,
+          status : "normal",
+          paras: {
+            workingHours: 0,
+            powerGenerated: 0,
+            power: 0
+          }
+        }
+        
+
+      let deviceData = await DeviceData.find({device: devices[i]._id, paras: "workingHours"}).sort({_id: -1}).limit(1)
+      if (deviceData.length > 0){
+        //console.log("Result: ", deviceData[0].value)
+        d.paras.workingHours = deviceData[0].value
+
+        jsonStation.workingHours.value += deviceData[0].value;
+      }
+
+
+      let deviceDataPower = await DeviceData.find({device: devices[i]._id, paras: "power"}).sort({_id: -1}).limit(1)
+      if (deviceDataPower.length > 0){
+        //console.log("Result: ", deviceData[0].value)
+        d.paras.power = deviceDataPower[0].value
+        jsonStation.power.value += deviceDataPower[0].value
+
+      }
+
+      let deviceDataPowerGenerated = await DeviceData.find({device: devices[i]._id, paras: "powerGenerated"}).sort({_id: -1}).limit(1)
+      if (deviceDataPowerGenerated.length > 0){
+        d.paras.powerGenerated = deviceDataPowerGenerated[0].value
+        jsonStation.todayYield.value += deviceDataPowerGenerated[0].value
+      }
+
+
+      
+      
+      
+      
+      data.push(d)
+      //console.log(await getCurActPower(devices[0]._id))
+    }
+
+
+    stationData.push(jsonStation)
+
+    //console.log(jsonStation)
+  }
+  console.log('----------->',stationData)
+  res.send(stationData)
 })
 
 

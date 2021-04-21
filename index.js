@@ -1,5 +1,6 @@
 require('dotenv').config();
 require('express-group-routes');
+var moment = require('moment'); // require
 
 var bodyParser = require('body-parser')
 
@@ -56,8 +57,8 @@ app.use(deviceRouter)
 
 //-------------------------------------------------------------------
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true});
-//mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+//mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true});
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 
 // app.get('/', function(req, res) {
 // 	res.render('layout/index');
@@ -145,6 +146,7 @@ var options = {
 
 //var client = mqtt.connect('mqtt://m11.cloudmqtt.com', options);
 const DeviceData = require('./models/DeviceData')
+const HistoryDeviceData = require('./models/HistoryDeviceData')
 
 
 const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
@@ -190,10 +192,12 @@ client.on("connect", ack => {
         // }else{
 
       }
-      console.log(data, "\n---------------")
+      //console.log(data, "\n---------------")
       
       let dt = new DeviceData(data)
       dt.save();
+      let dt1 = new HistoryDeviceData(data)
+      dt1.save()
     }catch(error){
       console.log('error', error)
     }
@@ -205,3 +209,13 @@ client.on("connect", ack => {
 client.on("error", err => {
   console.log(err);
 });
+
+
+// Service to delete database
+async function deleteData() {
+  let before1h = moment().subtract(7.5, 'hours');
+
+  //console.log('Cant stop me now!');
+  await DeviceData.deleteMany({ timestamp: { $lte: before1h } });
+}
+setInterval( deleteData , 60000);

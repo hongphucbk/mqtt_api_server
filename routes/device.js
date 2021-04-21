@@ -3,6 +3,8 @@ const User = require('../models/User')
 const Station = require('../models/Station')
 const Device = require('../models/Device')
 const auth = require('../middlewares/auth')
+const DeviceData = require('../models/DeviceData')
+
 
 const router = express.Router()
 
@@ -48,15 +50,74 @@ router.post('/device', auth, async (req, res) => {
 
 router.get('/devices', auth, async(req, res) => {
     //let id = req.params.station_id;
-    try{
+    //try{
         let station_id = req.body.station_id
+        console.log(station_id)
         //let station = await Station.findOne({_id: station_id});
         let devices = await Device.find({station: station_id})
-        res.status(201).send({result: 1, data: devices })
-    }
-    catch (error) {
-        res.status(400).send({result: 0,error})
-    }
+
+        console.log( devices.length)
+
+        let data = []
+        let d = {}
+
+        for (let i = 0; i < devices.length; i++) {
+          //console.log(devices[i])
+          d = {
+              _id : devices[i]._id,
+              name : devices[i].name,
+              code: devices[i].code,
+              describe : devices[i].describe,
+              status : "normal",
+              paras: {
+                workingHours: 0,
+                powerGenerated: 0,
+                power: 0
+              }
+            }
+            
+
+          let deviceData = await DeviceData.find({device: devices[i]._id, paras: "workingHours"}).sort({_id: -1}).limit(1)
+          if (deviceData.length > 0){
+            //console.log("Result: ", deviceData[0].value)
+            d.paras.workingHours = deviceData[0].value
+          }
+
+          let deviceDataPower = await DeviceData.find({device: devices[i]._id, paras: "power"}).sort({_id: -1}).limit(1)
+          if (deviceDataPower.length > 0){
+            //console.log("Result: ", deviceData[0].value)
+            d.paras.power = deviceDataPower[0].value
+          }
+
+          let deviceDataPowerGenerated = await DeviceData.find({device: devices[i]._id, paras: "powerGenerated"}).sort({_id: -1}).limit(1)
+          if (deviceDataPowerGenerated.length > 0){
+            d.paras.powerGenerated = deviceDataPowerGenerated[0].value
+          }
+
+
+          
+          
+          console.log('----------->',d)
+          
+          data.push(d)
+          //console.log(await getCurActPower(devices[0]._id))
+        }
+
+        //console.log(data)
+        res.send({result: 1, data})
+
+        //“desc”: <device_description>,
+    // “status”: <device_status>,
+    // “curActPower”: <power_value>,
+    // “todayEnergy”: <energy_value>},
+
+
+
+    //     res.status(201).send({result: 1, data: devices })
+    // }
+    // catch (error) {
+    //     res.status(400).send({result: 0,error})
+    // }
     
 
     
@@ -106,6 +167,9 @@ router.post('/station/edit/:id', auth, async(req, res) => {
 //     }
 // })
 
+async function getCurActPower(device_id){
+  return await DeviceData.find({device : device_id}).sort({ timestamp: -1 }).limit(1) // latest docs
+}
 
 
 module.exports = router;
