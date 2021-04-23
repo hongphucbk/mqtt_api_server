@@ -44,11 +44,14 @@ app.use(express.json())
 // Khai báo Router --------------------------------------------------
 const userRouter = require('./routes/user');
 const stationRouter = require('./routes/station');
+const siteRouter = require('./routes/site');
+
 const deviceRouter = require('./routes/device');
 
 app.use(userRouter)
 app.use(stationRouter)
 app.use(deviceRouter)
+app.use(siteRouter)
 
 //var authRouter = require('./routes/auth.route');
 //var stationRouter = require('./routes/station.route');
@@ -177,10 +180,9 @@ client.on("connect", ack => {
       if(str_topic[0] == "SOLAR"){
         
         data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-        data.device = str_topic[1] //process.env.DEVICE_ID
+        data.device = str_topic[1] //process.env.DEVICE_ID        
+        data.timestamp = moment(data.timeStamp).add(7, 'hours')        
         data.updated_at = new Date()
-        data.timestamp = data.timeStamp
-        
         data.paras =  str_topic[2];
 
         // if (a[1] == "power") {
@@ -192,7 +194,7 @@ client.on("connect", ack => {
         // }else{
 
       }
-      //console.log(data, "\n---------------")
+      //console.log(data, "\n--------------- ", data.timestamp)
       
       let dt = new DeviceData(data)
       dt.save();
@@ -213,9 +215,9 @@ client.on("error", err => {
 
 // Service to delete database
 async function deleteData() {
-  let before1h = moment().subtract(7.5, 'hours');
+  let before1h = moment().subtract(2, 'hours');
 
   //console.log('Cant stop me now!');
   await DeviceData.deleteMany({ timestamp: { $lte: before1h } });
 }
-setInterval( deleteData , 60000);
+setInterval( deleteData , 2*60000);
