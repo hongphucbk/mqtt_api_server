@@ -5,6 +5,7 @@ var moment = require('moment'); // require
 var bodyParser = require('body-parser')
 
 const express = require('express')
+const cors = require('cors');
 const app = express()
 const port = process.env.PORT;
 
@@ -33,10 +34,11 @@ app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
+app.use(cors());
+
 app.set('views', './views');
 
 app.use(express.json())
-
 
 
 //app.use(express.static(path.join(__dirname, 'public')));
@@ -47,11 +49,13 @@ const stationRouter = require('./routes/station');
 const siteRouter = require('./routes/site');
 
 const deviceRouter = require('./routes/device');
+const roleRouter = require('./routes/role');
 
 app.use(userRouter)
 app.use(stationRouter)
 app.use(deviceRouter)
 app.use(siteRouter)
+app.use(roleRouter)
 
 //var authRouter = require('./routes/auth.route');
 //var stationRouter = require('./routes/station.route');

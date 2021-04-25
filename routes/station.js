@@ -12,7 +12,7 @@ const random = require('random')
 
 const router = express.Router()
 
-router.post('/station', auth, role(['SA']) ,async (req, res) => {
+router.post('/station', auth, role(['SA']),async (req, res) => {
     // Create a new user
     try {
         const station = new Station(req.body)
