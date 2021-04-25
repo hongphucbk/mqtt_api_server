@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 
 const historyDeviceDataSchema = mongoose.Schema({
     paras: {
-        type: String,
+        type: Object,
         required: true,
         trim: true,
     },

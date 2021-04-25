@@ -53,7 +53,13 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
 
 router.get('/site/list', auth, async(req, res) => {
   try{
-    let stations = await Station.find();
+    let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
+    let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
+    let totalRecord = await Station.countDocuments();
+
+    let totalPage = Math.ceil(totalRecord/limit)
+
+    let stations = await Station.find().skip((limit * nextPageToken) - limit).limit(limit)
     let stationData = []
     //let jsonStation = {}
 
@@ -120,8 +126,16 @@ router.get('/site/list', auth, async(req, res) => {
 
       //console.log(jsonStation)
     }
-    //console.log('----------->',stationData)
-    res.send({sites: stationData })
+
+    nextPageToken = nextPageToken + 1;
+    //console.log(limit, totalRecord, nextPageToken, stations)
+
+    if(nextPageToken <= totalPage){
+      res.send({sites: stationData,  nextPageToken:nextPageToken })
+    }
+    else{
+      res.send({sites: stationData})
+    }
   }catch(error){
     res.send(error)
   }
@@ -173,7 +187,15 @@ router.get('/site/overview', auth, async(req, res) => {
 router.get('/site/devices', auth, async(req, res) => {
   try{
     let id = req.query.id;
+    let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
+    let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
+
+    let totalRecord = await Device.find({station: id}).countDocuments();
+    let totalPage = Math.ceil(totalRecord/limit)
+
     let devices = await Device.find({station: id})
+                              .skip((limit * nextPageToken) - limit)
+                              .limit(limit)
 
     let data = []
     let d = {}
@@ -209,7 +231,16 @@ router.get('/site/devices', auth, async(req, res) => {
       
       data.push(d)
     }
-    res.send({ devices:data})
+    
+    nextPageToken = nextPageToken + 1;
+    if(nextPageToken <= totalPage){
+      res.send({devices:data,  nextPageToken:nextPageToken })
+    }
+    else{
+      res.send({devices:data})
+    }
+
+    //res.send({ devices:data})
   }
   catch(error){
     res.send(error)

@@ -162,33 +162,21 @@ let data;
 client.on("connect", ack => {
   console.log("MQTT Client Connected!");
   client.subscribe('inverterB/#');
-
   client.subscribe('SOLAR/#');
-
-  // client.subscribe('SOLAR/607c7e4cba23121608c8fc77/INVERTER7/power');
-
-  // {
-  //   //device_id: '607c7e4cba23121608c8fc77',
-  //   type: 'power',
-
-
-  // }
-  //client.subscribe('SOLAR/power/607c7e4cba23121608c8fc77/');
-
 
   client.on("message", (topic, message) => {
     //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
     try{
       const str_topic = topic.split('/');
     
-      if(str_topic[0] == "SOLAR"){
-        
+      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportData"){
         data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+        //console.log("----->",data.timeStamp )
         data.device = str_topic[1] //process.env.DEVICE_ID        
         data.timestamp = moment(data.timeStamp).add(7, 'hours')        
         data.updated_at = new Date()
-        data.paras =  str_topic[2];
-
+        data.paras =  data.data;
+        data.value = 0
         // if (a[1] == "power") {
         //   data.paras = "power"
         // }else if(a[1] == "powerGenerated"){
@@ -196,7 +184,6 @@ client.on("connect", ack => {
         // }else if(a[1] == "workingHours"){
         //   data.paras = "workingHours"
         // }else{
-
       }
       //console.log(data, "\n--------------- ", data.timestamp)
       
@@ -219,7 +206,7 @@ client.on("error", err => {
 
 // Service to delete database
 async function deleteData() {
-  let before1h = moment().subtract(2, 'hours');
+  let before1h = moment().subtract(3, 'hours');
 
   //console.log('Cant stop me now!');
   await DeviceData.deleteMany({ timestamp: { $lte: before1h } });

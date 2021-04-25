@@ -20,6 +20,25 @@ const deviceSchema = mongoose.Schema({
         type: String,
         required: false,
     },
+    manufacture: {
+        type: String,
+    },
+    model: {
+        type: String,
+    },
+    version: {
+        type: String,
+    },
+    SN: {
+        type: String,
+    },
+    deviceAddress: {
+        type: Number,
+    },
+    nameplateWatts: {
+        type: Number,
+    },
+
     station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     // password: {
     //     type: String,

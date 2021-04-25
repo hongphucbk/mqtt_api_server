@@ -8,12 +8,15 @@ router.post('/users/create', async (req, res) => {
     // Create a new user
     try {
         const user = new User(req.body)
-        console.log(user)
+        user.role = "US"
+        //console.log(user)
         await user.save()
         const token = await user.generateAuthToken()
-        res.status(201).send({'result': 1,user, token })
+        res.status(201).send({'success': true })
+
+        //res.status(201).send({'result': 1,user, token })
     } catch (error) {
-        res.status(400).send({'result': 0 ,error})
+        res.status(400).send({'error': error.errmsg})
     }
 })
 
@@ -26,7 +29,14 @@ router.post('/users/login', async(req, res) => {
             return res.status(401).send({error: 'Login failed! Check authentication credentials'})
         }
         const token = await user.generateAuthToken()
-        res.send({ 'result': 1 , user, token })
+
+        let jsonUser = {
+          _id: user._id,
+          name : user.name,
+          email : user.email,
+          role : user.role
+        }
+        res.send({ 'user': jsonUser, token })
     } catch (error) {
         res.status(400).send({'result': 0 , error: "user or password is not correct"})
     }
