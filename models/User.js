@@ -34,14 +34,19 @@ const userSchema = mongoose.Schema({
         required: true,
         minLength: 4
     },
-    stations: [{type: mongoose.Schema.Types.ObjectId, ref: 'Station'}],
+    stations: [{type: mongoose.Schema.Types.ObjectId}],
 
     tokens: [{
         token: {
             type: String,
             required: true
         }
-    }]
+    }],
+
+    created_at: {
+        type: Date,
+        default: Date.now
+    },
 })
 
 userSchema.pre('save', async function (next) {
