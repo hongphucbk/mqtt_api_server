@@ -160,7 +160,27 @@ router.post('/users/update-role', auth, role(["SA"]), async(req, res) => {
   }
 })
 
+router.get('/users/list', async(req, res) => {
+    //Login a registered user
+    try {
+        const { email, password } = req.body
+        const user = await User.findByCredentials(email, password)
+        if (!user) {
+            return res.status(401).send({error: 'Login failed! Check authentication credentials'})
+        }
+        const token = await user.generateAuthToken()
 
+        let jsonUser = {
+          _id: user._id,
+          name : user.name,
+          email : user.email,
+          role : user.role
+        }
+        res.send({ 'user': jsonUser, token })
+    } catch (error) {
+        res.status(400).send({'result': 0 , error: "user or password is not correct"})
+    }
+})
 
 
 
