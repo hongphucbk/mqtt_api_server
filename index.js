@@ -47,7 +47,6 @@ app.use(express.json())
 const userRouter = require('./routes/user');
 const stationRouter = require('./routes/station');
 const siteRouter = require('./routes/site');
-
 const deviceRouter = require('./routes/device');
 const roleRouter = require('./routes/role');
 
@@ -161,8 +160,8 @@ let data;
 
 client.on("connect", ack => {
   console.log("MQTT Client Connected!");
-  client.subscribe('inverterB/#');
-  client.subscribe('SOLAR/#');
+  //client.subscribe('inverterB/#');
+  client.subscribe('SOLAR/#'); // Solar/id/PARAR
 
   client.on("message", (topic, message) => {
     //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);

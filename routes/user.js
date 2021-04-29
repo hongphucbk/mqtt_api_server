@@ -108,7 +108,7 @@ router.get('/users/me/logout', auth, async(req, res) => {
 
 router.post('/users/update-sites', auth, role(["SA"]), async(req, res) => {
   //Login a registered user
-  //try {
+  try {
     //console.log(req.user)
     const id = req.body.id
     const action = req.body.action
@@ -124,11 +124,6 @@ router.post('/users/update-sites', auth, role(["SA"]), async(req, res) => {
           let a = await User.findByIdAndUpdate(id, {$push : {stations : sites[i] }},{new: false})
         }
       }
-      
-        
-      
-      
-      
     }else if (action == "remove") {
       for (var i = 0; i < sites.length; i++) {
         let b = await User.find({stations: sites[i]}).countDocuments()
@@ -136,17 +131,37 @@ router.post('/users/update-sites', auth, role(["SA"]), async(req, res) => {
           await User.findByIdAndUpdate(id,{ $pull: {stations: sites[i] } })
         }
       }
-      
-
     }else{
 
     }
 
     res.status(200).send({success: true})
-  // } catch (error) {
-  //     res.status(400).send({error: error})
-  // }
+  } catch (error) {
+      res.status(400).send({error: error})
+  }
 })
+
+router.post('/users/update-role', auth, role(["SA"]), async(req, res) => {
+  //Login a registered user
+  try {
+    //console.log(req.user)
+    const id = req.body.id
+    const role = req.body.role
+    //const sites = req.body.sites
+    console.log(id, role)
+    if (role != "AD" && role != "SA" && role != "US") {
+      res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
+      return
+    }
+    await User.findByIdAndUpdate(id, {role: role },{new: false})    
+    res.status(200).send({success: true})
+  } catch (error) {
+      res.status(400).send({error: 40001, message: error})
+  }
+})
+
+
+
 
 
 module.exports = router;
