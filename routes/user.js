@@ -4,6 +4,7 @@ const auth = require('../middlewares/auth')
 const bcrypt = require('bcryptjs')
 const router = express.Router()
 const role = require('../middlewares/role')
+const Station = require('../models/Station')
 
 router.post('/users/create', async (req, res) => {
     // Create a new user
@@ -161,27 +162,106 @@ router.post('/users/update-role', auth, role(["SA"]), async(req, res) => {
 })
 
 router.get('/users/list', async(req, res) => {
-    //Login a registered user
-    try {
-        const { email, password } = req.body
-        const user = await User.findByCredentials(email, password)
-        if (!user) {
-            return res.status(401).send({error: 'Login failed! Check authentication credentials'})
-        }
-        const token = await user.generateAuthToken()
+    //get user
+    let strQuery
+    let role = req.query.role
+    //console.log(role)
+    let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
+    let nextPageToken = parseInt(req.query.nextPageToken) || 1;
 
+    if (role != "AD" && role != "SA" && role != "US" && role != undefined) {
+      res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
+      return
+    }
+    if (role === undefined) {
+      strQuery = {}
+    }else{
+      strQuery = {role: role}
+    }
+
+    let totalRecord = await User.find(strQuery).countDocuments();
+    let totalPage = Math.ceil(totalRecord/limit)
+    let users = await User.find(strQuery).skip((limit * nextPageToken) - limit).limit(limit)
+    
+    let arrUser = []
+
+    try {
+      for (var i = 0; i < users.length; i++) {
         let jsonUser = {
-          _id: user._id,
-          name : user.name,
-          email : user.email,
-          role : user.role
+          _id: users[i]._id,
+          name : users[i].name,
+          email : users[i].email,
+          role : users[i].role
         }
-        res.send({ 'user': jsonUser, token })
+        arrUser.push(jsonUser)
+      }
+
+      nextPageToken = nextPageToken + 1;
+
+      if(nextPageToken <= totalPage){
+        res.send({ 'users' : arrUser,  nextPageToken:nextPageToken })
+      }
+      else{
+        res.send({ 'users': arrUser })
+      }
     } catch (error) {
-        res.status(400).send({'result': 0 , error: "user or password is not correct"})
+        res.status(400).send({'code': 40001 , error: "System error: " + error})
     }
 })
 
+router.get('/users/get-sites', async(req, res) => {
+    //get user
+    try {
+    let strQuery
+    let id = req.query.id //user_id
+    let access = req.query.access //true or false
+    let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
+    let nextPageToken = parseInt(req.query.nextPageToken) || 1;
 
+    let user = await User.findOne({_id: id})
+    let sites = user.stations
+
+    let qr;
+    if (access == true) {
+      qr = { $in: sites }
+    }else{
+      qr = { $nin: sites }
+    }
+    //let results = await Station.find({_id: { $in: sites }})
+    // if (role != "AD" && role != "SA" && role != "US" && role != undefined) {
+    //   res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
+    //   return
+    // }
+    let totalRecord = await Station.countDocuments({_id: qr}).exec();
+    let totalPage = Math.ceil(totalRecord/limit)
+    let stations = await Station.find({_id: qr}).skip((limit * nextPageToken) - limit).limit(limit)
+    
+    let arrStation = []
+
+    
+      for (var i = 0; i < stations.length; i++) {
+        let jsonStation = {
+          _id: stations[i]._id,
+          name : stations[i].name,
+          // email : users[i].email,
+          // role : users[i].role
+        }
+        arrStation.push(jsonStation)
+      }
+
+      nextPageToken = nextPageToken + 1;
+
+      console.log(nextPageToken, totalPage, totalRecord)
+
+      if(nextPageToken <= totalPage){
+        res.send({ 'sites' : arrStation,  nextPageToken:nextPageToken })
+      }
+      else{
+        res.send({ 'sites': arrStation })
+      }
+    } catch (error) {
+        res.status(400).send({'code': 40001 , error: "System error: " + error})
+    }
+})
 
 module.exports = router;

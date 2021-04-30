@@ -14,6 +14,13 @@ const stationSchema = mongoose.Schema({
         type: String,
         required: false,
     },
+    price: {
+        type: Number,
+    },
+    currency: {
+        type: String,
+        //required: false,
+    },
     devices: [{type: mongoose.Schema.Types.ObjectId, ref: 'Device'}],
     users: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     // password: {
