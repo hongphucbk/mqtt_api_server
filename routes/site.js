@@ -152,7 +152,9 @@ router.get('/site/overview', auth, async(req, res) => {
       curSumActPower: 0,    //power
       todaySumEnergy: 0,
       ratedSumPower: 0,
-      allSumEnergy: 0       //PowerGenerated
+      allSumEnergy: 0,       //PowerGenerated
+      price: station.price,
+      currency: station.currency
     }
     let devices = await Device.find({ station: id })
 
@@ -343,6 +345,30 @@ router.get('/site/trend', auth, async(req, res) => {
   }
 })
 
+
+router.post('/site/update', auth,async (req, res) => {
+    // update site infor mation
+  try {
+    let id = req.query.id   //site_id = station_id
+    let price = req.body.price
+    let currency = req.body.currency
+    let name = req.body.name
+    //----------------------------------------------
+    let update
+    if (name) {
+      update = {price: price, currency: currency, name: name}
+    }else{
+      update = {price: price, currency: currency}
+    }
+
+    let query = {_id: id} 
+    let station = await Station.findOneAndUpdate(query, update);
+  
+    res.status(201).send({ success: true })
+  } catch (error) {
+   res.status(400).send({code: 40001, message: error.message})
+  }
+})
 
 router.get('/site/events', auth, async(req, res) => {
   
