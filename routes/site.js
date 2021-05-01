@@ -7,6 +7,7 @@ const Device = require('../models/Device')
 const DeviceData = require('../models/DeviceData')
 const HistoryDeviceData = require('../models/HistoryDeviceData')
 const HistoryStationData = require('../models/HistoryStationData')
+const err = require('../common/err')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -65,14 +66,13 @@ router.get('/site/list', auth, async(req, res) => {
 
     for (let j = 0; j < stations.length; j++) {
       let jsonStation = {
-        "id": stations[j]._id,
+        id: stations[j]._id,
         name: stations[j].name,
         status: 'normal',
-        product : 1, //kWh powerGenerated
+        product : 0, //Math.random()*100, //kWh powerGenerated = WH
         //power : 0,
-        workingHours : 1
+        workingHours : 0
       }
-
 
       let data = []
       let d = {}
@@ -93,43 +93,43 @@ router.get('/site/list', auth, async(req, res) => {
             }
           }
           
-
-        let deviceData = await DeviceData.find({device: devices[i]._id, paras: "workingHours"}).sort({_id: -1}).limit(1)
-        if (deviceData.length > 0){
-          //console.log("Result: ", deviceData[0].value)
-          d.paras.workingHours = deviceData[0].value
-
-          jsonStation.workingHours += deviceData[0].value;
-        }
-
-
-        // let deviceDataPower = await DeviceData.find({device: devices[i]._id, paras: "power"}).sort({_id: -1}).limit(1)
-        // if (deviceDataPower.length > 0){
-        //   //console.log("Result: ", deviceData[0].value)
-        //   d.paras.power = deviceDataPower[0].value
-        //   jsonStation.power.value += deviceDataPower[0].value
-
-        // }
-
-        let deviceDataPowerGenerated = await DeviceData.find({device: devices[i]._id, paras: "powerGenerated"}).sort({_id: -1}).limit(1)
-        if (deviceDataPowerGenerated.length > 0){
-          d.paras.powerGenerated += deviceDataPowerGenerated[0].value
-          jsonStation.product += deviceDataPowerGenerated[0].value
-        }
+        let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
         
-        data.push(d)
-        //console.log(await getCurActPower(devices[0]._id))
+        if(deviceData[0]){
+          let Watts = deviceData[0].paras.filter(function(item){
+            return item.name == 'Watts'
+          })
+          //jsonStation += parseInt(Watts[0].value)
+          
+
+          let WH = deviceData[0].paras.filter(function(item){
+            return item.name == 'WH'
+          })
+          jsonStation.product += parseInt(WH[0].value)
+
+
+          let nameplateWatts = deviceData[0].paras.filter(function(item){
+            return item.name == 'nameplateWatts'
+          })
+
+          let a = parseInt(nameplateWatts[0].value)
+          if (a > 0) {
+            let workingHour = parseInt(WH[0].value) / a
+            //jsonStation.workingHours += workingHour
+          }
+
+          
+        }
+
+
+
       }
-
-
       stationData.push(jsonStation)
-
       //console.log(jsonStation)
     }
 
     nextPageToken = nextPageToken + 1;
     //console.log(limit, totalRecord, nextPageToken, stations)
-
     if(nextPageToken <= totalPage){
       res.send({sites: stationData,  nextPageToken:nextPageToken })
     }
@@ -137,7 +137,7 @@ router.get('/site/list', auth, async(req, res) => {
       res.send({sites: stationData})
     }
   }catch(error){
-    res.send(error)
+    res.send(error.message)
   }
 })
 
@@ -149,10 +149,10 @@ router.get('/site/overview', auth, async(req, res) => {
 
     let d = {
       id: id,
-      curSumActPower: 0,    //power
-      todaySumEnergy: 0,
-      ratedSumPower: 0,
-      allSumEnergy: 0,       //PowerGenerated
+      curSumActPower: 0,    // power = Watts
+      todaySumEnergy: 0,    // WH
+      ratedSumPower: 0,     // nameplateWatts
+      allSumEnergy: 0,      // PowerGenerated = WH all = Total yield (kWh)
       price: station.price,
       currency: station.currency
     }
@@ -174,6 +174,13 @@ router.get('/site/overview', auth, async(req, res) => {
 
         let WH = paras.filter((para) => para.name === 'WH')
         d.allSumEnergy += WH[0].value
+
+        let WH_calc = paras.filter((para) => para.name === 'WH')
+        d.todaySumEnergy += WH_calc[0].value
+
+        let nameplateWatts = paras.filter((para) => para.name === 'nameplateWatts')
+        d.ratedSumPower += nameplateWatts[0].value
+        
       }
     }
     //console.log(d)
@@ -253,6 +260,7 @@ router.get('/site/trend', auth, async(req, res) => {
     let dataPoint = 'power' //req.query.dataPoint; //power
     let basedTime = req.query.basedTime; //'day'
     let date = req.query.date //"2021-04-22"
+    let type = req.query.type //"2021-04-22"
 
     let devices = await Device.find({ station: id })
     let ids = []
@@ -262,8 +270,11 @@ router.get('/site/trend', auth, async(req, res) => {
 
     let deviceDataPowers;
     let data = []
+    let sum = 0
+    let count = 0
+    let avg = 0
 
-    if (basedTime === 'day') {
+    if (basedTime === 'day' && type === 'power') {
       let start = moment(date).startOf('day')
       let end = moment(date).endOf('day')
 
@@ -271,18 +282,29 @@ router.get('/site/trend', auth, async(req, res) => {
                                                     timestamp: {$gte: start, $lte: end } 
                                                   })
 
-      for (let j = 0; j < 24; j++) {
-        data[j] = 0
+      for (let j = 0; j < 288; j++) {
+        sum = 0, count = 0, avg = 0
+        let start1 = moment(start).startOf('minute')
+        let end1 = moment(start).add(5, 'minutes').startOf('minute')
+        //console.log(start1, end1)
+        let a1 = hisStations.map(x => {
+          if (x.timestamp <= end1 && x.timestamp >= start1) {
+            sum +=  x.paras.Watts
+            count++
 
-        let hisStation = hisStations.filter(function(item){
-          return moment(item.timestamp).hour() == j
+            if (count > 0) {
+              avg = sum/count
+            }else{
+              avg = 0
+            }
+          }
+          return avg
         })
-        //console.log(hisStation)
-        if (hisStation.length > 0) {
-          data[j] = hisStation[0].paras.power
-        }
+        data.push(avg)
+        start = end1
       }
-    }else if (basedTime === 'month') {
+
+    }else if (basedTime === 'month' && type === 'energy') {
       let StartMonth = moment(req.query.date).startOf('month');
       let EndMonth = moment(req.query.date).endOf('month');
       
@@ -296,8 +318,8 @@ router.get('/site/trend', auth, async(req, res) => {
 
       for (let j = 1; j <= EndMonth.date(); j++) {
         data[j] = 0
-        let hisStation = hisStations.reduce(function(total, cur){
-          return moment(cur.timestamp).date() == j ? total + cur.paras.power: total;
+        let hisStation = hisStations.reduce(function(total, cur, _, {length}){
+          return moment(cur.timestamp).date() == j ? total + cur.paras.power/length: total;
         }, 0)
 
         //console.log(hisStation)
@@ -311,7 +333,7 @@ router.get('/site/trend', auth, async(req, res) => {
       //let startDate = req.query.date + " " + j  + ":00:00";
       //let endDate = req.query.date + " " + j + ":59:59";
       //data[0] = "Phuc is processing please wait to update. :)))"
-    }else if (basedTime === 'year') {
+    }else if (basedTime === 'year' && type === 'energy') {
       let StartYear = moment(req.query.date).startOf('year');
       let EndYear = moment(req.query.date).endOf('year');
       
@@ -321,8 +343,8 @@ router.get('/site/trend', auth, async(req, res) => {
 
       for (let j = 0; j <= 11; j++) {
         data[j] = 0
-        let hisStation = hisStations.reduce(function(total, cur){
-          return moment(cur.timestamp).month() == j ? total + cur.paras.power: total;
+        let hisStation = hisStations.reduce(function(total, cur, _, {length}){
+          return moment(cur.timestamp).month() == j ? total + cur.paras.power/ length: total;
         }, 0)
         data[j] = hisStation
       }
@@ -332,19 +354,19 @@ router.get('/site/trend', auth, async(req, res) => {
       //data[0] = "Phuc is processing please wait to update. :)))"
     }
     else{
-      res.json({error: 'basedTime is in correct'})
+      res.json(err.E40010)
       return
     }
 
-    res.send({siteID: id, series: data})
+    res.send({siteID: id, type: type, series: data})
   }catch(error){
-    res.send({error: error})
+    res.send(err.E40001)
   }
 })
 
 
 router.post('/site/update', auth,async (req, res) => {
-    // update site infor mation
+  // update site infor mation
   try {
     let id = req.query.id   //site_id = station_id
     let price = req.body.price

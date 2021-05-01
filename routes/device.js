@@ -5,7 +5,9 @@ const Device = require('../models/Device')
 const auth = require('../middlewares/auth')
 const DeviceData = require('../models/DeviceData')
 const moment = require('moment'); // require
+const HistoryDeviceData = require('../models/HistoryDeviceData')
 
+const err = require('../common/err')
 
 const router = express.Router()
 
@@ -204,6 +206,125 @@ router.get('/site/device/details', auth, async(req, res) => {
 
     //res.send(station.devices)
 })
+
+router.get('/device/trend', auth, async(req, res) => {
+  try{
+    let id = req.query.id;  //device_id
+    let dataPoint = 'power' //req.query.dataPoint; //power
+    let basedTime = req.query.basedTime; //'day'
+    let date = req.query.date //"2021-04-22"
+    let type = req.query.type //"power / energy"
+
+
+    let deviceDataPowers;
+    let data = []
+
+    let sum = 0
+    let count = 0
+    let avg = 0
+
+    if (basedTime === 'day' && type === 'power') {
+      let start = moment(date).startOf('day')
+      let end = moment(date).endOf('day')
+
+      hisStations = await HistoryDeviceData.find({ device: id, 
+                                                   timestamp: {$gte: start, $lte: end } 
+                                                })
+      
+      for (let j = 0; j < 288; j++) {
+        sum = 0, count = 0, avg = 0
+        let start1 = moment(start).startOf('minute')
+        let end1 = moment(start).add(5, 'minutes').startOf('minute')
+        //console.log(start1, end1)
+        let a1 = hisStations.map(x => {
+          if (x.timestamp <= end1 && x.timestamp >= start1) {
+            sum +=  x.paras.Watts
+            count++
+
+            if (count > 0) {
+              avg = sum/count
+            }else{
+              avg = 0
+            }
+          }
+          return avg
+        })
+        data.push(avg)
+        start = end1
+      }
+
+      // for (let j = 0; j < 24; j++) {
+      //   data[j] = 0
+
+      //   let hisStation = hisStations.filter(function(item){
+      //     return moment(item.timestamp).hour() == j
+      //   })
+      //   //console.log(hisStation)
+      //   if (hisStation.length > 0) {
+      //     data[j] = hisStation[0].paras.power
+      //   }
+      // }
+
+    }else if (basedTime === 'month' && type === 'energy') {
+      let StartMonth = moment(req.query.date).startOf('month');
+      let EndMonth = moment(req.query.date).endOf('month');
+      
+      hisStations = await HistoryDeviceData.find({ device: id, 
+                                                    timestamp: {$gte: StartMonth, $lte: EndMonth } 
+                                                  })
+      //let StartDay = moment(req.query.date).startOf('day');     // set to 12:00 am today
+      let EndDay = moment(req.query.date).endOf('day');     // set to 12:00 am today
+
+      //console.log(EndMonth)
+
+      for (let j = 1; j <= EndMonth.date(); j++) {
+        data[j] = 0
+        let hisStation = hisStations.reduce(function(total, cur, _, { length }){
+          return moment(cur.timestamp).date() == j ? total + cur.paras.WH/length: total;
+        }, 0)
+
+        //console.log(hisStation)
+        data[j] = hisStation
+      }
+      data.splice(0, 1);
+
+
+
+      //console.log(a)
+      //let startDate = req.query.date + " " + j  + ":00:00";
+      //let endDate = req.query.date + " " + j + ":59:59";
+      //data[0] = "Phuc is processing please wait to update. :)))"
+    }else if (basedTime === 'year' && type === 'energy') {
+      let StartYear = moment(req.query.date).startOf('year');
+      let EndYear = moment(req.query.date).endOf('year');
+      
+      hisStations = await HistoryDeviceData.find({ device: id, 
+                                                    timestamp: {$gte: StartYear, $lte: EndYear } 
+                                                  })
+
+      for (let j = 0; j <= 11; j++) {
+        data[j] = 0
+        let hisStation = hisStations.reduce(function(total, cur, _, { length }){
+          return moment(cur.timestamp).month() == j ? total + cur.paras.WH/length : total;
+        }, 0)
+        data[j] = hisStation
+      }
+      //console.log(a)
+      //let startDate = req.query.date + " " + j  + ":00:00";
+      //let endDate = req.query.date + " " + j + ":59:59";
+      //data[0] = "Phuc is processing please wait to update. :)))"
+    }
+    else{
+      res.json(err.E40010)
+      return
+    }
+
+    res.send({siteID: id, type: type,series: data})
+  }catch(error){
+    res.send(err.E40001, error.message)
+  }
+})
+
 
 
 async function getCurActPower(device_id){

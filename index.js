@@ -166,7 +166,7 @@ client.on("connect", ack => {
   //client.subscribe('inverterB/#');
   client.subscribe('SOLAR/#'); // Solar/id/PARAR
 
-  client.on("message", (topic, message) => {
+  client.on("message", async (topic, message) => {
     //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
     try{
       const str_topic = topic.split('/');
@@ -197,27 +197,55 @@ client.on("connect", ack => {
       //console.log(data, "\n--------------- ", data.timestamp)
       if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
         data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+
+        
         //console.log("----->",data.activeEvents )
-        let arr = []
-        for (let i = 0; i < data.activeEvents.length; i++) {
-          let d = {
-            device : str_topic[1],
-            event :  data.activeEvents[i].event,
-            timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
-            updated_at : new Date(),
+        if (data) {
+          let arr = []
+          for (let i = 0; i < data.activeEvents.length; i++) {
+            let d = {
+              device : str_topic[1],
+              event :  data.activeEvents[i].event,
+              status : 0,
+              timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
+              updated_at : new Date(),
+            }
+
+            let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
+            //console.log(existEvent, existEvent.length)
+            if (existEvent.length == 0) {
+              Event.insertMany([d])
+              HistoryEvent.insertMany([d])
+            }
+            
           }
-          arr.push(d)
+        }else{
+          let clr = await Event.findOneAndUpdate({device: str_topic[1], status: 0},{status: 1})
         }
+        //--------------------
+        // let backlogs = await Event.find({device: str_topic[1], status: 0})
+
+        // for (let i = 0; i < backlogs.length; i++) {
+        //   for (let j = 0; j < data.activeEvents.length; j++) {
+        //     let isbool = backlogs[i].event.equals(data.activeEvents[j].event)
+        //     if (!isbool) {
+        //       Event.findOneAndUpdate({device: str_topic[1], status: 0, event: data.ac},{status: 1})
+        //     }
+        //   }
+        // }
+
+        //let existEvents = await Event.find({device: str_topic[1], status: 0})
+        
+
         
         //console.log(arr)        //let event = new Event(arr)
-        Event.insertMany(arr)
-        HistoryEvent.insertMany(arr)
+        
         // let dt1 = new HistoryDeviceData(data)
         // dt1.save();
       }
       
     }catch(error){
-      console.log('error', error)
+      console.log('error', error.message)
     }
       
     //DeviceData.insertMany([data])
@@ -231,9 +259,9 @@ client.on("error", err => {
 // Service to delete database
 async function deleteData() {
   let before3h = moment().subtract(3, 'hours');
-
+  let before24h = moment().subtract(24, 'hours');
   //console.log('Cant stop me now!');
   await DeviceData.deleteMany({ timestamp: { $lte: before3h } });
-  await Event.deleteMany({ timestamp: { $lte: before3h } });
+  await Event.deleteMany({ timestamp: { $lte: before24h } });
 }
-setInterval( deleteData , 2*60000);
+setInterval( deleteData , 5*60000);
