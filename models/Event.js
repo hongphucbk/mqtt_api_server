@@ -7,12 +7,24 @@ const eventSchema = mongoose.Schema({
         required: true,
         trim: true,
     },
+    code: {
+        type: String,
+        //required: true,
+        trim: true,
+    },
     dataType: {
         type: String,
     },
     timestamp: {
         type: Date,
     },
+    completed_at: {
+        type: Date,
+    },
+    status: {
+        type: Number,
+    },
+
     updated_at: {
         type: Date,
     },
