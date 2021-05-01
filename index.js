@@ -153,6 +153,9 @@ var options = {
 //var client = mqtt.connect('mqtt://m11.cloudmqtt.com', options);
 const DeviceData = require('./models/DeviceData')
 const HistoryDeviceData = require('./models/HistoryDeviceData')
+const Event = require('./models/Event')
+const HistoryEvent = require('./models/HistoryEvent')
+const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 
 
 const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
@@ -183,13 +186,36 @@ client.on("connect", ack => {
         // }else if(a[1] == "workingHours"){
         //   data.paras = "workingHours"
         // }else{
+      
+        //let dt = new (data)
+        DeviceData.insertMany(data)
+        HistoryDeviceRawData.insertMany(data)
+
+        // let dt1 = new HistoryDeviceData(data)
+        // dt1.save();
       }
       //console.log(data, "\n--------------- ", data.timestamp)
+      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
+        data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+        //console.log("----->",data.activeEvents )
+        let arr = []
+        for (let i = 0; i < data.activeEvents.length; i++) {
+          let d = {
+            device : str_topic[1],
+            event :  data.activeEvents[i].event,
+            timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
+            updated_at : new Date(),
+          }
+          arr.push(d)
+        }
+        
+        //console.log(arr)        //let event = new Event(arr)
+        Event.insertMany(arr)
+        HistoryEvent.insertMany(arr)
+        // let dt1 = new HistoryDeviceData(data)
+        // dt1.save();
+      }
       
-      let dt = new DeviceData(data)
-      dt.save();
-      let dt1 = new HistoryDeviceData(data)
-      dt1.save()
     }catch(error){
       console.log('error', error)
     }
@@ -202,12 +228,12 @@ client.on("error", err => {
   console.log(err);
 });
 
-
 // Service to delete database
 async function deleteData() {
-  let before1h = moment().subtract(3, 'hours');
+  let before3h = moment().subtract(3, 'hours');
 
   //console.log('Cant stop me now!');
-  await DeviceData.deleteMany({ timestamp: { $lte: before1h } });
+  await DeviceData.deleteMany({ timestamp: { $lte: before3h } });
+  await Event.deleteMany({ timestamp: { $lte: before3h } });
 }
 setInterval( deleteData , 2*60000);

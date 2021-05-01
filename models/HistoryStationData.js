@@ -55,6 +55,6 @@ historyStationDataSchema.index({
   unique: true,
 });
 
-const HistoryStationData = mongoose.model('HistoryStationData', historyStationDataSchema)
+const HistoryStationData = mongoose.model('HistoryStationData', historyStationDataSchema,'history_station_data')
 
 module.exports = HistoryStationData

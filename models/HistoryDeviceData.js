@@ -73,6 +73,6 @@ const historyDeviceDataSchema = mongoose.Schema({
 //     return user
 // }
 
-const HistoryDeviceData = mongoose.model('HistoryDeviceData', historyDeviceDataSchema)
+const HistoryDeviceData = mongoose.model('HistoryDeviceData', historyDeviceDataSchema, 'history_device_data')
 
 module.exports = HistoryDeviceData

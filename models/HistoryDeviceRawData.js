@@ -3,7 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const deviceDataSchema = mongoose.Schema({
+const historyDeviceRawDataSchema = mongoose.Schema({
     paras: {
         type: Object,
         required: true,
@@ -42,8 +42,6 @@ const deviceDataSchema = mongoose.Schema({
     // }]
 })
 
+const HistoryDeviceRawData = mongoose.model('HistoryDeviceRawData', historyDeviceRawDataSchema, 'history_device_raw_data')
 
-
-const DeviceData = mongoose.model('DeviceData', deviceDataSchema, 'device_data')
-
-module.exports = DeviceData
+module.exports = HistoryDeviceRawData

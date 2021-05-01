@@ -143,7 +143,7 @@ router.get('/site/list', auth, async(req, res) => {
 
 
 router.get('/site/overview', auth, async(req, res) => {
-  try{
+  //try{
     let id = req.query.id;
     let station = await Station.findOne({ _id: id });
 
@@ -156,34 +156,31 @@ router.get('/site/overview', auth, async(req, res) => {
       price: station.price,
       currency: station.currency
     }
+
     let devices = await Device.find({ station: id })
 
     for (let i = 0; i < devices.length; i++) {
       
-      // let deviceData = await DeviceData.find({device: devices[i]._id, paras: "workingHours"}).sort({_id: -1}).limit(1)
-      // if (deviceData.length > 0){
-      //   jsonStation.workingHours += deviceData[0].value;
-      // }
+      //paras: {$elemMatch: {name:'Watts'}
+      let query1 = {device: devices[i]._id}
 
+      let deviceData = await DeviceData.find(query1).sort({_id: -1}).limit(1)
+      
+      if (deviceData[0]) {
+        let paras = deviceData[0].paras
+        //console.log("Result: ", paras)
+        let Watts = paras.filter((para) => para.name === 'Watts')
+        d.curSumActPower += Watts[0].value
 
-      let deviceDataPower = await DeviceData.find({device: devices[i]._id, paras: "power"}).sort({_id: -1}).limit(1)
-      if (deviceDataPower.length > 0){
-        //console.log("Result: ", deviceData[0].value)
-        d.curSumActPower += deviceDataPower[0].value
+        let WH = paras.filter((para) => para.name === 'WH')
+        d.allSumEnergy += WH[0].value
       }
-
-      let deviceDataPowerGenerated = await DeviceData.find({device: devices[i]._id, paras: "powerGenerated"}).sort({_id: -1}).limit(1)
-      if (deviceDataPowerGenerated.length > 0){
-        d.allSumEnergy += deviceDataPowerGenerated[0].value
-        //jsonStation.product += deviceDataPowerGenerated[0].value
-      }
-      //console.log(await getCurActPower(devices[0]._id))
     }
-
+    //console.log(d)
     res.send({site: d})
-  }catch(error){
-    res.send(error)
-  }
+  //}catch(error){
+    //res.send({error: error})
+  //}
 })
 
 router.get('/site/devices', auth, async(req, res) => {

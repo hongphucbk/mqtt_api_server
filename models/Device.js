@@ -20,6 +20,11 @@ const deviceSchema = mongoose.Schema({
         type: String,
         required: false,
     },
+    paras: {
+        type: Array ,
+        //required: false,
+    },
+
     manufacture: {
         type: String,
     },
