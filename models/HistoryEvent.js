@@ -1,26 +1,14 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
 
-const deviceDataSchema = mongoose.Schema({
-    paras: {
-        type: Object,
-        required: true,
-        trim: true,
-    },
-    value: {
-        type: Number,
-        required: true,
-        trim: true,
-    },
-    unit: {
+const eventSchema = mongoose.Schema({
+    event: {
         type: String,
+        required: true,
         trim: true,
     },
     dataType: {
         type: String,
-        trim: true,
     },
     timestamp: {
         type: Date,
@@ -44,6 +32,7 @@ const deviceDataSchema = mongoose.Schema({
 
 
 
-const DeviceData = mongoose.model('DeviceData', deviceDataSchema, 'device_data')
 
-module.exports = DeviceData
+const HistoryEvent = mongoose.model('HistoryEvent', eventSchema)
+
+module.exports = HistoryEvent

@@ -155,18 +155,56 @@ router.post('/station/edit/:id', auth, async(req, res) => {
 
 })
 
-// router.post('/users/me/logout', auth, async (req, res) => {
-//     // Log user out of the application
-//     try {
-//         req.user.tokens = req.user.tokens.filter((token) => {
-//             return token.token != req.token
-//         })
-//         await req.user.save()
-//         res.send()
-//     } catch (error) {
-//         res.status(500).send(error)
-//     }
-// })
+//get details id
+router.get('/site/device/details', auth, async(req, res) => {
+  try{
+    let id = req.query.id; //site_id
+    //console.log(id)
+      //let station = await Station.findOne({_id: station_id});
+    let device = await Device.findOne({_id: id})
+      let d = {
+            id : device.id,
+            name : device.name,
+            IP : device.IP,
+            manufacturer : device.manufacturer,
+            minResponseTimeInMiliSecond : device.minResponseTimeInMiliSecond,
+            model : device.model,
+            port : device.port,
+            code: device.code,
+            status : "normal",
+            paras: device.paras
+            
+          }
+
+      let data = []
+      //let d = {}
+
+      let deviceData = await DeviceData.find({device: id}).sort({_id: -1}).limit(1)
+      let paras = deviceData[0].paras;
+      //console.log(d.paras)
+
+      for (let i = 0; i < d.paras.length; i++) {
+        for (var j = 0; j < paras.length; j++) {
+          //console.log(paras[j].name)
+          if(paras[j].name == d.paras[i].name){
+            //console.log("-->",paras[j].value, d.paras[i])
+            d.paras[i].value = paras[j].value
+          }
+        }
+      }
+      res.send({device: d})
+      //res.status(201).send({result: 1, data: devices })
+  }
+  catch (error) {
+      res.status(400).send({code: 40001, message: error.message})
+  }
+    
+
+    
+
+    //res.send(station.devices)
+})
+
 
 async function getCurActPower(device_id){
   return await DeviceData.find({device : device_id}).sort({ timestamp: -1 }).limit(1) // latest docs
