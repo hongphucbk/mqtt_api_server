@@ -1,6 +1,7 @@
 const express = require('express')
 const User = require('../models/User')
 const Station = require('../models/Station')
+const HistoryEvent = require('../models/HistoryEvent')
 const auth = require('../middlewares/auth')
 const role = require('../middlewares/role')
 const Device = require('../models/Device')
@@ -367,11 +368,68 @@ router.post('/site/update', auth,async (req, res) => {
   }
 })
 
+// Get all events
 router.get('/site/events', auth, async(req, res) => {
-  
-  
-  res.send({message: 'Not yet deploy'})
-  
+  try {
+    let limit = parseInt(req.query.limit);
+    let nextPageToken = parseInt(req.query.nextPageToken) || 1;
+    let totalRecord = await HistoryEvent.find().countDocuments();
+    let totalPage = Math.ceil(totalRecord/limit);
+    
+    // currently using Event table
+    let rawResult = await HistoryEvent.find().limit(limit);
+    let result = rawResult.map(element => {
+      let ret = {};
+      ret.id = element._id;
+      ret.caption = element.event;
+      ret.time = new Date(element.timestamp).getTime();
+      ret.status = "resolved";
+      return ret;
+    })
+    nextPageToken = nextPageToken + 1;
+    if(nextPageToken <= totalPage){
+      res.send({events: result, nextPageToken: nextPageToken});
+    } else {
+      res.send({events: result});
+    }
+  } catch {
+    res.status(500).send({
+      message: "Internal server error"
+    });
+  }
+})
+
+
+// Get events by device ID
+router.get('/site/events/:id', auth, async(req, res) => {
+  try {
+    let deviceId = req.params.id;
+    let limit = parseInt(req.query.limit);
+    let nextPageToken = parseInt(req.query.nextPageToken) || 1;
+    let totalRecord = await HistoryEvent.find().countDocuments();
+    let totalPage = Math.ceil(totalRecord/limit);
+    
+    // currently using Event table
+    let rawResult = await HistoryEvent.find({ device: deviceId}).limit(limit);
+    let result = rawResult.map(element => {
+      let ret = {};
+      ret.id = element._id;
+      ret.caption = element.event;
+      ret.time = new Date(element.timestamp).getTime();
+      ret.status = "resolved";
+      return ret;
+    })
+    nextPageToken = nextPageToken + 1;
+    if(nextPageToken <= totalPage){
+      res.send({events: result, nextPageToken: nextPageToken});
+    } else {
+      res.send({events: result});
+    }
+  } catch {
+    res.status(500).send({
+      message: "Internal server error"
+    });
+  }
 })
 
 
