@@ -164,6 +164,7 @@ router.get('/site/device/details', auth, async(req, res) => {
     //console.log(id)
       //let station = await Station.findOne({_id: station_id});
     let device = await Device.findOne({_id: id})
+    if (device) {
       let d = {
             id : device.id,
             name : device.name,
@@ -175,27 +176,32 @@ router.get('/site/device/details', auth, async(req, res) => {
             code: device.code,
             status : "normal",
             paras: device.paras
-            
           }
 
       let data = []
       //let d = {}
 
       let deviceData = await DeviceData.find({device: id}).sort({_id: -1}).limit(1)
-      let paras = deviceData[0].paras;
-      //console.log(d.paras)
+      if (deviceData.length > 0) {
+        let paras = deviceData[0].paras;
+        //console.log(d.paras)
 
-      for (let i = 0; i < d.paras.length; i++) {
-        for (var j = 0; j < paras.length; j++) {
-          //console.log(paras[j].name)
-          if(paras[j].name == d.paras[i].name){
-            //console.log("-->",paras[j].value, d.paras[i])
-            d.paras[i].value = paras[j].value
+        for (let i = 0; i < d.paras.length; i++) {
+          for (var j = 0; j < paras.length; j++) {
+            //console.log(paras[j].name)
+            if(paras[j].name == d.paras[i].name){
+              //console.log("-->",paras[j].value, d.paras[i])
+              d.paras[i].value = paras[j].value
+            }
           }
         }
+        res.send({device: d})
+      }else{
+        res.status(400).send(err.E40012)
       }
-      res.send({device: d})
-      //res.status(201).send({result: 1, data: devices })
+    }else{
+      res.status(400).send(err.E40013)
+    }
   }
   catch (error) {
       res.status(400).send({code: 40001, message: error.message})
