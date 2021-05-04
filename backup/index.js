@@ -9,22 +9,9 @@ const cors = require('cors');
 const app = express()
 const port = process.env.PORT;
 
-//----------------------------
-const https = require('https');
-const fs = require('fs');
-
-const options1 = {
-  //key: fs.readFileSync('C:\\Certbot\\live\\iot.phuctruong.net\\privkey.pem'),
-  //cert: fs.readFileSync('C:\\Certbot\\live\\iot.phuctruong.net\\cert.pem')
-};
 
 var http = require('http').createServer(app);
-
-//https.createServer(options1, app).listen(443);
-
-//----------------------------
-
-//
+var io = require('socket.io')(http);
 
 app.use((req, res, next) => {
   res.locals.user = "";
@@ -212,7 +199,7 @@ client.on("connect", ack => {
         data = JSON.parse(message.toString()) //JSON.parse(message.toString());
 
         
-        //console.log("----->",data )
+        //console.log("----->",data.activeEvents )
         if (data) {
           let arr = []
           for (let i = 0; i < data.activeEvents.length; i++) {
