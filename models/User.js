@@ -27,12 +27,12 @@ const userSchema = mongoose.Schema({
     role:{
         type: String,
         required: true,
-        unique: true,
+        //unique: true,
     },
     password: {
         type: String,
         required: true,
-        minLength: 4
+        minLength: 3
     },
     stations: [{type: mongoose.Schema.Types.ObjectId}],
 
