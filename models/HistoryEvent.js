@@ -33,6 +33,6 @@ const eventSchema = mongoose.Schema({
 
 
 
-const HistoryEvent = mongoose.model('HistoryEvent', eventSchema)
+const HistoryEvent = mongoose.model('HistoryEvent', eventSchema, 'history_envent')
 
 module.exports = HistoryEvent

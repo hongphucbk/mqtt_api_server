@@ -7,31 +7,24 @@ var bodyParser = require('body-parser')
 const express = require('express')
 const cors = require('cors');
 const app = express()
-const port = process.env.PORT;
-
+const HTTP_PORT = parseInt(process.env.HTTP_PORT);
+const HTTPS_PORT = parseInt(process.env.HTTPS_PORT);
 //----------------------------
 const https = require('https');
 const fs = require('fs');
 
 const options1 = {
-  //key: fs.readFileSync('C:\\Certbot\\live\\iot.phuctruong.net\\privkey.pem'),
-  //cert: fs.readFileSync('C:\\Certbot\\live\\iot.phuctruong.net\\cert.pem')
+  key: fs.readFileSync(process.env.PRIVATE_KEY),
+  cert: fs.readFileSync(process.env.CERT_KEY)
 };
 
-var http = require('http').createServer(app);
-
-//https.createServer(options1, app).listen(443);
-
+var http = require('http').createServer(app).listen(HTTP_PORT);
+https.createServer(options1, app).listen(HTTPS_PORT)
 //----------------------------
-
-//
-
 app.use((req, res, next) => {
   res.locals.user = "";
   next()
 })
-
-
 
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
@@ -108,9 +101,9 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
 
 //-------------------------------------------------------------------
 
-app.listen(port, function(){
-	console.log(`Server listening on port ${port}!`)
-});
+// app.listen(port, function(){
+// 	console.log(`Server listening on port ${port}!`)
+// });
 
 
 
@@ -171,7 +164,7 @@ const HistoryEvent = require('./models/HistoryEvent')
 const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 
 
-const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
+const client = mqtt.connect(process.env.MQTT_URL, options );
 let data;
 
 client.on("connect", ack => {
