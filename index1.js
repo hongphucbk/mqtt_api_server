@@ -13,13 +13,13 @@ const HTTPS_PORT = parseInt(process.env.HTTPS_PORT);
 const https = require('https');
 const fs = require('fs');
 
-const options1 = {
-  key: fs.readFileSync(process.env.PRIVATE_KEY),
-  cert: fs.readFileSync(process.env.CERT_KEY)
-};
+// const options1 = {
+//   key: fs.readFileSync(process.env.PRIVATE_KEY),
+//   cert: fs.readFileSync(process.env.CERT_KEY)
+// };
 
 var http = require('http').createServer(app).listen(HTTP_PORT);
-https.createServer(options1, app).listen(HTTPS_PORT)
+//https.createServer(options1, app).listen(HTTPS_PORT)
 //----------------------------
 app.use((req, res, next) => {
   res.locals.user = "";
