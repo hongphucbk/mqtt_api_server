@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs')
 const router = express.Router()
 const role = require('../middlewares/role')
 const Station = require('../models/Station')
+const err = require('../common/err')
 
 router.post('/users/create', async (req, res) => {
     // Create a new user
@@ -115,12 +116,12 @@ router.post('/users/update-sites', auth, role(["SA"]), async(req, res) => {
     const action = req.body.action
     const sites = req.body.sites
 
-    console.log(id, action, sites, sites.length)
+    //console.log(id, action, sites, sites.length)
 
     if (action == "add") {
       for (var i = 0; i < sites.length; i++) {
         let b = await User.find({stations: sites[i]}).countDocuments()
-        console.log(b)
+        //console.log(b)
         if (b <= 0) {
           let a = await User.findByIdAndUpdate(id, {$push : {stations : sites[i] }},{new: false})
         }
@@ -138,7 +139,7 @@ router.post('/users/update-sites', auth, role(["SA"]), async(req, res) => {
 
     res.status(200).send({success: true})
   } catch (error) {
-      res.status(400).send({error: error})
+      res.status(400).send({error: error.message})
   }
 })
 
@@ -147,9 +148,9 @@ router.post('/users/update-role', auth, role(["SA"]), async(req, res) => {
   try {
     //console.log(req.user)
     const id = req.body.id
-    const role = req.body.role
+    const role = req.body.role.toUpperCase()
     //const sites = req.body.sites
-    console.log(id, role)
+    //console.log(id, role)
     if (role != "AD" && role != "SA" && role != "US") {
       res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
       return
@@ -157,14 +158,14 @@ router.post('/users/update-role', auth, role(["SA"]), async(req, res) => {
     await User.findByIdAndUpdate(id, {role: role },{new: false})    
     res.status(200).send({success: true})
   } catch (error) {
-      res.status(400).send({error: 40001, message: error})
+      res.status(400).send({error: 40001, message: error.message})
   }
 })
 
 router.get('/users/list', async(req, res) => {
     //get user
     let strQuery
-    let role = req.query.role
+    let role = req.query.role.toUpperCase()
     //console.log(role)
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1;
@@ -212,31 +213,44 @@ router.get('/users/list', async(req, res) => {
 router.get('/users/get-sites', async(req, res) => {
     //get user
     try {
-    let strQuery
-    let id = req.query.id //user_id
-    let access = req.query.access //true or false
-    let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
-    let nextPageToken = parseInt(req.query.nextPageToken) || 1;
+      let strQuery
+      let id = req.query.id //user_id
+      let access = req.query.access //true or false
+      let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
+      let nextPageToken = parseInt(req.query.nextPageToken) || 1;
 
-    let user = await User.findOne({_id: id})
-    let sites = user.stations
+      let user = await User.findOne({_id: id})
+      //console.log(user)
+      if (user == null) {
+        res.status(400).send(err.E40014);
+        return;
+      }
 
-    let qr;
-    if (access == true) {
-      qr = { $in: sites }
-    }else{
-      qr = { $nin: sites }
-    }
-    //let results = await Station.find({_id: { $in: sites }})
-    // if (role != "AD" && role != "SA" && role != "US" && role != undefined) {
-    //   res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
-    //   return
-    // }
-    let totalRecord = await Station.countDocuments({_id: qr}).exec();
-    let totalPage = Math.ceil(totalRecord/limit)
-    let stations = await Station.find({_id: qr}).skip((limit * nextPageToken) - limit).limit(limit)
-    
-    let arrStation = []
+      if (access !== 'true' && access !== 'false' ) {
+        res.status(400).send(err.E40015);
+        return;
+      }
+
+
+      let sites = user.stations
+      //console.log(sites)
+
+      let qr;
+      if (access == 'true') {
+        qr = { $in: sites }
+      }else{
+        qr = { $nin: sites }
+      }
+      //let results = await Station.find({_id: { $in: sites }})
+      // if (role != "AD" && role != "SA" && role != "US" && role != undefined) {
+      //   res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
+      //   return
+      // }
+      let totalRecord = await Station.countDocuments({_id: qr}).exec();
+      let totalPage = Math.ceil(totalRecord/limit)
+      let stations = await Station.find({_id: qr}).skip((limit * nextPageToken) - limit).limit(limit)
+      
+      let arrStation = []
 
     
       for (var i = 0; i < stations.length; i++) {
@@ -251,7 +265,7 @@ router.get('/users/get-sites', async(req, res) => {
 
       nextPageToken = nextPageToken + 1;
 
-      console.log(nextPageToken, totalPage, totalRecord)
+      //console.log(nextPageToken, totalPage, totalRecord)
 
       if(nextPageToken <= totalPage){
         res.send({ 'sites' : arrStation,  nextPageToken:nextPageToken })
