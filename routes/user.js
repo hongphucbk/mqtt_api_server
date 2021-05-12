@@ -13,7 +13,10 @@ router.post('/users/create', async (req, res) => {
         const user = new User(req.body)
         user.role = "US"
         //console.log(user)
-        await user.save()
+        
+        let result = await user.save()
+        //console.log(result)
+        
         const token = await user.generateAuthToken()
         res.status(201).send({'success': true })
 
@@ -28,6 +31,15 @@ router.post('/users/login', async(req, res) => {
     try {
         const { email, password } = req.body
         const user = await User.findByCredentials(email, password)
+        
+        if (user && user.code == 1) { //user
+          return res.status(401).send(err.E40020)
+        }
+
+        if (user && user.code == 2) { //password
+          return res.status(401).send(err.E40021)
+        }
+
         if (!user) {
             return res.status(401).send({error: 'Login failed! Check authentication credentials'})
         }
@@ -41,7 +53,7 @@ router.post('/users/login', async(req, res) => {
         }
         res.send({ 'user': jsonUser, token })
     } catch (error) {
-        res.status(400).send({'result': 0 , error: "user or password is not correct"})
+        res.status(400).send(err.E40001)
     }
 })
 
@@ -163,15 +175,15 @@ router.post('/users/update-role', auth, role(["SA"]), async(req, res) => {
 })
 
 router.get('/users/list', async(req, res) => {
-    //get user
+  try{
     let strQuery
-    let role = req.query.role.toUpperCase()
+    let role = req.query.role ? req.query.role.toUpperCase() : undefined;
     //console.log(role)
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1;
 
     if (role != "AD" && role != "SA" && role != "US" && role != undefined) {
-      res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
+      res.status(400).send(err.E40002)
       return
     }
     if (role === undefined) {
@@ -185,29 +197,28 @@ router.get('/users/list', async(req, res) => {
     let users = await User.find(strQuery).skip((limit * nextPageToken) - limit).limit(limit)
     
     let arrUser = []
-
-    try {
-      for (var i = 0; i < users.length; i++) {
-        let jsonUser = {
-          _id: users[i]._id,
-          name : users[i].name,
-          email : users[i].email,
-          role : users[i].role
-        }
-        arrUser.push(jsonUser)
+  
+    for (var i = 0; i < users.length; i++) {
+      let jsonUser = {
+        _id: users[i]._id,
+        name : users[i].name,
+        email : users[i].email,
+        role : users[i].role
       }
-
-      nextPageToken = nextPageToken + 1;
-
-      if(nextPageToken <= totalPage){
-        res.send({ 'users' : arrUser,  nextPageToken:nextPageToken })
-      }
-      else{
-        res.send({ 'users': arrUser })
-      }
-    } catch (error) {
-        res.status(400).send({'code': 40001 , error: "System error: " + error})
+      arrUser.push(jsonUser)
     }
+
+    nextPageToken = nextPageToken + 1;
+
+    if(nextPageToken <= totalPage){
+      res.send({ 'users' : arrUser,  nextPageToken:nextPageToken })
+    }
+    else{
+      res.send({ 'users': arrUser })
+    }
+  } catch (error) {
+      res.status(400).send({'code': 40001 , error: "System error: " + error})
+  }
 })
 
 router.get('/users/get-sites', async(req, res) => {
