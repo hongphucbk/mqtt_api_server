@@ -124,32 +124,34 @@ router.post('/users/update-sites', auth, role(["SA"]), async(req, res) => {
   //Login a registered user
   try {
     //console.log(req.user)
-    const id = req.body.id
+    const id1 = req.body.id
     const action = req.body.action
     const sites = req.body.sites
-
     //console.log(id, action, sites, sites.length)
 
     if (action == "add") {
       for (var i = 0; i < sites.length; i++) {
-        let b = await User.find({stations: sites[i]}).countDocuments()
-        //console.log(b)
-        if (b <= 0) {
-          let a = await User.findByIdAndUpdate(id, {$push : {stations : sites[i] }},{new: false})
+        let b = await User.find({_id: id1, stations: sites[i]}) //.countDocuments()
+        //console.log(b, sites[i])
+        if (b.length <= 0) {
+          await User.findByIdAndUpdate(id1, {$push : {stations : sites[i] }},{new: false})
+          //await User.findByIdAndUpdate(id1, {stations : sites[i]},{new: false})
         }
       }
-    }else if (action == "remove") {
+      res.status(200).send({success: true})
+    }
+    if (action == "remove") {
       for (var i = 0; i < sites.length; i++) {
-        let b = await User.find({stations: sites[i]}).countDocuments()
-        if (b > 0) {
-          await User.findByIdAndUpdate(id,{ $pull: {stations: sites[i] } })
+        let b = await User.find({_id: id1, stations: sites[i]}).countDocuments()
+        //console.log(b, sites[i])
+        if (b > 0 || true) {
+          await User.findByIdAndUpdate(id1,{ $pull: {stations: sites[i] } })
         }
       }
-    }else{
-
+      res.status(200).send({success: true})
     }
 
-    res.status(200).send({success: true})
+    
   } catch (error) {
       res.status(400).send({error: error.message})
   }
