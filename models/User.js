@@ -32,7 +32,14 @@ const userSchema = mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minLength: 3
+        minLength: 3,
+        validate: {
+            validator: function(val) {
+                return val.length >= 3 || val.length <= 30
+            },
+            message: () => `Enrollment number must be at least 3 characters long`
+        },
+
     },
     stations: [{type: mongoose.Schema.Types.ObjectId}],
 
@@ -61,7 +68,7 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.generateAuthToken = async function() {
     // Generate an auth token for the user
     const user = this
-    const token = jwt.sign({_id: user._id}, process.env.JWT_KEY)
+    const token = jwt.sign({_id: user._id}, process.env.JWT_KEY, { expiresIn: '59m' })
     user.tokens = user.tokens.concat({token})
     await user.save()
     return token

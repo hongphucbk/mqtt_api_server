@@ -53,16 +53,44 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
 // })
 
 router.get('/site/list', auth, async(req, res) => {
-  try{
+  //try{
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
-    let totalRecord = await Station.countDocuments();
+    
+    let status = req.query.status;
 
+    let sites = req.user.stations;
+
+    let strQuery = {}
+    
+    if(req.user.role == "SA"){
+      if (status) {
+        strQuery = { status: status}
+      }else{
+        strQuery = {}
+      }
+    }else{
+      if (sites.length <= 0) {
+        res.send(err.E40016)
+        return;
+      }
+
+      if (status) {
+        strQuery = { _id: { $in: sites }, status: status}
+      }else{
+        strQuery = { _id: { $in: sites } }
+      }
+    }
+
+
+    let totalRecord = await Station.find(strQuery).countDocuments();
     let totalPage = Math.ceil(totalRecord/limit)
 
-    let stations = await Station.find().skip((limit * nextPageToken) - limit).limit(limit)
+    //console.log(req.user.stations)
+    
+    let stations = await Station.find(strQuery).skip((limit * nextPageToken) - limit).limit(limit)
     let stationData = []
-    //let jsonStation = {}
+    //console.log(stations)
 
     for (let j = 0; j < stations.length; j++) {
       let jsonStation = {
@@ -116,16 +144,11 @@ router.get('/site/list', auth, async(req, res) => {
           if (a > 0) {
             let workingHour = parseInt(WH[0].value) / a
             //jsonStation.workingHours += workingHour
-          }
-
-          
+          }  
         }
-
-
-
       }
       stationData.push(jsonStation)
-      //console.log(jsonStation)
+      console.log(jsonStation)
     }
 
     nextPageToken = nextPageToken + 1;
@@ -136,9 +159,9 @@ router.get('/site/list', auth, async(req, res) => {
     else{
       res.send({sites: stationData})
     }
-  }catch(error){
-    res.send(error.message)
-  }
+  // }catch(error){
+  //   res.send(error)
+  // }
 })
 
 

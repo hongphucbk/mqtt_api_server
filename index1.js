@@ -177,7 +177,7 @@ client.on("connect", ack => {
   client.subscribe('SOLAR/#'); // Solar/id/PARAR
 
   client.on("message", async (topic, message) => {
-    //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
+    console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
     try{
       const str_topic = topic.split('/');
     
