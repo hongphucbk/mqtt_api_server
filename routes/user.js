@@ -10,19 +10,30 @@ const err = require('../common/err')
 router.post('/users/create', async (req, res) => {
     // Create a new user
     try {
-        const user = new User(req.body)
-        user.role = "US"
-        //console.log(user)
-        
-        let result = await user.save()
-        //console.log(result)
-        
-        const token = await user.generateAuthToken()
-        res.status(201).send({'success': true })
+      let pwd = req.body.password.trim()
+      if (pwd.length < 3) {
+        res.status(400).send(err.E40018)
+        return
+      }
+
+      const user = new User(req.body)
+      user.role = "US"
+      user.password = pwd
+      //console.log(req.body)
+
+      let result = await user.save()
+      
+      const token = await user.generateAuthToken()
+      res.status(201).send({'success': true })
 
         //res.status(201).send({'result': 1,user, token })
     } catch (error) {
-        res.status(400).send({'error': error.errmsg})
+      if(error && error.code == 11000){
+        res.status(400).send(err.E40017)
+        return
+      }
+
+      res.status(400).send(err.E40001)
     }
 })
 
