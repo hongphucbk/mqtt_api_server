@@ -137,18 +137,22 @@ router.get('/site/list', auth, async(req, res) => {
 
 
           let nameplateWatts = deviceData[0].paras.filter(function(item){
-            return item.name == 'nameplateWatts'
+            return item.name == 'nameplateWatts' //WattsMax
           })
 
-          let a = parseInt(nameplateWatts[0].value)
-          if (a > 0) {
-            let workingHour = parseInt(WH[0].value) / a
-            //jsonStation.workingHours += workingHour
-          }  
+          // let a = parseInt(nameplateWatts[0].value)
+          // if (a > 0) {
+          //   let workingHour = parseInt(WH[0].value) / a
+          //   //jsonStation.workingHours += workingHour
+          // }  
+
+          let workingHour = parseFloat(WH[0].value)/parseFloat(devices[i].nameplateWatts)
+          jsonStation.workingHours += workingHour
+          jsonStation.workingHours.toFixed(3)
         }
       }
       stationData.push(jsonStation)
-      console.log(jsonStation)
+      //console.log(jsonStation)
     }
 
     nextPageToken = nextPageToken + 1;
