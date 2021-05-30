@@ -110,47 +110,6 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
 // });
 
 
-
-//-------------------------------------------------------------------
-//Influx
-  // const Influx = require('influxdb-nodejs');
-  // const client = new Influx('http://127.0.0.1:8086/mydb');
-  // // i --> integer
-  // // s --> string
-  // // f --> float
-  // // b --> boolean
-  // const fieldSchema = {
-  //   use: 'i',
-  //   bytes: 'i',
-  //   url: 's',
-  // };
-  // const tagSchema = {
-  //   spdy: ['speedy', 'fast', 'slow'],
-  //   method: '*',
-  //   // http stats code: 10x, 20x, 30x, 40x, 50x
-  //   type: ['1', '2', '3', '4', '5'],
-  // };
-  // client.schema('http', fieldSchema, tagSchema, {
-  //   // default is false
-  //   stripUnknown: true,
-  // });
-  // client.write('http')
-  //   .tag({
-  //     spdy: 'fast',
-  //     method: 'GET',
-  //     type: '2',  
-  //   })
-  //   .field({
-  //     use: 300,
-  //     bytes: 2312,
-  //     url: 'https://github.com/vicanso/influxdb-nodejs',
-  //   })
-  //   .queue()
-  //   .then(() => console.info('write point success'))
-  //   .catch(console.error);
-  // // https://vicanso.github.io/influxdb-nodejs/Client.html#findOneAndUpdate
-
-// Mqtt
 // Mqtt
 const mqtt = require('mqtt');
 var options = {
@@ -166,6 +125,7 @@ const HistoryDeviceData = require('./models/HistoryDeviceData')
 const Event = require('./models/Event')
 const HistoryEvent = require('./models/HistoryEvent')
 const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
+const AlarmCode = require('./models/AlarmCode')
 
 
 const client = mqtt.connect(process.env.MQTT_URL, options );
@@ -175,6 +135,12 @@ client.on("connect", ack => {
   console.log("MQTT Client Connected!");
   //client.subscribe('inverterB/#');
   client.subscribe('SOLAR/#'); // Solar/id/PARAR
+
+  setInterval( function(){
+    let str = '{"activeEvents": { "RegisterStatus": 11 }}'
+    //client.publish('SOLAR/609ea4892aec141dc890ffbb/reportEvent1', str)
+  },15000);
+
 
   client.on("message", async (topic, message) => {
     console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
@@ -207,8 +173,6 @@ client.on("connect", ack => {
       //console.log(data, "\n--------------- ", data.timestamp)
       if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
         data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-
-        
         //console.log("----->",data )
         if (data) {
           let arr = []
@@ -253,6 +217,40 @@ client.on("connect", ack => {
         // let dt1 = new HistoryDeviceData(data)
         // dt1.save();
       }
+
+      // if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent1"){
+      //   data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+      //   //console.log("----->",data )
+      //   let alarmCode = data.activeEvents.RegisterStatus;
+      //   let arrRegister = alarmCode.toString(2).split('').reverse();
+      //   console.log(arrRegister)
+
+      //   let oldAlarm = await AlarmCode.findOne({device: str_topic[1]})
+      //   let oldRegister = oldAlarm.registers
+      //   //console.log('old', oldRegister)
+      //   // if (data) {
+      //   //   let arr = []
+      //   //   for (let i = 0; i < data.activeEvents.length; i++) {
+      //   //     let d = {
+      //   //       device : str_topic[1],
+      //   //       event :  data.activeEvents[i].event,
+      //   //       status : 0,
+      //   //       timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
+      //   //       updated_at : new Date(),
+      //   //     }
+
+      //   //     let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
+      //   //     //console.log(existEvent, existEvent.length)
+      //   //     if (existEvent.length == 0) {
+      //   //       Event.insertMany([d])
+      //   //       HistoryEvent.insertMany([d])
+      //   //     }
+            
+      //   //   }
+      //   // }else{
+      //   let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1]},{registers: arrRegister},{upsert: true})
+      //   // }
+      // }
       
     }catch(error){
       console.log('error', error.message)
@@ -274,4 +272,15 @@ async function deleteData() {
   await DeviceData.deleteMany({ timestamp: { $lte: before3h } });
   await Event.deleteMany({ timestamp: { $lte: before24h } });
 }
+
+async function alarm(){
+  let alarmCode = 56;
+  let arrRegister = alarmCode.toString(2).split('').reverse();
+  //console.log(arrRegister)
+}
+
+//alarm();
+
 setInterval( deleteData , 5*60000);
+
+
