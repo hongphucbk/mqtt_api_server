@@ -206,8 +206,10 @@ router.get('/site/overview', auth, async(req, res) => {
         let WH_calc = paras.filter((para) => para.name === 'WH')
         d.todaySumEnergy += WH_calc[0].value
 
-        let nameplateWatts = paras.filter((para) => para.name === 'nameplateWatts')
-        d.ratedSumPower += nameplateWatts[0].value
+        //let nameplateWatts = paras.filter((para) => para.name === 'nameplateWatts')
+        //d.ratedSumPower = nameplateWatts[0].value
+
+        d.ratedSumPower = devices[i].nameplateWatts
         
       }
     }
