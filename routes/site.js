@@ -16,6 +16,44 @@ const moment = require('moment'); // require
 const router = express.Router()
 
 
+router.post('/site', auth, role(['SA']),async (req, res) => {
+  // Validate
+  if (!req.body.name) {
+    res.json(err.E40101)
+    return
+  }
+
+  if (!req.body.price) {
+    res.json(err.E40102)
+    return
+  }
+
+  if (!req.body.currency) {
+    res.json(err.E40103)
+    return
+  }
+
+  try {
+      const site = new Station(req.body)
+      console.log(site)
+      await site.save()
+
+      let displaySite = {
+        id: site.id,
+        name: site.name,
+        describe: site.describe,
+        price: site.price,
+        currency: site.currency,
+      }
+      res.status(201).send({site: displaySite})
+  } catch (error) {
+    if (error.code == 11000) {
+      res.json(err.E40100)
+      return 
+    }
+    res.status(500).send({"error": error.message})
+  }
+})
 
 router.post('/site/role', auth, role(['SA']),async (req, res) => {
     // Create a new user
@@ -220,7 +258,7 @@ router.get('/site/overview', auth, async(req, res) => {
 })
 
 router.get('/site/devices', auth, async(req, res) => {
-  try{
+  //try{
     let id = req.query.id;
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
@@ -245,6 +283,7 @@ router.get('/site/devices', auth, async(req, res) => {
           curActPower: 0,   //power
           todayEnergy: 0    //kwh - powerGenerated
         }
+      //console.log(d)
         
 
       // let deviceData = await DeviceData.find({device: devices[i]._id, paras: "workingHours"}).sort({_id: -1}).limit(1)
@@ -253,16 +292,39 @@ router.get('/site/devices', auth, async(req, res) => {
       //   d.paras.workingHours = deviceData[0].value
       // }
 
-      let deviceDataPower = await DeviceData.find({device: devices[i]._id, paras: "power"}).sort({_id: -1}).limit(1)
-      if (deviceDataPower.length > 0){
-        //console.log("Result: ", deviceData[0].value)
-        d.curActPower += deviceDataPower[0].value
-      }
+      // let deviceDataPower = await DeviceData.find({device: devices[i]._id, paras: "Watts"}).sort({_id: -1}).limit(1)
+      // if (deviceDataPower.length > 0){
+      //   //console.log("Result: ", deviceData[0].value)
+      //   d.curActPower += deviceDataPower[0].value
+      // }
 
-      let deviceDataPowerGenerated = await DeviceData.find({device: devices[i]._id, paras: "powerGenerated"}).sort({_id: -1}).limit(1)
-      if (deviceDataPowerGenerated.length > 0){
-        d.todayEnergy += deviceDataPowerGenerated[0].value
+      // let deviceDataPowerGenerated = await DeviceData.find({device: devices[i]._id, paras: "WH"}).sort({_id: -1}).limit(1)
+      // if (deviceDataPowerGenerated.length > 0){
+      //   d.todayEnergy += deviceDataPowerGenerated[0].value
+      // }
+
+      //--------
+      let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
+      if (deviceData.length > 0) {
+        //console.log(deviceData)
+        let Watts = deviceData[0].paras.filter(function(item){
+          return item.name == 'Watts'
+        })
+        d.curActPower += parseInt(Watts[0].value)
+        
+
+        let WH = deviceData[0].paras.filter(function(item){
+          return item.name == 'WH'
+        })
+        d.todayEnergy += parseInt(WH[0].value)
       }
+      
+
+
+      // let nameplateWatts = deviceData[0].paras.filter(function(item){
+      //   return item.name == 'nameplateWatts' //WattsMax
+      // })
+
       
       data.push(d)
     }
@@ -276,10 +338,10 @@ router.get('/site/devices', auth, async(req, res) => {
     }
 
     //res.send({ devices:data})
-  }
-  catch(error){
-    res.send(error)
-  }
+  // }
+  // catch(error){
+  //   res.send(error)
+  // }
 })
 
 

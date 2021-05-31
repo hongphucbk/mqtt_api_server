@@ -59,18 +59,20 @@ const stationRouter = require('./routes/station');
 const siteRouter = require('./routes/site');
 const deviceRouter = require('./routes/device');
 const roleRouter = require('./routes/role');
+const deviceTypeRouter = require('./routes/device_type');
+const iotDeviceRouter = require('./routes/iot_device');
 
 app.use(userRouter)
 app.use(stationRouter)
 app.use(deviceRouter)
 app.use(siteRouter)
 app.use(roleRouter)
+app.use(deviceTypeRouter)
+app.use(iotDeviceRouter)
 
 //var authRouter = require('./routes/auth.route');
 //var stationRouter = require('./routes/station.route');
 //var datainforRouter = require('./routes/datainfor.route');
-
-
 //-------------------------------------------------------------------
 var mongoose = require('mongoose');
 //mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true});
@@ -83,32 +85,23 @@ mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopol
 //app.use('/users', userRouter);
 //app.use('/auth', authRouter);
 
-
 // app.use('/station_measurement', stationMeasurementRouter);
 // app.use('/device', deviceRouter);
 // app.use('/', fontendRouter);
-
 // app.use('/email', emailRouter);
 
 // app.group("/admin", (router) => {
 //   //router.use('/users', userRouter);
 //   router.use('/station', stationRouter);
 //   router.use('/datainfor', datainforRouter);
-//   router.use('/parameter', parameterRouter);
-//   router.use('/station-para', stationParaRouter);
-//   router.use('/gc-parameter', gcParaRouter);
-//   router.use('/pid-interface', pidInterfaceRouter);
 //   //router.get("/users", loginController.store); // /api/v1/login 
 // });
 
 //app.use('*', fontendRouter);
-
 //-------------------------------------------------------------------
-
 // app.listen(port, function(){
 // 	console.log(`Server listening on port ${port}!`)
 // });
-
 
 // Mqtt
 const mqtt = require('mqtt');
@@ -127,7 +120,6 @@ const HistoryEvent = require('./models/HistoryEvent')
 const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 const AlarmCode = require('./models/AlarmCode')
 
-
 const client = mqtt.connect(process.env.MQTT_URL, options );
 let data;
 
@@ -143,7 +135,7 @@ client.on("connect", ack => {
 
 
   client.on("message", async (topic, message) => {
-    console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
+    //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
     try{
       const str_topic = topic.split('/');
     
