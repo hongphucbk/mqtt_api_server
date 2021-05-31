@@ -19,20 +19,19 @@ router.post('/device', auth, async (req, res) => {
     //let station = await Station.findOne({ _id: station_id });
     try {
         const device = new Device(req.body)
-
-        //device.station =  mongoose.Types.ObjectId(station_id)
-
         console.log(device)
         await device.save()
-
 
         let doc = await Station.findOneAndUpdate({_id:req.body.station}, {$push: {devices: device._id}},{'upsert':true})
         console.log(doc)
 
-        //const token = await user.generateAuthToken()
-        res.status(201).send({result: 1, device })
+        res.status(201).send({device: device })
     } catch (error) {
-        res.status(400).send({result: 0,error})
+      if (error.code == 11000) {
+        res.json(err.E40300)
+        return 
+      }
+      res.status(500).send({error: error.message})
     }
 })
 

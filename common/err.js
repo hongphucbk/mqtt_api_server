@@ -19,5 +19,15 @@ module.exports = {
 
   E40020 : {code: 40020, message: 'Email is incorrect'},
   E40021 : {code: 40021, message: 'Password is incorrect'},
+
+  E40100 : {code: 40100, message: 'The site name is exist in database'},
+  E40101 : {code: 40101, message: 'The site name is required'},
+  E40102 : {code: 40102, message: 'The price is required'},
+  E40103 : {code: 40103, message: 'The currency is required'},
+
+  E40200 : {code: 40200, message: 'The iot name is exist in database'},
+  E40201 : {code: 40201, message: 'The iot name is required'},
+
+  E40300 : {code: 40300, message: 'The device name is exist in database'},
 }
 
