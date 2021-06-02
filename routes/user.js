@@ -308,4 +308,24 @@ router.get('/users/get-sites', async(req, res) => {
     }
 })
 
+router.delete('/users', auth, async(req, res) => {
+  try{
+    let user_id = req.body.user_id;
+
+    let result = await User.findOneAndDelete({ _id: user_id })
+    if (result) {
+      let d = {
+        id: result._id,
+        name: result.name,
+        email: result.email,
+        role: result.role
+      }
+      res.status(200).send({deleted: d})
+    }
+    res.send(err.E40400)
+  } catch (error) {
+      res.status(400).send({error: error.message})
+  }
+})
+
 module.exports = router;
