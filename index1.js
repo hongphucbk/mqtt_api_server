@@ -129,7 +129,7 @@ client.on("connect", ack => {
   client.subscribe('SOLAR/#'); // Solar/id/PARAR
 
   setInterval( function(){
-    let str = '{"activeEvents": { "RegisterStatus": 11 }}'
+    let str = '{"activeEvents": [{"event": "UNDER_TEMP", "eventID": 14, "Type": "Alarm", "timeStamp": "2021-05-31 15:46:53.431452"}], "Register": 1, "RegisterStatus": 20}'
     //client.publish('SOLAR/609ea4892aec141dc890ffbb/reportEvent1', str)
   },15000);
 
@@ -210,39 +210,61 @@ client.on("connect", ack => {
         // dt1.save();
       }
 
-      // if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent1"){
-      //   data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-      //   //console.log("----->",data )
-      //   let alarmCode = data.activeEvents.RegisterStatus;
-      //   let arrRegister = alarmCode.toString(2).split('').reverse();
-      //   console.log(arrRegister)
+      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent2"){
+        data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+        //console.log("----->",data )
+        let alarmCode = data.RegisterStatus;
+        let register = data.Register;
 
-      //   let oldAlarm = await AlarmCode.findOne({device: str_topic[1]})
-      //   let oldRegister = oldAlarm.registers
-      //   //console.log('old', oldRegister)
-      //   // if (data) {
-      //   //   let arr = []
-      //   //   for (let i = 0; i < data.activeEvents.length; i++) {
-      //   //     let d = {
-      //   //       device : str_topic[1],
-      //   //       event :  data.activeEvents[i].event,
-      //   //       status : 0,
-      //   //       timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
-      //   //       updated_at : new Date(),
-      //   //     }
+        let d = {
+              device : str_topic[1],
+              register :  register,
+              status : alarmCode,
+              timestamp : new Date(),
+              updated_at : new Date(),
+            }
 
-      //   //     let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
-      //   //     //console.log(existEvent, existEvent.length)
-      //   //     if (existEvent.length == 0) {
-      //   //       Event.insertMany([d])
-      //   //       HistoryEvent.insertMany([d])
-      //   //     }
+        let arrRegister = alarmCode.toString(2).split('').reverse();
+        //console.log(arrRegister)
+
+        let oldAlarm = await AlarmCode.findOne({device: str_topic[1], register: register})
+        if (!oldAlarm) {
+          AlarmCode.insertMany([d])
+        }
+        let arr2 = oldAlarm.status
+       // console.log('old', arr2)
+
+        if (arrRegister.length == arr2.length 
+            && arrRegister.every(function(u, i) {
+                return u === arr2[i];
+            })
+        ) {
+           //console.log(true);
+        } else {
+           //console.log(false);
+        }
+
+        for (var i = 0; i < arrRegister.length; i++) {
+          arrRegister[i]
+        }
+
+        // if (data) {
+        //   let arr = []
+        //   for (let i = 0; i < data.activeEvents.length; i++) {
+        //     
+
+        //     let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
+        //     //console.log(existEvent, existEvent.length)
+        //     if (existEvent.length == 0) {
+        //       Event.insertMany([d])
+        //       HistoryEvent.insertMany([d])
+        //     }
             
-      //   //   }
-      //   // }else{
-      //   let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1]},{registers: arrRegister},{upsert: true})
-      //   // }
-      // }
+        //   }
+        // }else{
+        let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1], register: register},{status: arrRegister},{upsert: true})
+        // }
+      }
       
     }catch(error){
       console.log('error', error.message)

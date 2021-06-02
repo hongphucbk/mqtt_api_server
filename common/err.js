@@ -27,6 +27,9 @@ module.exports = {
 
   E40200 : {code: 40200, message: 'The iot name is exist in database'},
   E40201 : {code: 40201, message: 'The iot name is required'},
+  E40202 : {code: 40202, message: 'The iot code is required'},
+  E40203 : {code: 40203, message: 'The site_id is required'},
+  E40204 : {code: 40204, message: 'IOT Code is incorrect'},
 
   E40300 : {code: 40300, message: 'The device name is exist in database'},
 }
