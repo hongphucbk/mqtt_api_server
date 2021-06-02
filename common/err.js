@@ -32,5 +32,8 @@ module.exports = {
   E40204 : {code: 40204, message: 'IOT Code is incorrect'},
 
   E40300 : {code: 40300, message: 'The device name is exist in database'},
+
+
+  E40400 : {code: 40400, message: 'Can not find user'},
 }
 
