@@ -3,7 +3,7 @@ const validator = require('validator')
 
 const alarmCodeSchema = mongoose.Schema({
     device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
-    registers : {
+    status : {
         type: Array
     },
     // event: {
@@ -11,9 +11,9 @@ const alarmCodeSchema = mongoose.Schema({
     //     required: true,
     //     trim: true,
     // },
-    // dataType: {
-    //     type: String,
-    // },
+    register: {
+        type: Number,
+    },
     timestamp: {
         type: Date,
     },

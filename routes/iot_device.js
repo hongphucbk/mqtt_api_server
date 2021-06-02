@@ -57,6 +57,44 @@ router.get('/iot_device', auth, async(req, res) => {
   } 
 })
 
+
+router.post('/iot_device_assign', auth, async (req, res) => {
+  if (!req.body.code) {
+    res.json(err.E40202)
+    return
+  }
+
+  if (!req.body.site_id) {
+    res.json(err.E40203)
+    return
+  }
+
+  try {
+    let iot_device = await IotDevice.findOne({code: req.body.code})
+    if (!iot_device) {
+      res.json(err.E40204)
+      return
+    }
+    iot_device.station = req.body.site_id
+    await iot_device.save()
+
+    let d = {
+      id: iot_device._id,
+      name: iot_device.name,
+      code: iot_device.code,
+      site_id: iot_device.station,
+      status : iot_device.status ? 'online' : 'offline'
+    }
+
+    res.status(201).send({iot_device: d })
+  } catch (error) {
+    // if (error.code == 11000) {
+    //   res.json(err.E40200)
+    //   return 
+    // }
+    res.status(500).send({"error": error.message})
+  }
+})
 // router.get('/devices', auth, async(req, res) => {
 //     //let id = req.params.station_id;
 //     //try{
