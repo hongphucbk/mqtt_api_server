@@ -2,15 +2,17 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 
 const eventSchema = mongoose.Schema({
-    event: {
+    description: {
         type: String,
         required: true,
-        trim: true,
     },
     code: {
         type: String,
         //required: true,
         trim: true,
+    },
+    register: {
+        type: String,
     },
     dataType: {
         type: String,

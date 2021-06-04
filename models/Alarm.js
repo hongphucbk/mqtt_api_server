@@ -2,12 +2,13 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 
 const alarmSchema = mongoose.Schema({
-    event: {
-        type: String,
-        required: true,
-        trim: true,
+    register: {
+        type: Number,
     },
-    dataType: {
+    code: {
+        type: Number,
+    },
+    description: {
         type: String,
     },
     timestamp: {
@@ -33,6 +34,6 @@ const alarmSchema = mongoose.Schema({
 
 
 
-const Alarm = mongoose.model('Alarm', alarmSchema, 'alarm')
+const Alarm = mongoose.model('Alarm', alarmSchema, 'alarms')
 
 module.exports = Alarm

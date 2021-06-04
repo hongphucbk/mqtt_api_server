@@ -119,6 +119,7 @@ const Event = require('./models/Event')
 const HistoryEvent = require('./models/HistoryEvent')
 const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 const AlarmCode = require('./models/AlarmCode')
+const Alarm = require('./models/Alarm')
 
 const client = mqtt.connect(process.env.MQTT_URL, options );
 let data;
@@ -129,10 +130,9 @@ client.on("connect", ack => {
   client.subscribe('SOLAR/#'); // Solar/id/PARAR
 
   setInterval( function(){
-    let str = '{"activeEvents": [{"event": "UNDER_TEMP", "eventID": 14, "Type": "Alarm", "timeStamp": "2021-05-31 15:46:53.431452"}], "Register": 1, "RegisterStatus": 20}'
+    //let str = '{"activeEvents": [{"event": "UNDER_TEMP", "eventID": 14, "Type": "Alarm", "timeStamp": "2021-05-31 15:46:53.431452"}], "Register": 1, "RegisterStatus": 20}'
     //client.publish('SOLAR/609ea4892aec141dc890ffbb/reportEvent1', str)
   },15000);
-
 
   client.on("message", async (topic, message) => {
     //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
@@ -163,89 +163,104 @@ client.on("connect", ack => {
         // dt1.save();
       }
       //console.log(data, "\n--------------- ", data.timestamp)
-      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
-        data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-        //console.log("----->",data )
-        if (data) {
-          let arr = []
-          for (let i = 0; i < data.activeEvents.length; i++) {
-            let d = {
-              device : str_topic[1],
-              event :  data.activeEvents[i].event,
-              status : 0,
-              timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
-              updated_at : new Date(),
-            }
+      // if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent2"){
+      //   data = JSON.parse(message.toString()) //JSON.parse(message.toString());
+      //   //console.log("----->",data )
+      //   if (data) {
+      //     let arr = []
+      //     for (let i = 0; i < data.activeEvents.length; i++) {
+      //       let d = {
+      //         device : str_topic[1],
+      //         event :  data.activeEvents[i].event,
+      //         status : 0,
+      //         timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
+      //         updated_at : new Date(),
+      //       }
 
-            let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
-            //console.log(existEvent, existEvent.length)
-            if (existEvent.length == 0) {
-              Event.insertMany([d])
-              HistoryEvent.insertMany([d])
-            }
+      //       let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
+      //       //console.log(existEvent, existEvent.length)
+      //       if (existEvent.length == 0) {
+      //         Event.insertMany([d])
+      //         HistoryEvent.insertMany([d])
+      //       }
             
-          }
-        }else{
-          let clr = await Event.findOneAndUpdate({device: str_topic[1], status: 0},{status: 1})
-        }
-        //--------------------
-        // let backlogs = await Event.find({device: str_topic[1], status: 0})
+      //     }
+      //   }else{
+      //     let clr = await Event.findOneAndUpdate({device: str_topic[1], status: 0},{status: 1})
+      //   }
+      //   //--------------------
+      //   // let backlogs = await Event.find({device: str_topic[1], status: 0})
 
-        // for (let i = 0; i < backlogs.length; i++) {
-        //   for (let j = 0; j < data.activeEvents.length; j++) {
-        //     let isbool = backlogs[i].event.equals(data.activeEvents[j].event)
-        //     if (!isbool) {
-        //       Event.findOneAndUpdate({device: str_topic[1], status: 0, event: data.ac},{status: 1})
-        //     }
-        //   }
-        // }
+      //   // for (let i = 0; i < backlogs.length; i++) {
+      //   //   for (let j = 0; j < data.activeEvents.length; j++) {
+      //   //     let isbool = backlogs[i].event.equals(data.activeEvents[j].event)
+      //   //     if (!isbool) {
+      //   //       Event.findOneAndUpdate({device: str_topic[1], status: 0, event: data.ac},{status: 1})
+      //   //     }
+      //   //   }
+      //   // }
 
-        //let existEvents = await Event.find({device: str_topic[1], status: 0})
+      //   //let existEvents = await Event.find({device: str_topic[1], status: 0})
         
 
         
-        //console.log(arr)        //let event = new Event(arr)
+      //   //console.log(arr)        //let event = new Event(arr)
         
-        // let dt1 = new HistoryDeviceData(data)
-        // dt1.save();
-      }
+      //   // let dt1 = new HistoryDeviceData(data)
+      //   // dt1.save();
+      // }
 
-      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent2"){
+      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
         data = JSON.parse(message.toString()) //JSON.parse(message.toString());
         //console.log("----->",data )
         let alarmCode = data.RegisterStatus;
         let register = data.Register;
 
+        let arrs = []
+        let arrAlarms = await Alarm.find({register: register})
+
         let d = {
-              device : str_topic[1],
-              register :  register,
-              status : alarmCode,
-              timestamp : new Date(),
-              updated_at : new Date(),
-            }
+          device : str_topic[1],
+          register :  register,
+          status : alarmCode,
+          timestamp : new Date(),
+          updated_at : new Date(),
+        }
+
+        let jsonEvent = {
+          device: str_topic[1],
+          register :  register,
+          code: 0,
+          status: 0,
+          description: 'abc',
+          timestamp : moment().add(7, 'hours'),
+          updated_at : moment().add(7, 'hours'),
+        }
+
 
         let arrRegister = alarmCode.toString(2).split('').reverse();
-        //console.log(arrRegister)
+        //console.log('arr ' + arrRegister)
 
         let oldAlarm = await AlarmCode.findOne({device: str_topic[1], register: register})
         if (!oldAlarm) {
           AlarmCode.insertMany([d])
         }
         let arr2 = oldAlarm.status
-       // console.log('old', arr2)
-
-        if (arrRegister.length == arr2.length 
-            && arrRegister.every(function(u, i) {
-                return u === arr2[i];
-            })
-        ) {
-           //console.log(true);
-        } else {
-           //console.log(false);
-        }
 
         for (var i = 0; i < arrRegister.length; i++) {
-          arrRegister[i]
+          if (arrRegister[i] == 0 && arr2[i] == 1 ) {
+            //console.log(i + ' clear')
+          }
+
+          if (arrRegister[i] == 1 && arr2[i] == 0 && i <= 8) {
+            // New alarm
+            //console.log(i +' new alarm')
+            jsonEvent.code = i
+            jsonEvent.description = arrAlarms[i].description
+            //console.log(jsonEvent)
+            await Event.insertMany([jsonEvent])
+          }
+          //arrRegister[i]
         }
 
         // if (data) {
