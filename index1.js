@@ -121,6 +121,9 @@ const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 const AlarmCode = require('./models/AlarmCode')
 const Alarm = require('./models/Alarm')
 
+const Queue = require('./common/Queue')
+let _queue = new Queue();
+
 const client = mqtt.connect(process.env.MQTT_URL, options );
 let data;
 
@@ -163,124 +166,10 @@ client.on("connect", ack => {
         // dt1.save();
       }
 
-      //console.log(data, "\n--------------- ", data.timestamp)
-      // if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent2"){
-      //   data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-      //   //console.log("----->",data )
-      //   if (data) {
-      //     let arr = []
-      //     for (let i = 0; i < data.activeEvents.length; i++) {
-      //       let d = {
-      //         device : str_topic[1],
-      //         event :  data.activeEvents[i].event,
-      //         status : 0,
-      //         timestamp : moment(data.activeEvents[i].timeStamp).add(7, 'hours'),
-      //         updated_at : new Date(),
-      //       }
 
-      //       let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
-      //       //console.log(existEvent, existEvent.length)
-      //       if (existEvent.length == 0) {
-      //         Event.insertMany([d])
-      //         HistoryEvent.insertMany([d])
-      //       }
-            
-      //     }
-      //   }else{
-      //     let clr = await Event.findOneAndUpdate({device: str_topic[1], status: 0},{status: 1})
-      //   }
-      //   //--------------------
-      //   // let backlogs = await Event.find({device: str_topic[1], status: 0})
-
-      //   // for (let i = 0; i < backlogs.length; i++) {
-      //   //   for (let j = 0; j < data.activeEvents.length; j++) {
-      //   //     let isbool = backlogs[i].event.equals(data.activeEvents[j].event)
-      //   //     if (!isbool) {
-      //   //       Event.findOneAndUpdate({device: str_topic[1], status: 0, event: data.ac},{status: 1})
-      //   //     }
-      //   //   }
-      //   // }
-
-      //   //let existEvents = await Event.find({device: str_topic[1], status: 0})
-        
-
-        
-      //   //console.log(arr)        //let event = new Event(arr)
-        
-      //   // let dt1 = new HistoryDeviceData(data)
-      //   // dt1.save();
-      // }
-
-      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent3"){
-        data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-        //console.log("----->",data )
-        let alarmCode = data.RegisterStatus;
-        let register = data.Register;
-
-        let arrs = []
-        let arrAlarms = await Alarm.find({register: register})
-
-        let d = {
-          device : str_topic[1],
-          register :  register,
-          status : alarmCode,
-          timestamp : new Date(),
-          updated_at : new Date(),
-        }
-
-        let jsonEvent = {
-          device: str_topic[1],
-          register :  register,
-          code: 0,
-          status: 0,
-          description: 'abc',
-          timestamp : moment(), //.add(7, 'hours'),
-          updated_at : moment(), //.add(7, 'hours'),
-        }
-
-
-        let arrRegister = alarmCode.toString(2).split('').reverse();
-        console.log('arr ' + arrRegister)
-
-        let oldAlarm = await AlarmCode.findOne({device: str_topic[1], register: register})
-        if (!oldAlarm) {
-          AlarmCode.insertMany([d])
-        }
-        let arr2 = oldAlarm.status
-        console.log('arr2 ' + arr2)
-        for (var i = 0; i < arrRegister.length; i++) {
-          if (arrRegister[i] == 0 && arr2[i] == 1 ) {
-            console.log(i + 'old alarm')
-            await Event.findOneAndUpdate({device: str_topic[1], register: register, code: i},{status: 1},{upsert: false})
-          }
-
-          if (arrRegister[i] == 1 && arr2[i] == 0 && i <= 8) {
-            // New alarm
-            console.log(i +' new alarm')
-            jsonEvent.code = i
-            jsonEvent.description = arrAlarms[i].description
-            //console.log(jsonEvent)
-            await Event.insertMany([jsonEvent])
-          }
-          //arrRegister[i]
-        }
-
-        // if (data) {
-        //   let arr = []
-        //   for (let i = 0; i < data.activeEvents.length; i++) {
-        //     
-
-        //     let existEvent = await Event.find({device: d.device, event: d.event, status: 0})
-        //     //console.log(existEvent, existEvent.length)
-        //     if (existEvent.length == 0) {
-        //       Event.insertMany([d])
-        //       HistoryEvent.insertMany([d])
-        //     }
-            
-        //   }
-        // }else{
-        let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1], register: register},{status: arrRegister},{upsert: true})
-        // }
+      if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
+        data = JSON.parse(message.toString())
+        processEvent(data, str_topic)
       }
       
     }catch(error){
@@ -290,6 +179,72 @@ client.on("connect", ack => {
     //DeviceData.insertMany([data])
   });
 });
+
+
+async function processEvent(data, str_topic){
+  let alarmCode = data.RegisterStatus;
+  let register = data.Register;
+
+  let arrs = []
+  let arrAlarms = await Alarm.find({register: register})
+
+  let d = {
+    device : str_topic[1],
+    register :  register,
+    status : alarmCode,
+    timestamp : new Date(),
+    updated_at : new Date(),
+  }
+
+  let jsonEvent = {
+    device: str_topic[1],
+    register :  register,
+    code: 0,
+    status: 0,
+    description: 'abc',
+    timestamp : moment(), //.add(7, 'hours'),
+    updated_at : moment(), //.add(7, 'hours'),
+  }
+
+  let arrRegister = alarmCode.toString(2).split('').reverse();
+  //console.log('arrN ' + arrRegister)
+
+  let oldAlarm = await AlarmCode.findOne({device: str_topic[1], register: register})
+  if (!oldAlarm) {
+    AlarmCode.insertMany([d])
+  }
+  let arr2 = oldAlarm.status
+  //console.log('arr2 ' + arr2)
+  for (var i = 0; i < arrRegister.length; i++) {
+    if (arrRegister[i] == 0 && arr2[i] == 1) {
+      //console.log(i + ' - old alarm')
+      await Event.findOneAndUpdate({
+        device: str_topic[1], 
+        register: register, 
+        code: i, 
+        status: 0
+      },
+      { status: 1,
+        completed_at: moment(),
+      },
+      {upsert: false}
+      )
+    }
+
+    if (arrRegister[i] == 1 && arr2[i] == 0) {
+      // New alarm
+      //console.log(i +' new alarm')
+      jsonEvent.code = i
+      jsonEvent.description = arrAlarms[i].description
+      //console.log(jsonEvent)
+      await Event.insertMany([jsonEvent])
+    }
+    //arrRegister[i]
+  }
+
+  let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1], register: register},{status: arrRegister},{upsert: true})
+
+}
 
 client.on("error", err => {
   console.log(err);
@@ -303,14 +258,6 @@ async function deleteData() {
   await DeviceData.deleteMany({ timestamp: { $lte: before3h } });
   await Event.deleteMany({ timestamp: { $lte: before24h } });
 }
-
-async function alarm(){
-  let alarmCode = 56;
-  let arrRegister = alarmCode.toString(2).split('').reverse();
-  //console.log(arrRegister)
-}
-
-//alarm();
 
 setInterval( deleteData , 5*60000);
 
