@@ -24,8 +24,8 @@ let stationData = []
 
 async function StoredDeviceData(){
   try{
-    let start = moment().subtract(5, 'minutes').startOf('minute')
-    let end = moment().subtract(5, 'minutes').endOf('minute')
+    let start = moment().subtract(10, 'minutes').startOf('minute')
+    let end = moment().subtract(0, 'minutes').endOf('minute')
     //console.log(start, end)
     let devices = await Device.find();
     //console.log('------------')
@@ -50,6 +50,9 @@ async function StoredDeviceData(){
       infors = await DeviceData.find({ device: devices[j]._id, 
                                        timestamp: {$gte: start, $lte: end } 
                                     })
+
+      //console.log(devices[j].name, '-----------')
+      //console.log(infors)
 
       // Watts
       for (var i = 0; i < infors.length; i++) {
@@ -93,7 +96,7 @@ async function StoredDeviceData(){
 
       jsonDevice.updated_at = new Date();
 
-      const filter = {timestamp: start, device: devices[j]._id};
+      const filter = {timestamp: end, device: devices[j]._id};
       const update = jsonDevice;
 
       let doc = await HistoryDeviceData.findOneAndUpdate(filter, update, {
@@ -109,13 +112,15 @@ async function StoredDeviceData(){
 
 
 
-async function StoredSatationData(){
+async function StoredStationData(){
   try{
     let start = moment().subtract(5, 'minutes').startOf('minute')
     let end = moment().subtract(5, 'minutes').endOf('minute')
 
     //console.log(start, end)
     let stations = await Station.find();
+
+    //console.log(stations)
 
     for (let j = 0; j < stations.length; j++) {
       let jsonStation = {
@@ -128,15 +133,16 @@ async function StoredSatationData(){
         //name: stations[j].name,
       }
 
-
       let devices = await Device.find({ station: stations[j]._id })
       let ids = []
       devices.forEach(function(device){
         ids.push(device._id)
       })
 
-      let infors;
+      //console.log("--------------------")
+      //console.log(ids)
 
+      let infors;
       let Watts = 0;
       let WH = 0;
       let workingHours = 0
@@ -172,21 +178,13 @@ async function StoredSatationData(){
   }
 }
 
-
-
-  
 setInterval(function(){
   //StoredDatabase();
   StoredDeviceData()
   //StoredDeviceDataNow()
-}, parseInt(process.env.DEVICE_CALC) * 60000);
+}, parseInt(process.env.DEVICE_CALC) * 5000);
 
 setInterval(function(){
-  StoredSatationData()
+  StoredStationData()
   //StoredSatationDataNow()
 }, parseInt(process.env.STATION_CALC) * 60000);
-
-
-
-  //console.log('----------->',stationData)
-  //res.send({sites: stationData })

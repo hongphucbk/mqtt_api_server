@@ -61,6 +61,7 @@ const deviceRouter = require('./routes/device');
 const roleRouter = require('./routes/role');
 const deviceTypeRouter = require('./routes/device_type');
 const iotDeviceRouter = require('./routes/iot_device');
+const eventRouter = require('./routes/event');
 
 app.use(userRouter)
 app.use(stationRouter)
@@ -69,6 +70,7 @@ app.use(siteRouter)
 app.use(roleRouter)
 app.use(deviceTypeRouter)
 app.use(iotDeviceRouter)
+app.use(eventRouter)
 
 //var authRouter = require('./routes/auth.route');
 //var stationRouter = require('./routes/station.route');
@@ -120,6 +122,7 @@ const HistoryEvent = require('./models/HistoryEvent')
 const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 const AlarmCode = require('./models/AlarmCode')
 const Alarm = require('./models/Alarm')
+const Device = require('./models/Device')
 
 const Queue = require('./common/Queue')
 let _queue = new Queue();
@@ -133,9 +136,10 @@ client.on("connect", ack => {
   client.subscribe('SOLAR/#'); // Solar/id/PARAR
 
   setInterval( function(){
-    //let str = '{"activeEvents": [{"event": "UNDER_TEMP", "eventID": 14, "Type": "Alarm", "timeStamp": "2021-05-31 15:46:53.431452"}], "Register": 1, "RegisterStatus": 20}'
-    //client.publish('SOLAR/609ea4892aec141dc890ffbb/reportEvent1', str)
-  },15000);
+    //let rd = Math.random()*100;
+    //let str = '{"activeEvents": [{"event": "UNDER_TEMP", "eventID": 14, "Type": "Alarm", "timeStamp": "2021-05-31 15:46:53.431452"}], "Register": 1, "RegisterStatus": '+ rd +'}'
+    //client.publish('SOLAR/609ea4892aec141dc890ffbb/reportEvent', str)
+  },30000);
 
   client.on("message", async (topic, message) => {
     //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
@@ -187,6 +191,11 @@ async function processEvent(data, str_topic){
 
   let arrs = []
   let arrAlarms = await Alarm.find({register: register})
+  let device = await Device.findOne({_id: str_topic[1]})
+  let site_id = null
+  if (device) {
+    site_id = device.station
+  }
 
   let d = {
     device : str_topic[1],
@@ -197,6 +206,7 @@ async function processEvent(data, str_topic){
   }
 
   let jsonEvent = {
+    station: site_id,
     device: str_topic[1],
     register :  register,
     code: 0,
@@ -207,7 +217,6 @@ async function processEvent(data, str_topic){
   }
 
   let arrRegister = alarmCode.toString(2).split('').reverse();
-  //console.log('arrN ' + arrRegister)
 
   let oldAlarm = await AlarmCode.findOne({device: str_topic[1], register: register})
   if (!oldAlarm) {
@@ -216,7 +225,7 @@ async function processEvent(data, str_topic){
   let arr2 = oldAlarm.status
   //console.log('arr2 ' + arr2)
   for (var i = 0; i < arrRegister.length; i++) {
-    if (arrRegister[i] == 0 && arr2[i] == 1) {
+    if (arrRegister[i] == 0 && arr2[i] == 1 && i <= 15) {
       //console.log(i + ' - old alarm')
       await Event.findOneAndUpdate({
         device: str_topic[1], 
@@ -231,9 +240,9 @@ async function processEvent(data, str_topic){
       )
     }
 
-    if (arrRegister[i] == 1 && arr2[i] == 0) {
+    if (arrRegister[i] == 1 && arr2[i] == 0 && i <= 15) {
       // New alarm
-      //console.log(i +' new alarm')
+      console.log(i +' new alarm')
       jsonEvent.code = i
       jsonEvent.description = arrAlarms[i].description
       //console.log(jsonEvent)
@@ -243,7 +252,6 @@ async function processEvent(data, str_topic){
   }
 
   let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1], register: register},{status: arrRegister},{upsert: true})
-
 }
 
 client.on("error", err => {
@@ -256,9 +264,7 @@ async function deleteData() {
   let before24h = moment().subtract(24, 'hours');
   //console.log('Cant stop me now!');
   await DeviceData.deleteMany({ timestamp: { $lte: before3h } });
-  await Event.deleteMany({ timestamp: { $lte: before24h } });
+  //await Event.deleteMany({ timestamp: { $lte: before24h } });
 }
 
 setInterval( deleteData , 5*60000);
-
-
