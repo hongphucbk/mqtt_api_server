@@ -278,10 +278,27 @@ router.get('/site/devices', auth, async(req, res) => {
           name : devices[i].name,
           //code: devices[i].code,
           //describe : devices[i].describe,
-          status : "normal",
+          status : devices[i].is_active == 1 ? "normal" : "No active",
           curActPower: 0,   //power
           todayEnergy: 0    //kwh - powerGenerated
         }
+
+
+      let start = moment().startOf('day')
+      let end = moment(start).add(30, 'minutes').startOf('minute')
+      //console.log(start, end)
+      let str = { device: devices[i]._id,
+                  timestamp: {$gte: start, $lte: end }
+                }
+      let rawData = await HistoryDeviceData.find(str)
+
+      let minWh = 90000000000;
+      rawData.map(function(item){
+        minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
+      })
+      //console.log(minWh)
+
+
       //--------
       let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
       if (deviceData.length > 0) {
@@ -289,13 +306,13 @@ router.get('/site/devices', auth, async(req, res) => {
         let Watts = deviceData[0].paras.filter(function(item){
           return item.name == 'Watts'
         })
-        d.curActPower += parseInt(Watts[0].value)
+        d.curActPower = parseInt(Watts[0].value)
         
 
         let WH = deviceData[0].paras.filter(function(item){
           return item.name == 'WH'
         })
-        d.todayEnergy += parseInt(WH[0].value)
+        d.todayEnergy = parseInt(WH[0].value) - minWh
       }
       
       data.push(d)

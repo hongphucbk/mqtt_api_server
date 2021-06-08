@@ -43,6 +43,9 @@ const deviceSchema = mongoose.Schema({
     nameplateWatts: {
         type: Number,
     },
+    is_active: {
+        type: Number,
+    },
 
     station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     iot_device: {type: mongoose.Schema.Types.ObjectId, ref: 'IotDevice' },
