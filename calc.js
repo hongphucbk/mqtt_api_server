@@ -110,8 +110,6 @@ async function StoredDeviceData(){
   }
 }
 
-
-
 async function StoredStationData(){
   try{
     let start = moment().subtract(5, 'minutes').startOf('minute')

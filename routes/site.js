@@ -96,7 +96,6 @@ router.get('/site/list', auth, async(req, res) => {
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
     
     let status = req.query.status;
-
     let sites = req.user.stations;
 
     let strQuery = {}
@@ -142,31 +141,28 @@ router.get('/site/list', auth, async(req, res) => {
 
       let data = []
       let d = {}
-      let devices = await Device.find({ station: stations[j]._id })
+      let devices = await Device.find({ station: stations[j]._id, is_active: 1 })
 
       for (let i = 0; i < devices.length; i++) {
-        //console.log(devices[i])
         d = {
-            id : devices[i]._id,
-            name : devices[i].name,
-            code: devices[i].code,
-            describe : devices[i].describe,
-            status : "normal",
-            paras: {
-              workingHours: 0,
-              powerGenerated: 0,
-              power: 0
-            }
+          id : devices[i]._id,
+          name : devices[i].name,
+          code: devices[i].code,
+          describe : devices[i].describe,
+          status : "normal",
+          paras: {
+            workingHours: 0,
+            powerGenerated: 0,
+            power: 0
           }
+        }
           
         let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
         
         if(deviceData[0]){
           let Watts = deviceData[0].paras.filter(function(item){
             return item.name == 'Watts'
-          })
-          //jsonStation += parseInt(Watts[0].value)
-          
+          })          
 
           let WH = deviceData[0].paras.filter(function(item){
             return item.name == 'WH'
@@ -177,12 +173,6 @@ router.get('/site/list', auth, async(req, res) => {
           let nameplateWatts = deviceData[0].paras.filter(function(item){
             return item.name == 'nameplateWatts' //WattsMax
           })
-
-          // let a = parseInt(nameplateWatts[0].value)
-          // if (a > 0) {
-          //   let workingHour = parseInt(WH[0].value) / a
-          //   //jsonStation.workingHours += workingHour
-          // }  
 
           let workingHour = parseFloat(WH[0].value)/parseFloat(devices[i].nameplateWatts)
           jsonStation.workingHours += workingHour
@@ -221,34 +211,42 @@ router.get('/site/overview', auth, async(req, res) => {
       price: station.price,
       currency: station.currency
     }
+    let devices = await Device.find({ station: id, is_active: 1 })
+    for (let i = 0; i < devices.length; i++) { 
+      d.ratedSumPower += devices[i].nameplateWatts
 
-    let devices = await Device.find({ station: id })
+      let start = moment().startOf('day')
+      let end = moment(start).add(30, 'minutes').startOf('minute')
+      //console.log(start, end)
+      let str = { device: devices[i]._id,
+                  timestamp: {$gte: start, $lte: end }
+                }
+      let rawData = await HistoryDeviceData.find(str)
 
-    for (let i = 0; i < devices.length; i++) {
-      
-      //paras: {$elemMatch: {name:'Watts'}
+      let minWh = 90000000000;
+      rawData.map(function(item){
+        minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
+      })
+
+      //console.log(minWh)
+
+
       let query1 = {device: devices[i]._id}
-
       let deviceData = await DeviceData.find(query1).sort({_id: -1}).limit(1)
       
+
       if (deviceData[0]) {
         let paras = deviceData[0].paras
-        //console.log("Result: ", paras)
         let Watts = paras.filter((para) => para.name === 'Watts')
         d.curSumActPower += Watts[0].value
 
         let WH = paras.filter((para) => para.name === 'WH')
         d.allSumEnergy += WH[0].value
 
-        let WH_calc = paras.filter((para) => para.name === 'WH')
-        d.todaySumEnergy += WH_calc[0].value
-
-        //let nameplateWatts = paras.filter((para) => para.name === 'nameplateWatts')
-        //d.ratedSumPower = nameplateWatts[0].value
-
-        d.ratedSumPower = devices[i].nameplateWatts
-        
+        //let WH_calc = paras.filter((para) => para.name === 'WH')
+        d.todaySumEnergy += (WH[0].value - minWh)
       }
+
     }
     //console.log(d)
     res.send({site: d})
@@ -283,26 +281,6 @@ router.get('/site/devices', auth, async(req, res) => {
           curActPower: 0,   //power
           todayEnergy: 0    //kwh - powerGenerated
         }
-      //console.log(d)
-        
-
-      // let deviceData = await DeviceData.find({device: devices[i]._id, paras: "workingHours"}).sort({_id: -1}).limit(1)
-      // if (deviceData.length > 0){
-      //   //console.log("Result: ", deviceData[0].value)
-      //   d.paras.workingHours = deviceData[0].value
-      // }
-
-      // let deviceDataPower = await DeviceData.find({device: devices[i]._id, paras: "Watts"}).sort({_id: -1}).limit(1)
-      // if (deviceDataPower.length > 0){
-      //   //console.log("Result: ", deviceData[0].value)
-      //   d.curActPower += deviceDataPower[0].value
-      // }
-
-      // let deviceDataPowerGenerated = await DeviceData.find({device: devices[i]._id, paras: "WH"}).sort({_id: -1}).limit(1)
-      // if (deviceDataPowerGenerated.length > 0){
-      //   d.todayEnergy += deviceDataPowerGenerated[0].value
-      // }
-
       //--------
       let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
       if (deviceData.length > 0) {
@@ -318,13 +296,6 @@ router.get('/site/devices', auth, async(req, res) => {
         })
         d.todayEnergy += parseInt(WH[0].value)
       }
-      
-
-
-      // let nameplateWatts = deviceData[0].paras.filter(function(item){
-      //   return item.name == 'nameplateWatts' //WattsMax
-      // })
-
       
       data.push(d)
     }
@@ -372,7 +343,6 @@ router.get('/site/trend', auth, async(req, res) => {
       hisStations = await HistoryStationData.find({ station: id, 
                                                     timestamp: {$gte: start, $lte: end } 
                                                   })
-
       for (let j = 0; j < 288; j++) {
         sum = 0, count = 0, avg = 0
         let start1 = moment(start).startOf('minute')
@@ -405,16 +375,24 @@ router.get('/site/trend', auth, async(req, res) => {
       //let StartDay = moment(req.query.date).startOf('day');     // set to 12:00 am today
       let EndDay = moment(req.query.date).endOf('day');     // set to 12:00 am today
 
-      //console.log(EndMonth)
-
       for (let j = 1; j <= EndMonth.date(); j++) {
         data[j] = 0
-        let hisStation = hisStations.reduce(function(total, cur, _, {length}){
-          return moment(cur.timestamp).date() == j ? total + cur.paras.power/length: total;
-        }, 0)
-
-        //console.log(hisStation)
-        data[j] = hisStation
+        // let hisStation = hisStations.reduce(function(total, cur, _, {length}){
+        //   return moment(cur.timestamp).date() == j ? total + cur.paras.power/length: total;
+        // }, 0)
+        let TotalWh = 0
+        let minWh = 9000000000
+        let maxWh = 0
+        hisStations.map(await function(item){
+          if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
+            //console.log('item WH = ' + item.paras.WH)
+            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+          }
+        })
+        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+        data[j] = TotalWh
+        //console.log(j, maxWh, minWh, TotalWh)
       }
       data.splice(0, 1);
 
@@ -434,10 +412,21 @@ router.get('/site/trend', auth, async(req, res) => {
 
       for (let j = 0; j <= 11; j++) {
         data[j] = 0
-        let hisStation = hisStations.reduce(function(total, cur, _, {length}){
-          return moment(cur.timestamp).month() == j ? total + cur.paras.power/ length: total;
-        }, 0)
-        data[j] = hisStation
+        // let hisStation = hisStations.reduce(function(total, cur, _, {length}){
+        //   return moment(cur.timestamp).month() == j ? total + cur.paras.power/ length: total;
+        // }, 0)
+
+        let TotalWh = 0
+        let minWh = 9000000000
+        let maxWh = 0
+        hisStations.map(function(item){
+          if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
+            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+          }
+        })
+        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+        data[j] = TotalWh
       }
       //console.log(a)
       //let startDate = req.query.date + " " + j  + ":00:00";
@@ -445,10 +434,10 @@ router.get('/site/trend', auth, async(req, res) => {
       //data[0] = "Phuc is processing please wait to update. :)))"
     }
     else{
+
       res.json(err.E40010)
       return
     }
-
     res.send({siteID: id, type: type, series: data})
   }catch(error){
     res.send(err.E40001)

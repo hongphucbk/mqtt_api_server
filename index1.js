@@ -154,17 +154,11 @@ client.on("connect", ack => {
         data.updated_at = new Date()
         data.paras =  data.data;
         data.value = 0
-        // if (a[1] == "power") {
-        //   data.paras = "power"
-        // }else if(a[1] == "powerGenerated"){
-        //   data.paras = "powerGenerated"
-        // }else if(a[1] == "workingHours"){
-        //   data.paras = "workingHours"
-        // }else{
-      
-        //let dt = new (data)
+
         DeviceData.insertMany(data)
         HistoryDeviceRawData.insertMany(data)
+
+        Device.findOneAndUpdate({_id: str_topic[1]}, {updated_at: new Date()}, function(){})
 
         // let dt1 = new HistoryDeviceData(data)
         // dt1.save();
@@ -260,7 +254,7 @@ client.on("error", err => {
 
 // Service to delete database
 async function deleteData() {
-  let before3h = moment().subtract(3, 'hours');
+  let before3h = moment().subtract(5, 'hours');
   let before24h = moment().subtract(24, 'hours');
   //console.log('Cant stop me now!');
   await DeviceData.deleteMany({ timestamp: { $lte: before3h } });
@@ -268,3 +262,4 @@ async function deleteData() {
 }
 
 setInterval( deleteData , 5*60000);
+
