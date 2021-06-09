@@ -28,14 +28,15 @@ router.get('/event', auth, async(req, res) => {
         query = {station: site_id}
       }
       if (device_id) {
-        query = {device_id: device_id}
+        query = {station: site_id, device_id: device_id}
+      }else{
+        let sites = req.user.stations;
+        query = {station: {"$in": sites}}
       }
     }
-    //query.push({station: {$ne : null}})
 
     let totalRecord = await Event.find(query).countDocuments();
     let totalPage = Math.ceil(totalRecord/limit)
-    console.log(totalRecord, totalPage)
 
     let events = await Event.find(query).skip((limit * nextPageToken) - limit).limit(limit)
 
@@ -76,7 +77,6 @@ router.get('/event', auth, async(req, res) => {
 router.get('/1station/show/:id', auth, async(req, res) => {
     let id = req.params.id;
     //let id = req.body.id;
-    console.log(id)
     let station = await Station.findOne({ _id: id });
     res.send(station)
 })
@@ -202,17 +202,6 @@ router.get('/1device/trend', auth, async(req, res) => {
         start = end1
       }
 
-      // for (let j = 0; j < 24; j++) {
-      //   data[j] = 0
-
-      //   let hisStation = hisStations.filter(function(item){
-      //     return moment(item.timestamp).hour() == j
-      //   })
-      //   //console.log(hisStation)
-      //   if (hisStation.length > 0) {
-      //     data[j] = hisStation[0].paras.power
-      //   }
-      // }
 
     }else if (basedTime === 'month' && type === 'energy') {
       let StartMonth = moment(req.query.date).startOf('month');
