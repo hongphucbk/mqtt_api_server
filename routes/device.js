@@ -284,12 +284,24 @@ router.get('/device/trend', auth, async(req, res) => {
 
       for (let j = 1; j <= EndMonth.date(); j++) {
         data[j] = 0
-        let hisStation = hisStations.reduce(function(total, cur, _, { length }){
-          return moment(cur.timestamp).date() == j ? total + cur.paras.WH/length: total;
-        }, 0)
+        // let hisStation = hisStations.reduce(function(total, cur, _, { length }){
+        //   return moment(cur.timestamp).date() == j ? total + cur.paras.WH/length: total;
+        // }, 0)
 
-        //console.log(hisStation)
-        data[j] = hisStation
+        // //console.log(hisStation)
+        // data[j] = hisStation
+        let TotalWh = 0
+        let minWh = 9000000000
+        let maxWh = 0
+        hisStations.map(await function(item){
+          if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
+            //console.log('item WH = ' + item.paras.WH)
+            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+          }
+        })
+        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+        data[j] = TotalWh
       }
       data.splice(0, 1);
 
@@ -309,15 +321,18 @@ router.get('/device/trend', auth, async(req, res) => {
 
       for (let j = 0; j <= 11; j++) {
         data[j] = 0
-        let hisStation = hisStations.reduce(function(total, cur, _, { length }){
-          return moment(cur.timestamp).month() == j ? total + cur.paras.WH/length : total;
-        }, 0)
-        data[j] = hisStation
+        let TotalWh = 0
+        let minWh = 9000000000
+        let maxWh = 0
+        hisStations.map(function(item){
+          if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
+            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+          }
+        })
+        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+        data[j] = TotalWh
       }
-      //console.log(a)
-      //let startDate = req.query.date + " " + j  + ":00:00";
-      //let endDate = req.query.date + " " + j + ":59:59";
-      //data[0] = "Phuc is processing please wait to update. :)))"
     }
     else{
       res.json(err.E40010)
