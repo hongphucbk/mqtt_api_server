@@ -13,17 +13,13 @@ const router = express.Router()
 
 router.post('/device', auth, async (req, res) => {
     // Create a new device
-    //let station_id = req.params.station_id;
-    //let id = req.body.id;
-    //console.log(station_id)
-    //let station = await Station.findOne({ _id: station_id });
     try {
         const device = new Device(req.body)
-        console.log(device)
+        //console.log(device)
         await device.save()
 
         let doc = await Station.findOneAndUpdate({_id:req.body.station}, {$push: {devices: device._id}},{'upsert':true})
-        console.log(doc)
+        //console.log(doc)
 
         res.status(201).send({device: device })
     } catch (error) {
