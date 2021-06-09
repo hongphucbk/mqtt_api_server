@@ -205,7 +205,7 @@ async function processEvent(data, str_topic){
     register :  register,
     code: 0,
     status: 0,
-    description: 'abc',
+    description: '',
     timestamp : moment(), //.add(7, 'hours'),
     updated_at : moment(), //.add(7, 'hours'),
   }
