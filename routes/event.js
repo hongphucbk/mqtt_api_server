@@ -38,17 +38,25 @@ router.get('/event', auth, async(req, res) => {
     let totalRecord = await Event.find(query).countDocuments();
     let totalPage = Math.ceil(totalRecord/limit)
 
-    let events = await Event.find(query).skip((limit * nextPageToken) - limit).limit(limit)
+    let events = await Event.find(query)
+                            .populate({ path: 'station', select: 'name' })
+                            .populate({ path: 'device', select: 'name' })
+                            .skip((limit * nextPageToken) - limit)
+                            .sort({completed_at: -1, timestamp: -1})
+                            .limit(limit)
 
     let arr = []
     for (var i = 0; i < events.length; i++) {
       let d = {
         id: events[i].id,
-        siteId: events[i].station,
-        deviceId: events[i].device,
+        siteId: events[i].station.id,
+        siteName: events[i].station.name,
+        //site: events[i].station,
+        deviceId: events[i].device.id,
+        deviceName: events[i].device.name,
         error: events[i].description,
         eventType: "alarm",
-        status: events[i].status == 1 ? "resoled": "incoming",
+        status: events[i].status == 1 ? "resolved": "incoming",
         timestamp : events[i].timestamp,
         completed_at : events[i].completed_at,
 

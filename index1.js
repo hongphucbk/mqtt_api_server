@@ -63,6 +63,9 @@ const deviceTypeRouter = require('./routes/device_type');
 const iotDeviceRouter = require('./routes/iot_device');
 const eventRouter = require('./routes/event');
 
+const reportRouter = require('./routes/report');
+
+
 app.use(userRouter)
 app.use(stationRouter)
 app.use(deviceRouter)
@@ -71,6 +74,7 @@ app.use(roleRouter)
 app.use(deviceTypeRouter)
 app.use(iotDeviceRouter)
 app.use(eventRouter)
+app.use(reportRouter)
 
 //var authRouter = require('./routes/auth.route');
 //var stationRouter = require('./routes/station.route');
