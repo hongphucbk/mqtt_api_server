@@ -15,19 +15,17 @@
 //   })
 //   }
 // }
+const err = require('../common/err')
 
 const user_role = (roleArray) => (req, res, next) => {
   roleArray.forEach(role => {
-   authorized = req.user.role === role;
+   authorized = req.user.role.toUpperCase() === role.toUpperCase();
   })
 
   if(authorized) {
     return next();
   }
-  return res.status(401).json({
-    result: 0,
-    message: 'Unauthorized',
-  })
+  return res.status(401).json(err.E40022)
 
   return next();
 }

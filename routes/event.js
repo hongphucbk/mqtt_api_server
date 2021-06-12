@@ -17,23 +17,26 @@ router.get('/event', auth, async(req, res) => {
     let limit = req.query.limit ? parseInt(req.query.limit) : 15;
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
 
-    let site_id = req.body.site_id
-    let device_id = req.body.device_id
+    let site_id = req.query.site_id
+    let device_id = req.query.device_id
 
     let query = {}
-    if (req.user.role == "SA") {
-      query = {}
-    }else{
-      if (site_id) {
-        query = {station: site_id}
-      }
+    if (site_id) {
+      query = {station: site_id}
       if (device_id) {
         query = {station: site_id, device_id: device_id}
+      }
+    }else{
+      if (req.user.role == "SA") {
+        query = {}
       }else{
         let sites = req.user.stations;
         query = {station: {"$in": sites}}
       }
     }
+
+    console.log(site_id, query)
+    
 
     let totalRecord = await Event.find(query).countDocuments();
     let totalPage = Math.ceil(totalRecord/limit)

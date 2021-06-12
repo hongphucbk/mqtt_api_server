@@ -199,18 +199,23 @@ router.get('/site/list', auth, async(req, res) => {
 
 
 router.get('/site/overview', auth, async(req, res) => {
-  //try{
+  try{
     let id = req.query.id;
     let station = await Station.findOne({ _id: id });
 
     let d = {
       id: id,
+      name : station.name,
       curSumActPower: 0,    // power = Watts
       todaySumEnergy: 0,    // WH
       ratedSumPower: 0,     // nameplateWatts
       allSumEnergy: 0,      // PowerGenerated = WH all = Total yield (kWh)
       price: station.price,
-      currency: station.currency
+      currency: station.currency,
+      status : station.is_active == 1 ? station.status : 'offline',
+      product:0,
+      workingHours : 0
+
     }
     let devices = await Device.find({ station: id, is_active: 1 })
     for (let i = 0; i < devices.length; i++) { 
@@ -249,15 +254,35 @@ router.get('/site/overview', auth, async(req, res) => {
       }
 
     }
-    //console.log(d)
+
+    let data = []
+    
+    for (let i = 0; i < devices.length; i++) {
+      let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
+      if(deviceData[0]){
+        let WH = deviceData[0].paras.filter(function(item){
+          return item.name == 'WH'
+        })
+        d.product += parseInt(WH[0].value)
+
+
+        let nameplateWatts = deviceData[0].paras.filter(function(item){
+          return item.name == 'nameplateWatts' //WattsMax
+        })
+
+        let workingHour = parseFloat(WH[0].value)/parseFloat(devices[i].nameplateWatts)
+        d.workingHours += workingHour
+        d.workingHours.toFixed(3)
+      }
+    }
     res.send({site: d})
-  //}catch(error){
-    //res.send({error: error})
-  //}
+  }catch(error){
+    res.send({error: error})
+  }
 })
 
 router.get('/site/devices', auth, async(req, res) => {
-  //try{
+  try{
     let id = req.query.id;
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
@@ -278,7 +303,7 @@ router.get('/site/devices', auth, async(req, res) => {
           name : devices[i].name,
           //code: devices[i].code,
           //describe : devices[i].describe,
-          status : devices[i].is_active == 1 ? "normal" : "No active",
+          status : devices[i].is_active == 1 ? "normal" : "offline",
           curActPower: 0,   //power
           todayEnergy: 0    //kwh - powerGenerated
         }
@@ -327,10 +352,10 @@ router.get('/site/devices', auth, async(req, res) => {
     }
 
     //res.send({ devices:data})
-  // }
-  // catch(error){
-  //   res.send(error)
-  // }
+  }
+  catch(error){
+    res.send({error: error.meg})
+  }
 })
 
 
@@ -551,6 +576,28 @@ router.get('/site/events/:id', auth, async(req, res) => {
   }
 })
 
+
+router.delete('/site', auth, role(['SA']), async(req, res) => {
+  try{
+    let site_id = req.body.site_id;
+
+    User.updateMany({},{$pull: {stations: site_id}}, function(res, err){});
+    let result = await Station.findOneAndDelete({ _id: site_id })
+
+    let device = await Device.deleteMany({ station: site_id })
+    if (result) {
+      let d = {
+        id: result._id,
+        name: result.name,
+      }
+      res.status(200).send({deleted: d})
+      return
+    }
+    res.send(err.E40600)
+  } catch (error) {
+    res.status(400).send({error: error.message})
+  }
+})
 
 
 

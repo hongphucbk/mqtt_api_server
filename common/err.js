@@ -19,6 +19,7 @@ module.exports = {
 
   E40020 : {code: 40020, message: 'Email is incorrect'},
   E40021 : {code: 40021, message: 'Password is incorrect'},
+  E40022 : {code: 40022, message: 'Unauthorized'},
 
   E40100 : {code: 40100, message: 'The site name is exist in database'},
   E40101 : {code: 40101, message: 'The site name is required'},
@@ -35,5 +36,15 @@ module.exports = {
 
 
   E40400 : {code: 40400, message: 'Can not find user'},
+
+
+
+  E40500 : {code: 40500, message: 'Can not find device'},
+
+  E40600 : {code: 40600, message: 'Can not find site'},
+
+
+
+
 }
 
