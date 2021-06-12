@@ -6,6 +6,7 @@ const auth = require('../middlewares/auth')
 const DeviceData = require('../models/DeviceData')
 const moment = require('moment'); // require
 const HistoryDeviceData = require('../models/HistoryDeviceData')
+const role = require('../middlewares/role')
 
 const err = require('../common/err')
 
@@ -30,21 +31,6 @@ router.post('/device', auth, async (req, res) => {
       res.status(500).send({error: error.message})
     }
 })
-
-// router.post('/users/login', async(req, res) => {
-//     //Login a registered user
-//     try {
-//         const { email, password } = req.body
-//         const user = await User.findByCredentials(email, password)
-//         if (!user) {
-//             return res.status(401).send({error: 'Login failed! Check authentication credentials'})
-//         }
-//         const token = await user.generateAuthToken()
-//         res.send({ user, token })
-//     } catch (error) {
-//         res.status(400).send(error)
-//     }
-// })
 
 router.get('/devices', auth, async(req, res) => {
     //let id = req.params.station_id;
@@ -92,11 +78,6 @@ router.get('/devices', auth, async(req, res) => {
             d.paras.powerGenerated = deviceDataPowerGenerated[0].value
           }
 
-
-          
-          
-          console.log('----------->',d)
-          
           data.push(d)
           //console.log(await getCurActPower(devices[0]._id))
         }
@@ -201,11 +182,6 @@ router.get('/site/device/details', auth, async(req, res) => {
   catch (error) {
       res.status(400).send({code: 40001, message: error.message})
   }
-    
-
-    
-
-    //res.send(station.devices)
 })
 
 router.get('/device/trend', auth, async(req, res) => {
@@ -342,6 +318,32 @@ router.get('/device/trend', auth, async(req, res) => {
 })
 
 
+router.delete('/device', auth, role(['SA']), async(req, res) => {
+  try{
+    let device_id = req.body.device_id;
+    let device = await Device.findOne({_id: device_id});
+    //console.log(device_id, device)
+    //return
+    let station = await Station.findOne({_id: device.station})
+    station.devices.pull({_id: device_id})
+    await station.save()
+
+    let result = await Device.findOneAndDelete({ _id: device_id })
+    if (result) {
+      let d = {
+        id: result._id,
+        name: result.name,
+        //email: result.email,
+        //role: result.role
+      }
+      res.status(200).send({deleted: d})
+      return
+    }
+    res.send(err.E40500)
+  } catch (error) {
+      res.status(400).send({error: error.message})
+  }
+})
 
 async function getCurActPower(device_id){
   return await DeviceData.find({device : device_id}).sort({ timestamp: -1 }).limit(1) // latest docs

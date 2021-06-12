@@ -27,7 +27,7 @@ router.post('/users/create', async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role.toUpperCase()
       }
       const token = await user.generateAuthToken()
       res.status(201).send({user: d})
@@ -45,8 +45,6 @@ router.post('/users/create', async (req, res) => {
 
 router.post('/users/login', async(req, res) => {
     //Login a registered user
-    
-
     try {
         const { email, password } = req.body
         const user = await User.findByCredentials(email, password)
@@ -64,11 +62,19 @@ router.post('/users/login', async(req, res) => {
         }
         const token = await user.generateAuthToken()
 
+        //console.log(token)
+        user.tokens = user.tokens.filter((tk) => {
+            return tk.token == token
+        })
+        await user.save()
+
+        //console.log('-->', user.tokens)
+
         let jsonUser = {
           _id: user._id,
           name : user.name,
           email : user.email,
-          role : user.role
+          role : user.role.toUpperCase()
         }
         res.send({ 'user': jsonUser, token })
     } catch (error) {
