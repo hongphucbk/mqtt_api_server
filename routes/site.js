@@ -353,7 +353,7 @@ router.get('/site/devices', auth, async(req, res) => {
     //res.send({ devices:data})
   }
   catch(error){
-    res.send({error: error.message})
+    res.send({error: error.meg})
   }
 })
 
@@ -511,6 +511,14 @@ router.post('/site/update', auth,async (req, res) => {
   }
 })
 
+router.get('/site/events', auth, async(req, res) => {
+  
+  
+  res.send({message: 'Not yet deploy'})
+  
+})
+
+
 router.delete('/site', auth, role(['SA']), async(req, res) => {
   try{
     let site_id = req.body.site_id;
@@ -532,7 +540,6 @@ router.delete('/site', auth, role(['SA']), async(req, res) => {
     res.status(400).send({error: error.message})
   }
 })
-
 
 
 
