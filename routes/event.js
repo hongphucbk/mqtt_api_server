@@ -24,7 +24,7 @@ router.get('/event', auth, async(req, res) => {
     if (site_id) {
       query = {station: site_id}
       if (device_id) {
-        query = {station: site_id, device_id: device_id}
+        query = {station: site_id, device: device_id}
       }
     }else{
       if (req.user.role == "SA") {
@@ -35,7 +35,7 @@ router.get('/event', auth, async(req, res) => {
       }
     }
 
-    console.log(site_id, query)
+    //console.log(site_id, query)
     
 
     let totalRecord = await Event.find(query).countDocuments();
