@@ -202,7 +202,10 @@ router.get('/site/overview', auth, async(req, res) => {
   try{
     let id = req.query.id;
     let station = await Station.findOne({ _id: id });
+    let sts = station.is_active == 1 ? station.status : 'offline'
 
+    //console.log(station, station.is_active, sts, station.name)
+    
     let d = {
       id: id,
       name : station.name,
@@ -212,7 +215,7 @@ router.get('/site/overview', auth, async(req, res) => {
       allSumEnergy: 0,      // PowerGenerated = WH all = Total yield (kWh)
       price: station.price,
       currency: station.currency,
-      status : station.is_active == 1 ? station.status : 'offline',
+      status : sts,
       product:0,
       workingHours : 0
 
@@ -256,7 +259,7 @@ router.get('/site/overview', auth, async(req, res) => {
     }
 
     let data = []
-    
+    console.log(station, station.is_active,sts)
     for (let i = 0; i < devices.length; i++) {
       let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
       if(deviceData[0]){
