@@ -134,9 +134,8 @@ router.get('/site/list', auth, async(req, res) => {
       let jsonStation = {
         id: stations[j]._id,
         name: stations[j].name,
-        status: 'normal',
+        status: stations[j].is_active == 1 ? stations[j].status : 'offline',
         product : 0, //Math.random()*100, //kWh powerGenerated = WH
-        //power : 0,
         workingHours : 0
       }
 
@@ -306,7 +305,7 @@ router.get('/site/devices', auth, async(req, res) => {
           name : devices[i].name,
           //code: devices[i].code,
           //describe : devices[i].describe,
-          status : devices[i].is_active == 1 ? "normal" : "offline",
+          status : devices[i].is_active == 1 ? devices[i].status : "offline",
           curActPower: 0,   //power
           todayEnergy: 0    //kwh - powerGenerated
         }

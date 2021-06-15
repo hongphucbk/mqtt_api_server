@@ -139,12 +139,6 @@ client.on("connect", ack => {
   //client.subscribe('inverterB/#');
   client.subscribe('SOLAR/#'); // Solar/id/PARAR
 
-  setInterval( function(){
-    //let rd = Math.random()*100;
-    //let str = '{"activeEvents": [{"event": "UNDER_TEMP", "eventID": 14, "Type": "Alarm", "timeStamp": "2021-05-31 15:46:53.431452"}], "Register": 1, "RegisterStatus": '+ rd +'}'
-    //client.publish('SOLAR/609ea4892aec141dc890ffbb/reportEvent', str)
-  },30000);
-
   client.on("message", async (topic, message) => {
     //console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
     try{
@@ -171,6 +165,7 @@ client.on("connect", ack => {
 
       if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
         data = JSON.parse(message.toString())
+        //console.log(data)
         processEvent(data, str_topic)
       }
       
@@ -195,10 +190,15 @@ async function processEvent(data, str_topic){
     site_id = device.station
   }
 
+  let arrRegister = alarmCode.toString(2).split('').reverse();
+  for (let i = 0; i <= 15; i++) {
+    arrRegister[i] = arrRegister[i] != null ? arrRegister[i] : 0
+  }
+
   let d = {
     device : str_topic[1],
     register :  register,
-    status : alarmCode,
+    status : arrRegister,
     timestamp : new Date(),
     updated_at : new Date(),
   }
@@ -214,13 +214,21 @@ async function processEvent(data, str_topic){
     updated_at : moment(), //.add(7, 'hours'),
   }
 
-  let arrRegister = alarmCode.toString(2).split('').reverse();
-
   let oldAlarm = await AlarmCode.findOne({device: str_topic[1], register: register})
-  if (!oldAlarm) {
-    AlarmCode.insertMany([d])
+  //console.log('oldAlarm ',oldAlarm)
+
+  let arr2 = []
+  for (let i = 0; i <= 15; i++) {
+    arr2.push(0)
   }
-  let arr2 = oldAlarm.status
+
+  if (!oldAlarm) {
+    await AlarmCode.insertMany([d])
+  }else{
+    arr2 = oldAlarm.status
+  }
+  
+  //console.log('arrN ' + arrRegister)
   //console.log('arr2 ' + arr2)
   for (var i = 0; i < arrRegister.length; i++) {
     if (arrRegister[i] == 0 && arr2[i] == 1 && i <= 15) {
@@ -240,7 +248,7 @@ async function processEvent(data, str_topic){
 
     if (arrRegister[i] == 1 && arr2[i] == 0 && i <= 15) {
       // New alarm
-      console.log(i +' new alarm')
+      //console.log(i +' new alarm')
       jsonEvent.code = i
       jsonEvent.description = arrAlarms[i].description
       //console.log(jsonEvent)
@@ -249,7 +257,7 @@ async function processEvent(data, str_topic){
     //arrRegister[i]
   }
 
-  let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1], register: register},{status: arrRegister},{upsert: true})
+  let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1], register: register},{status: arrRegister, updated_at: moment()},{upsert: true})
 }
 
 client.on("error", err => {
