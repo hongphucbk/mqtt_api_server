@@ -46,6 +46,9 @@ const deviceSchema = mongoose.Schema({
     is_active: {
         type: Number,
     },
+    status: {
+        type: String,
+    },
 
     station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     iot_device: {type: mongoose.Schema.Types.ObjectId, ref: 'IotDevice' },

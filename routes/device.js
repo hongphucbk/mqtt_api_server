@@ -140,22 +140,25 @@ router.get('/site/device/details', auth, async(req, res) => {
     //console.log(id)
       //let station = await Station.findOne({_id: station_id});
     let device = await Device.findOne({_id: id})
+    //console.log(device, device.is_active)
     if (device) {
       let d = {
-            id : device.id,
-            name : device.name,
-            IP : device.IP,
-            manufacturer : device.manufacturer,
-            minResponseTimeInMiliSecond : device.minResponseTimeInMiliSecond,
-            model : device.model,
-            port : device.port,
-            code: device.code,
-            status : "normal",
-            paras: device.paras
-          }
+        id : device.id,
+        name : device.name,
+        IP : device.IP,
+        manufacturer : device.manufacturer,
+        minResponseTimeInMiliSecond : device.minResponseTimeInMiliSecond,
+        model : device.model,
+        port : device.port,
+        code: device.code,
+        ratedSumPower : device.nameplateWatts ? device.nameplateWatts : null,
+        paras: device.paras,
+        status : device.is_active == 1 ? device.status : "offline",
+        curActPower: 0,   //power
+        todayEnergy: 0    //kwh - powerGenerated
+      }
 
       let data = []
-      //let d = {}
 
       let deviceData = await DeviceData.find({device: id}).sort({_id: -1}).limit(1)
       if (deviceData.length > 0) {
@@ -171,6 +174,30 @@ router.get('/site/device/details', auth, async(req, res) => {
             }
           }
         }
+
+        let start = moment().startOf('day')
+        let end = moment(start).add(30, 'minutes').startOf('minute')
+        let str = { device: id,
+                    timestamp: {$gte: start, $lte: end }
+                  }
+        let rawData = await HistoryDeviceData.find(str)
+
+        let minWh = 90000000000;
+        rawData.map(function(item){
+          minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
+        })
+
+        let Watts = deviceData[0].paras.filter(function(item){
+          return item.name == 'Watts'
+        })
+        d.curActPower = parseInt(Watts[0].value)
+
+        let WH = deviceData[0].paras.filter(function(item){
+          return item.name == 'WH'
+        })
+        d.todayEnergy = parseInt(WH[0].value) - minWh
+
+      
         res.send({device: d})
       }else{
         res.status(400).send(err.E40012)

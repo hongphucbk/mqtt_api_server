@@ -10,26 +10,23 @@ var options = {
 
 //var client = mqtt.connect('mqtt://m11.cloudmqtt.com', options);
 const DeviceData = require('./models/DeviceData')
-
-
-const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
+//const client = mqtt.connect('mqtt://113.161.79.146:5000', options );
+const client = mqtt.connect(process.env.MQTT_URL, options );
 
 client.on("connect", ack => {
   console.log("MQTT Client Connected!");
-  client.subscribe('inverterB/power');
+  //client.subscribe('inverterB/power');
 
   client.on("message", (topic, message) => {
     console.log(`MQTT Client Message.  Topic: ${topic}.  Message: ${message.toString()}`);
 
-    let data = JSON.parse(message.toString()) //JSON.parse(message.toString());
-    data.device = "607c3b277fafb40680689401"
-    data.paras = "power"
-    console.log(data)
-
-    let dt = new DeviceData(data)
-    dt.save();
-    //DeviceData.insertMany([data])
+    
   });
+
+  let str = '{"activeEvents": [{"event": "UNDER_TEMP", "eventID": 14, "Type": "Alarm", "timeStamp": "2021-05-31 15:46:53.431452"}], ' 
+          + '"Register": 1, "RegisterStatus": '+ 11 +'}'
+  client.publish('SOLAR/60c0f3182227a817a8e39edb/reportEvent1', str)
+
 });
 
 client.on("error", err => {
