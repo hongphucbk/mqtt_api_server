@@ -92,10 +92,11 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
 // })
 
 router.get('/site/list', auth, async(req, res) => {
-  //try{
+  try{
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
     
+    let site_name = req.query.name ? req.query.name : null
     let status = req.query.status;
     let sites = req.user.stations;
 
@@ -120,6 +121,10 @@ router.get('/site/list', auth, async(req, res) => {
       }
     }
 
+    if (site_name) {
+      strQuery = { ...strQuery, name: { $regex: '.*' + site_name + '.*',$options: 'i' } };
+
+    }
 
     let totalRecord = await Station.find(strQuery).countDocuments();
     let totalPage = Math.ceil(totalRecord/limit)
@@ -191,9 +196,9 @@ router.get('/site/list', auth, async(req, res) => {
     else{
       res.send({sites: stationData})
     }
-  // }catch(error){
-  //   res.send(error)
-  // }
+  }catch(error){
+    res.send(error.message)
+  }
 })
 
 
