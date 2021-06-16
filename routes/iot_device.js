@@ -46,9 +46,16 @@ router.get('/iot_device', auth, async(req, res) => {
     //console.log(query)
 
     let iot_devices = await IotDevice.find(query)
+                                     .populate({ path: 'station', select: 'name' })
 
+                              //console.log(iot_devices)
     let result = iot_devices.map((item) => {
-      return { id: item.id, name: item.name, code: item.code, site_id: item.station }
+      return { 
+        id: item.id, 
+        name: item.name, 
+        code: item.code, 
+        site_id: item.station ? item.station._id : "", 
+        site_name: item.station ? item.station.name : "" }
     })
      
     res.status(201).send({iot_devices: result})

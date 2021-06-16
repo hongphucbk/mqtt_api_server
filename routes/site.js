@@ -9,6 +9,7 @@ const DeviceData = require('../models/DeviceData')
 const HistoryDeviceData = require('../models/HistoryDeviceData')
 const HistoryStationData = require('../models/HistoryStationData')
 const err = require('../common/err')
+const IotDevice = require('../models/IotDevice')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -92,10 +93,11 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
 // })
 
 router.get('/site/list', auth, async(req, res) => {
-  //try{
+  try{
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
     
+    let site_name = req.query.name ? req.query.name : null
     let status = req.query.status;
     let sites = req.user.stations;
 
@@ -120,6 +122,10 @@ router.get('/site/list', auth, async(req, res) => {
       }
     }
 
+    if (site_name) {
+      strQuery = { ...strQuery, name: { $regex: '.*' + site_name + '.*',$options: 'i' } };
+
+    }
 
     let totalRecord = await Station.find(strQuery).countDocuments();
     let totalPage = Math.ceil(totalRecord/limit)
@@ -191,9 +197,9 @@ router.get('/site/list', auth, async(req, res) => {
     else{
       res.send({sites: stationData})
     }
-  // }catch(error){
-  //   res.send(error)
-  // }
+  }catch(error){
+    res.send(error.message)
+  }
 })
 
 
@@ -581,7 +587,9 @@ router.get('/site/events/:id', auth, async(req, res) => {
 
 router.delete('/site', auth, role(['SA']), async(req, res) => {
   try{
-    let site_id = req.body.site_id;
+    let site_id = req.query.id;
+
+    let rs = await IotDevice.findOneAndUpdate({station: site_id},{station: null})
 
     User.updateMany({},{$pull: {stations: site_id}}, function(res, err){});
     let result = await Station.findOneAndDelete({ _id: site_id })
