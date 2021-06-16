@@ -8,6 +8,7 @@ const DeviceData = require('../models/DeviceData')
 const HistoryDeviceData = require('../models/HistoryDeviceData')
 const HistoryStationData = require('../models/HistoryStationData')
 const err = require('../common/err')
+const IotDevice = require('../models/IotDevice')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -523,7 +524,9 @@ router.get('/site/events', auth, async(req, res) => {
 
 router.delete('/site', auth, role(['SA']), async(req, res) => {
   try{
-    let site_id = req.body.site_id;
+    let site_id = req.query.id;
+
+    let rs = await IotDevice.findOneAndUpdate({station: site_id},{station: null})
 
     User.updateMany({},{$pull: {stations: site_id}}, function(res, err){});
     let result = await Station.findOneAndDelete({ _id: site_id })

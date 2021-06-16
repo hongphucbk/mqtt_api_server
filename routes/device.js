@@ -347,11 +347,12 @@ router.get('/device/trend', auth, async(req, res) => {
 
 router.delete('/device', auth, role(['SA']), async(req, res) => {
   try{
-    let device_id = req.body.device_id;
-    let device = await Device.findOne({_id: device_id});
+    let device_id = req.query.id;
+    let device = await Device.findOne({_id: device_id})
     //console.log(device_id, device)
     //return
     let station = await Station.findOne({_id: device.station})
+    //console.log(station)
     station.devices.pull({_id: device_id})
     await station.save()
 
@@ -368,7 +369,7 @@ router.delete('/device', auth, role(['SA']), async(req, res) => {
     }
     res.send(err.E40500)
   } catch (error) {
-      res.status(400).send({error: error.message})
+    res.status(400).send({error: error.message})
   }
 })
 
