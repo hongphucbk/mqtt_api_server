@@ -22,9 +22,24 @@ const deviceSchema = mongoose.Schema({
         type: String,
         //required: false,
     },
-    IP: {
+    dhcp_enable: {
+        type: Boolean,
+        //required: false,
+    },
+    ip_address: {
         type: String,
     },
+    subnet_mask: {
+        type: String,
+    },
+    default_gateway: {
+        type: String,
+    },
+    dns: {
+        type: String,
+    },
+
+
     Port: {
         type: Number,
     },

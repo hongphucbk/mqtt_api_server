@@ -7,6 +7,7 @@ const DeviceData = require('../models/DeviceData')
 const moment = require('moment'); // require
 const HistoryDeviceData = require('../models/HistoryDeviceData')
 const role = require('../middlewares/role')
+const DeviceType = require('../models/DeviceType')
 
 const err = require('../common/err')
 
@@ -15,14 +16,20 @@ const router = express.Router()
 router.post('/device', auth, async (req, res) => {
     // Create a new device
     try {
-        const device = new Device(req.body)
-        //console.log(device)
-        await device.save()
+      let device_type = req.body.device_type
+      if (!device_type) {
+        res.json(err.E40301)
+      }
+      let dtype = await DeviceType.findOne({_id:device_type})
+      req.body.paras = dtype.paras
+      const device = new Device(req.body)
+      //console.log(device)
+      await device.save()
 
-        let doc = await Station.findOneAndUpdate({_id:req.body.station}, {$push: {devices: device._id}},{'upsert':true})
-        //console.log(doc)
+      let doc = await Station.findOneAndUpdate({_id:req.body.station}, {$push: {devices: device._id}},{'upsert':true})
+      //console.log(doc)
 
-        res.status(201).send({device: device })
+      res.status(201).send({device: device })
     } catch (error) {
       if (error.code == 11000) {
         res.json(err.E40300)

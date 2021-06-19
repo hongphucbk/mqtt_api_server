@@ -50,6 +50,7 @@ const deviceSchema = mongoose.Schema({
         type: String,
     },
 
+    device_type:{type: mongoose.Schema.Types.ObjectId, ref: 'DeviceType' },
     station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     iot_device: {type: mongoose.Schema.Types.ObjectId, ref: 'IotDevice' },
     // password: {
