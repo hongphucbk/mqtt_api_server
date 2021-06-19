@@ -55,7 +55,14 @@ router.get('/iot_device', auth, async(req, res) => {
         name: item.name, 
         code: item.code, 
         site_id: item.station ? item.station._id : "", 
-        site_name: item.station ? item.station.name : "" }
+        site_name: item.station ? item.station.name : "" ,
+        dhcp_enable : item.dhcp_enable,
+        ip_address : item.ip_address,
+        subnet_mask : item.subnet_mask,
+        default_gateway : item.default_gateway,
+        dns : item.dns,
+    
+      }
     })
      
     res.status(201).send({iot_devices: result})
