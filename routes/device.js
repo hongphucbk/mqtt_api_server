@@ -302,13 +302,19 @@ router.get('/device/trend', auth, async(req, res) => {
         hisStations.map(await function(item){
           if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
             //console.log('item WH = ' + item.paras.WH)
+            if (item.paras.WH < minWh) {
+              console.log("-->", minWh, item.timestamp)
+            }
             minWh = item.paras.WH < minWh ? item.paras.WH : minWh
             maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
           }
         })
         TotalWh = maxWh > minWh ?  maxWh - minWh : 0
         data[j] = TotalWh
+
+        //console.log(j, minWh, maxWh, TotalWh)
       }
+      
       data.splice(0, 1);
 
 
@@ -347,7 +353,7 @@ router.get('/device/trend', auth, async(req, res) => {
 
     res.send({siteID: id, type: type,series: data})
   }catch(error){
-    res.send(err.E40001, error.message)
+    res.send(error.message)
   }
 })
 

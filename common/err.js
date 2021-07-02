@@ -25,6 +25,7 @@ module.exports = {
   E40101 : {code: 40101, message: 'The site name is required'},
   E40102 : {code: 40102, message: 'The price is required'},
   E40103 : {code: 40103, message: 'The currency is required'},
+  E40104 : {code: 40104, message: 'The status is incorrect'},
 
   E40200 : {code: 40200, message: 'The iot name is exist in database'},
   E40201 : {code: 40201, message: 'The iot name is required'},
@@ -42,6 +43,9 @@ module.exports = {
   E40500 : {code: 40500, message: 'Can not find device'},
 
   E40600 : {code: 40600, message: 'Can not find site'},
+
+  E40700 : {code: 40700, message: 'Status event is incorrect'},
+  E40701 : {code: 40701, message: 'Event type is incorrect'},
 
 
 

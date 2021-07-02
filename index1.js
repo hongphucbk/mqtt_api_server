@@ -207,6 +207,7 @@ async function processEvent(data, str_topic){
     station: site_id,
     device: str_topic[1],
     register :  register,
+    eventType : 'alarm',
     code: 0,
     status: 0,
     description: '',
@@ -254,7 +255,6 @@ async function processEvent(data, str_topic){
       //console.log(jsonEvent)
       await Event.insertMany([jsonEvent])
     }
-    //arrRegister[i]
   }
 
   let clr = await AlarmCode.findOneAndUpdate({device: str_topic[1], register: register},{status: arrRegister, updated_at: moment()},{upsert: true})
@@ -275,3 +275,15 @@ async function deleteData() {
 
 setInterval( deleteData , 5*60000);
 
+// async function manualUpdate(){
+//   let a = await HistoryDeviceData.updateMany({device: '609ea4982aec141dc890ffbd' ,
+//                                        timestamp: { $gte: "2021-06-20T20:04:00.000+07:00",
+//                                        $lte: "2021-06-21T05:19:00.000+07:00" }},
+//                                             { $set: { "paras.WH": 16198290, "paras.workingHours": 154.269428571429 } }) 
+  
+
+//   //let a = await HistoryDeviceData.find()                                            //{paras : true });
+//   console.log("result", a)
+// }
+
+// manualUpdate()

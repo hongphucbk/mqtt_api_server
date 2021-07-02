@@ -72,34 +72,20 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
     }
 })
 
-// router.post('/users/login', async(req, res) => {
-//     //Login a registered user
-//     try {
-//         const { email, password } = req.body
-//         const user = await User.findByCredentials(email, password)
-//         if (!user) {
-//             return res.status(401).send({error: 'Login failed! Check authentication credentials'})
-//         }
-//         const token = await user.generateAuthToken()
-//         res.send({ user, token })
-//     } catch (error) {
-//         res.status(400).send(error)
-//     }
-// })
-
-// router.get('/site/list', auth, async(req, res) => {
-//     let stations = await Station.find();
-//     res.send(stations)
-// })
-
 router.get('/site/list', auth, async(req, res) => {
   try{
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
     
     let site_name = req.query.name ? req.query.name : null
-    let status = req.query.status;
+    let status = req.query.status ? req.query.status.trim() : null;
+    if (status != null && status != 'normal' && status != 'offline' && status != 'fault' ) {
+      res.send(err.E40104) 
+      return
+    }
+
     let sites = req.user.stations;
+
 
     let strQuery = {}
     
@@ -124,8 +110,8 @@ router.get('/site/list', auth, async(req, res) => {
 
     if (site_name) {
       strQuery = { ...strQuery, name: { $regex: '.*' + site_name + '.*',$options: 'i' } };
-
     }
+    //console.log(strQuery)
 
     let totalRecord = await Station.find(strQuery).countDocuments();
     let totalPage = Math.ceil(totalRecord/limit)
@@ -202,6 +188,13 @@ router.get('/site/list', auth, async(req, res) => {
   }
 })
 
+
+// router.get('/site/list'){
+//   //goi database 
+
+//   let result = axjo.http('limk')
+//   res.send({"T1", result})
+// }
 
 router.get('/site/overview', auth, async(req, res) => {
   try{
