@@ -17,6 +17,9 @@ const eventSchema = mongoose.Schema({
     dataType: {
         type: String,
     },
+    eventType: {
+        type: String,
+    },
     timestamp: {
         type: Date,
     },
