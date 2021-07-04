@@ -1,0 +1,3 @@
+db.getCollection('history_station_data').find({"station" : ObjectId("607c7e23ba23121608c8fc69"), 
+                                                "timestamp": { $gte: ISODate("2021-07-04T00:00:01.000+07:00"),
+                                                             $lte: ISODate("2021-07-04T23:59:59.000+07:00") }})

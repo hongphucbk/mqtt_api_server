@@ -436,6 +436,7 @@ router.get('/site/trend', auth, async(req, res) => {
         })
         TotalWh = maxWh > minWh ?  maxWh - minWh : 0
         data[j] = TotalWh
+        
         //console.log(j, maxWh, minWh, TotalWh)
       }
       data.splice(0, 1);

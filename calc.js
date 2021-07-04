@@ -27,7 +27,7 @@ async function StoredDeviceData(){
     let start = moment().subtract(10, 'minutes').startOf('minute')
     let end = moment().subtract(0, 'minutes').endOf('minute')
     //console.log(start, end)
-    let devices = await Device.find();
+    let devices = await Device.find({is_active: 1});
     //console.log('------------')
     for (let j = 0; j < devices.length; j++) {
       let jsonDevice = {
@@ -116,7 +116,7 @@ async function StoredStationData(){
     let end = moment().subtract(5, 'minutes').endOf('minute')
 
     //console.log(start, end)
-    let stations = await Station.find();
+    let stations = await Station.find({is_active: 1});
 
     //console.log(stations)
 

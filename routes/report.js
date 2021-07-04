@@ -14,7 +14,9 @@ const excel = require('node-excel-export');
 const router = express.Router()
 
 router.get('/report', async (req, res) => {
-  let histories = await HistoryDeviceRawData.find() //.sort('timestamp').limit(100);
+  let before3d = moment().subtract(3, 'days');
+
+  let histories = await HistoryDeviceRawData.find({timestamp: { $gte: before3d }}) //.sort('timestamp').limit(100);
   let data = []
   let temp1;
   let temp2;
@@ -24,12 +26,12 @@ router.get('/report', async (req, res) => {
       return para.name == "WH"
     })
 
-    let wH = prs[0].value
+    let wH = prs[0] ? prs[0].value : "No"
     let watts = await histories[i].paras.filter(function(para){
       return para.name == "Watts"
     })
 
-    let watt = watts[0].value
+    let watt = watts[0] ? watts[0].value : "No"
     //console.log(wH)
 
     temp1 = {time: histories[i].timestamp.toString(), T1: wH,T2: watt, T3: histories[i].device }  // moment().format('MMMM Do YYYY, h:mm:ss a');
