@@ -211,7 +211,7 @@ async function StoredWhDeviceData(){
       })
 
       TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-      console.log(maxWh, minWh, TotalWh)
+      //console.log(maxWh, minWh, TotalWh)
       jsonDevice.wh = TotalWh
       jsonDevice.infors = [
         {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt }

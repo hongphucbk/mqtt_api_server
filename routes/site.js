@@ -37,7 +37,7 @@ router.post('/site', auth, role(['SA']),async (req, res) => {
 
   try {
       const site = new Station(req.body)
-      console.log(site)
+      //console.log(site)
       await site.save()
 
       let displaySite = {
@@ -63,7 +63,7 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
 
     try {
         const station = new Station(req.body)
-        console.log(station)
+        //console.log(station)
         await station.save()
         //const token = await user.generateAuthToken()
         res.status(201).send({"result": 1, station })
@@ -257,7 +257,7 @@ router.get('/site/overview', auth, async(req, res) => {
     }
 
     let data = []
-    console.log(station, station.is_active,sts)
+    //console.log(station, station.is_active,sts)
     for (let i = 0; i < devices.length; i++) {
       let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
       if(deviceData[0]){
