@@ -266,14 +266,12 @@ client.on("error", err => {
 
 // Service to delete database
 async function deleteData() {
-  let before3h = moment().subtract(3, 'hours');
-  let before24h = moment().subtract(24, 'hours');
-  //console.log('Cant stop me now!');
-  await DeviceData.deleteMany({ timestamp: { $lte: before3h } });
+  //let before3h = moment().subtract(3, 'hours');
+  let before25h = moment().subtract(25, 'hours');
+  await DeviceData.deleteMany({ timestamp: { $lte: before25h } });
   //await Event.deleteMany({ timestamp: { $lte: before24h } });
 }
-
-setInterval( deleteData , 5*60000);
+setInterval( deleteData , 30*60000);
 
 // async function manualUpdate(){
 //   let a = await HistoryDeviceData.updateMany({device: '609ea4982aec141dc890ffbd' ,
@@ -291,9 +289,9 @@ const HistoryStationData = require('./models/HistoryStationData')
 
 // async function manualUpdateStation(){
 //   let a = await HistoryStationData.updateMany({station: '607c7e23ba23121608c8fc69' ,
-//                                        timestamp: { $gte: "2021-07-04T00:00:01.000+07:00",
-//                                        $lte: "2021-07-04T22:50:59.000+07:00" }},
-//                                             { $set: { "paras.WH": 42240010, "paras.workingHours": 402 } }) 
+//                                        timestamp: { $gte: "2021-07-05T00:00:01.000+07:00",
+//                                        $lte: "2021-07-05T22:50:59.000+07:00" }},
+//                                             { $set: { "paras.WH": 42876710, "paras.workingHours": 413 } }) 
   
 
 //   //let a = await HistoryDeviceData.find()                                            //{paras : true });

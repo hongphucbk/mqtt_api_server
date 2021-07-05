@@ -1,11 +1,10 @@
 require('dotenv').config();
 require('express-group-routes');
-var moment = require('moment'); // require
+var moment = require('moment');
 
 var bodyParser = require('body-parser')
 
 const express = require('express')
-
 //-------------------------------------------------------------------
 var mongoose = require('mongoose');
 //mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true});
@@ -19,6 +18,7 @@ const Device = require('./models/Device')
 const DeviceData = require('./models/DeviceData')
 const HistoryDeviceData = require('./models/HistoryDeviceData')
 const HistoryStationData = require('./models/HistoryStationData')
+const WhDeviceData = require('./models/WhDeviceData')
 
 let stationData = []
 
@@ -26,9 +26,7 @@ async function StoredDeviceData(){
   try{
     let start = moment().subtract(10, 'minutes').startOf('minute')
     let end = moment().subtract(0, 'minutes').endOf('minute')
-    //console.log(start, end)
     let devices = await Device.find({is_active: 1});
-    //console.log('------------')
     for (let j = 0; j < devices.length; j++) {
       let jsonDevice = {
         device: devices[j]._id,
@@ -37,7 +35,6 @@ async function StoredDeviceData(){
           Watts : 0, //power
           workingHours : 0
         }
-        //name: stations[j].name
       }
 
       let infors;
@@ -50,10 +47,6 @@ async function StoredDeviceData(){
       infors = await DeviceData.find({ device: devices[j]._id, 
                                        timestamp: {$gte: start, $lte: end } 
                                     })
-
-      //console.log(devices[j].name, '-----------')
-      //console.log(infors)
-
       // Watts
       for (var i = 0; i < infors.length; i++) {
         let Watts = infors[i].paras.filter(function(item){
@@ -115,10 +108,7 @@ async function StoredStationData(){
     let start = moment().subtract(5, 'minutes').startOf('minute')
     let end = moment().subtract(5, 'minutes').endOf('minute')
 
-    //console.log(start, end)
     let stations = await Station.find({is_active: 1});
-
-    //console.log(stations)
 
     for (let j = 0; j < stations.length; j++) {
       let jsonStation = {
@@ -134,11 +124,11 @@ async function StoredStationData(){
       let devices = await Device.find({ station: stations[j]._id })
       let ids = []
       devices.forEach(function(device){
-        ids.push(device._id)
+        if (device.is_active == 1) {
+          ids.push(device._id)
+          //console.log(device._id, device.name)
+        }
       })
-
-      //console.log("--------------------")
-      //console.log(ids)
 
       let infors;
       let Watts = 0;
@@ -176,13 +166,80 @@ async function StoredStationData(){
   }
 }
 
+async function StoredWhDeviceData(){
+  try{
+    let start = moment().subtract(2, 'minutes').startOf('days')
+    let end = moment().subtract(2, 'minutes').endOf('days')
+
+    let devices = await Device.find({is_active: 1});
+    for (let j = 0; j < devices.length; j++) {
+      let jsonDevice = {
+        device: devices[j]._id,
+        device_name : devices[j].name,
+        station: devices[j].station,
+        timestamp : start,
+        infors: []
+      }
+
+      let infors = await DeviceData.find({ device: devices[j]._id, 
+                                       timestamp: {$gte: start, $lte: end } 
+                                    })
+
+      let TotalWh = 0
+      let minWh = 9000000000
+      let maxWh = 0
+      let minAt
+      let maxAt
+      infors.map(await function(item){
+        let strWh = item.paras.filter(function(it){
+          return it.name == 'WH'
+        })
+        let WH = parseInt(strWh[0].value)
+        if (WH > 0) {
+          // if (WH < minWh) {
+          //   console.log("-->", minWh, strWh, WH, item.timestamp)
+          // }
+          minWh = WH < minWh ? WH : minWh
+          maxWh = WH > maxWh ? WH : maxWh
+          if (WH < minWh) {
+            minAt = new Date()
+          }
+          if (WH > maxWh) {
+            maxAt = new Date()
+          }
+        }
+      })
+
+      TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+      console.log(maxWh, minWh, TotalWh)
+      jsonDevice.wh = TotalWh
+      jsonDevice.infors = [
+        {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt }
+      ]
+      jsonDevice.updated_at = new Date();
+
+      const filter = {timestamp: start, device: devices[j]._id};
+      const update = jsonDevice;
+
+      let doc = await WhDeviceData.findOneAndUpdate(filter, update, {
+        new: true,
+        upsert: true // Make this update into an upsert
+      });
+
+    }
+  }catch(error){
+    console.log(error.message)
+  }
+}
+
 setInterval(function(){
-  //StoredDatabase();
+  StoredWhDeviceData()
+}, parseInt(4 * 60000));
+
+setInterval(function(){
   StoredDeviceData()
-  //StoredDeviceDataNow()
-}, parseInt(process.env.DEVICE_CALC) * 5000);
+}, parseInt(process.env.DEVICE_CALC) * 60000);
 
 setInterval(function(){
   StoredStationData()
-  //StoredSatationDataNow()
 }, parseInt(process.env.STATION_CALC) * 60000);
