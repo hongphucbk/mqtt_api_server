@@ -8,6 +8,7 @@ const moment = require('moment'); // require
 const HistoryDeviceData = require('../models/HistoryDeviceData')
 const role = require('../middlewares/role')
 const DeviceType = require('../models/DeviceType')
+const WhDeviceData = require('../models/WhDeviceData')
 
 const err = require('../common/err')
 
@@ -144,10 +145,7 @@ router.post('/station/edit/:id', auth, async(req, res) => {
 router.get('/site/device/details', auth, async(req, res) => {
   try{
     let id = req.query.id; //site_id
-    //console.log(id)
-      //let station = await Station.findOne({_id: station_id});
     let device = await Device.findOne({_id: id})
-    //console.log(device, device.is_active)
     if (device) {
       let d = {
         id : device.id,
@@ -183,27 +181,36 @@ router.get('/site/device/details', auth, async(req, res) => {
         }
 
         let start = moment().startOf('day')
-        let end = moment(start).add(30, 'minutes').startOf('minute')
-        let str = { device: id,
-                    timestamp: {$gte: start, $lte: end }
-                  }
-        let rawData = await HistoryDeviceData.find(str)
+        //let end = moment(start).add(30, 'minutes').startOf('minute')
+        // let str = { device: id,
+        //             timestamp: {$gte: start, $lte: end }
+        //           }
+        // let rawData = await HistoryDeviceData.find(str)
 
-        let minWh = 90000000000;
-        rawData.map(function(item){
-          minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
-        })
+        // let minWh = 90000000000;
+        // rawData.map(function(item){
+        //   minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
+        // })
 
         let Watts = deviceData[0].paras.filter(function(item){
           return item.name == 'Watts'
         })
         d.curActPower = parseInt(Watts[0].value)
 
-        let WH = deviceData[0].paras.filter(function(item){
-          return item.name == 'WH'
-        })
-        d.todayEnergy = parseInt(WH[0].value) - minWh
+        // let WH = deviceData[0].paras.filter(function(item){
+        //   return item.name == 'WH'
+        // })
 
+        //--
+        let _wh = await WhDeviceData.find({  device: id,
+                                            timestamp: { $gte : start }
+                                        })
+                            .sort({'timestamp': -1})
+                            .limit(1)
+                            .exec()
+        if (_wh.length > 0) {
+          d.todayEnergy = _wh[0].wh
+        }
       
         res.send({device: d})
       }else{

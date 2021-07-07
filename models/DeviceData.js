@@ -28,6 +28,9 @@ const deviceDataSchema = mongoose.Schema({
     updated_at: {
         type: Date,
     },
+    watts: {
+        type: Number,
+    },
     device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
     // password: {
     //     type: String,

@@ -30,6 +30,7 @@ async function StoredDeviceData(){
     for (let j = 0; j < devices.length; j++) {
       let jsonDevice = {
         device: devices[j]._id,
+        watts: 0,
         paras: {
           WH : 0, //kWh powerGenerated
           Watts : 0, //power
@@ -61,6 +62,7 @@ async function StoredDeviceData(){
         avg = 0
       }
       jsonDevice.paras.Watts = avg;
+      jsonDevice.watts = avg
 
       //WH
       count = 0
