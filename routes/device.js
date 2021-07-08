@@ -147,6 +147,11 @@ router.get('/site/device/details', auth, async(req, res) => {
     let id = req.query.id; //site_id
     let device = await Device.findOne({_id: id})
     if (device) {
+      if (device.is_active == 0) {
+        res.status(400).send(err.E40800)
+        return
+      }
+
       let d = {
         id : device.id,
         name : device.name,
@@ -165,10 +170,12 @@ router.get('/site/device/details', auth, async(req, res) => {
 
       let data = []
 
-      let deviceData = await DeviceData.find({device: id}).sort({_id: -1}).limit(1)
+      let begin = moment().subtract(15, 'minutes').startOf('minute')
+
+
+      let deviceData = await DeviceData.find({device: id, timestamp: { $gte : begin } }).sort({_id: -1}).limit(1)
       if (deviceData.length > 0) {
         let paras = deviceData[0].paras;
-        //console.log(d.paras)
 
         for (let i = 0; i < d.paras.length; i++) {
           for (var j = 0; j < paras.length; j++) {
@@ -180,28 +187,12 @@ router.get('/site/device/details', auth, async(req, res) => {
           }
         }
 
-        let start = moment().startOf('day')
-        //let end = moment(start).add(30, 'minutes').startOf('minute')
-        // let str = { device: id,
-        //             timestamp: {$gte: start, $lte: end }
-        //           }
-        // let rawData = await HistoryDeviceData.find(str)
-
-        // let minWh = 90000000000;
-        // rawData.map(function(item){
-        //   minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
-        // })
-
         let Watts = deviceData[0].paras.filter(function(item){
           return item.name == 'Watts'
         })
         d.curActPower = parseInt(Watts[0].value)
 
-        // let WH = deviceData[0].paras.filter(function(item){
-        //   return item.name == 'WH'
-        // })
-
-        //--
+        let start = moment().startOf('day')
         let _wh = await WhDeviceData.find({  device: id,
                                             timestamp: { $gte : start }
                                         })

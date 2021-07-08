@@ -48,6 +48,8 @@ module.exports = {
   E40701 : {code: 40701, message: 'Event type is incorrect'},
 
 
+  // add
+  E40800 : {code: 40800, message: 'Device is not active or dont have data'},
 
 
 }
