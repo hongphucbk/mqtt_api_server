@@ -189,14 +189,6 @@ router.get('/site/list', auth, async(req, res) => {
   }
 })
 
-
-// router.get('/site/list'){
-//   //goi database 
-
-//   let result = axjo.http('limk')
-//   res.send({"T1", result})
-// }
-
 router.get('/site/overview', auth, async(req, res) => {
   try{
     let id = req.query.id;
@@ -209,7 +201,7 @@ router.get('/site/overview', auth, async(req, res) => {
       id: id,
       name : station.name,
       curSumActPower: 0,    // power = Watts
-      todaySumEnergy: 0,    // WH
+      todaySumEnergy: 0,    // WH_calc = Tổng sản lượng điện trong ngày
       ratedSumPower: 0,     // nameplateWatts
       allSumEnergy: 0,      // PowerGenerated = WH all = Total yield (kWh)
       price: station.price,
@@ -226,15 +218,15 @@ router.get('/site/overview', auth, async(req, res) => {
       let start = moment().startOf('day')
       let end = moment(start).add(30, 'minutes').startOf('minute')
       //console.log(start, end)
-      let str = { device: devices[i]._id,
-                  timestamp: {$gte: start, $lte: end }
-                }
-      let rawData = await HistoryDeviceData.find(str)
+      // let str = { device: devices[i]._id,
+      //             timestamp: {$gte: start, $lte: end }
+      //           }
+      // let rawData = await HistoryDeviceData.find(str)
 
-      let minWh = 90000000000;
-      rawData.map(function(item){
-        minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
-      })
+      // let minWh = 90000000000;
+      // rawData.map(function(item){
+      //   minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
+      // })
 
       //console.log(minWh)
 
@@ -252,9 +244,8 @@ router.get('/site/overview', auth, async(req, res) => {
         d.allSumEnergy += WH[0].value
 
         //let WH_calc = paras.filter((para) => para.name === 'WH')
-        d.todaySumEnergy += (WH[0].value - minWh)
+        //d.todaySumEnergy += (WH[0].value - minWh)
       }
-
     }
 
     let data = []
@@ -277,6 +268,23 @@ router.get('/site/overview', auth, async(req, res) => {
         d.workingHours.toFixed(3)
       }
     }
+
+    // Tính toán wh trong ngày
+    let start = moment().startOf('day')
+    let end = moment().endOf('day')
+    let sum_wh = 0
+    let _whs = await WhDeviceData.find({  station: id,
+                                      timestamp: { $gte : start, $lte : end }
+                                  })
+                            //.sort({'timestamp': -1})
+                            //.limit(1)
+                            .exec()
+
+    _whs.forEach(function(wh){
+      sum_wh = sum_wh + wh.wh
+    })
+    d.todaySumEnergy = sum_wh
+
     res.send({site: d})
   }catch(error){
     res.send({error: error})
@@ -417,36 +425,64 @@ router.get('/site/trend', auth, async(req, res) => {
       }
 
     }else if (basedTime === 'month' && type === 'energy') {
+      var date1 = moment("2021-06-30")
+      var now = moment(req.query.date);
+
       let StartMonth = moment(req.query.date).startOf('month');
       let EndMonth = moment(req.query.date).endOf('month');
       
-      hisStations = await HistoryStationData.find({ station: id, 
-                                                    timestamp: {$gte: StartMonth, $lte: EndMonth } 
-                                                  })
-      //let StartDay = moment(req.query.date).startOf('day');     // set to 12:00 am today
-      let EndDay = moment(req.query.date).endOf('day');     // set to 12:00 am today
+      if (now > date1) {
+        // date >= 2021-07-01
+        let _whs = await WhDeviceData.find({  station: id,
+                                              timestamp: { $gte : StartMonth, $lte : EndMonth }
+                                            })
+                            //.sort({'timestamp': -1})
+                            //.limit(1)
+                            .exec()
+        for (let j = 1; j <= EndMonth.date(); j++) {
+          data[j] = 0
+          _whs.map(await function(item){
+            if (moment(item.timestamp).date() == j && item.wh > 0) {
+              data[j] += item.wh
+            }
+          })
+        }
+        data.splice(0, 1);
 
-      for (let j = 1; j <= EndMonth.date(); j++) {
-        data[j] = 0
-        // let hisStation = hisStations.reduce(function(total, cur, _, {length}){
-        //   return moment(cur.timestamp).date() == j ? total + cur.paras.power/length: total;
-        // }, 0)
-        let TotalWh = 0
-        let minWh = 9000000000
-        let maxWh = 0
-        hisStations.map(await function(item){
-          if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
-            //console.log('item WH = ' + item.paras.WH)
-            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
-            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
-          }
-        })
-        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-        data[j] = TotalWh
-        
-        //console.log(j, maxWh, minWh, TotalWh)
+      } else {
+        // date <= 2021-06-30
+        hisStations = await HistoryStationData.find({ station: id, 
+                                                      timestamp: {$gte: StartMonth, $lte: EndMonth } 
+                                                  })
+        //let StartDay = moment(req.query.date).startOf('day');     // set to 12:00 am today
+        let EndDay = moment(req.query.date).endOf('day');     // set to 12:00 am today
+
+        for (let j = 1; j <= EndMonth.date(); j++) {
+          data[j] = 0
+          // let hisStation = hisStations.reduce(function(total, cur, _, {length}){
+          //   return moment(cur.timestamp).date() == j ? total + cur.paras.power/length: total;
+          // }, 0)
+          let TotalWh = 0
+          let minWh = 9000000000
+          let maxWh = 0
+          hisStations.map(await function(item){
+            if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
+              //console.log('item WH = ' + item.paras.WH)
+              minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+              maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+            }
+          })
+          TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+          data[j] = TotalWh
+          
+          //console.log(j, maxWh, minWh, TotalWh)
+        }
+        data.splice(0, 1);
+
       }
-      data.splice(0, 1);
+
+
+      
 
 
 
@@ -463,22 +499,32 @@ router.get('/site/trend', auth, async(req, res) => {
                                                   })
 
       for (let j = 0; j <= 11; j++) {
-        data[j] = 0
-        // let hisStation = hisStations.reduce(function(total, cur, _, {length}){
-        //   return moment(cur.timestamp).month() == j ? total + cur.paras.power/ length: total;
-        // }, 0)
+        if (j <= 5) {
+          data[j] = 0
 
-        let TotalWh = 0
-        let minWh = 9000000000
-        let maxWh = 0
-        hisStations.map(function(item){
-          if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
-            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
-            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
-          }
-        })
-        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-        data[j] = TotalWh
+          let TotalWh = 0
+          let minWh = 9000000000
+          let maxWh = 0
+          hisStations.map(function(item){
+            if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
+              minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+              maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+            }
+          })
+          TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+          data[j] = TotalWh
+        }else{
+          let _whs = await WhDeviceData.find({  station: id,
+                                                timestamp: { $gte : StartYear, $lte : EndYear }
+                                            }).exec()
+          let _total = 0
+          _whs.map(await function(item){
+            if (moment(item.timestamp).month() == j && item.wh > 0) {
+              _total += item.wh
+            }
+          })
+          data[j] = _total
+        } 
       }
       //console.log(a)
       //let startDate = req.query.date + " " + j  + ":00:00";
@@ -609,8 +655,6 @@ router.delete('/site', auth, role(['SA']), async(req, res) => {
     res.status(400).send({error: error.message})
   }
 })
-
-
 
 
 module.exports = router;

@@ -275,73 +275,98 @@ router.get('/device/trend', auth, async(req, res) => {
       // }
 
     }else if (basedTime === 'month' && type === 'energy') {
+      var date1 = moment("2021-06-30")
+      var now = moment(req.query.date);
+
       let StartMonth = moment(req.query.date).startOf('month');
       let EndMonth = moment(req.query.date).endOf('month');
-      
-      hisStations = await HistoryDeviceData.find({ device: id, 
-                                                    timestamp: {$gte: StartMonth, $lte: EndMonth } 
-                                                  })
-      //let StartDay = moment(req.query.date).startOf('day');     // set to 12:00 am today
-      let EndDay = moment(req.query.date).endOf('day');     // set to 12:00 am today
 
-      //console.log(EndMonth)
 
-      for (let j = 1; j <= EndMonth.date(); j++) {
-        data[j] = 0
-        // let hisStation = hisStations.reduce(function(total, cur, _, { length }){
-        //   return moment(cur.timestamp).date() == j ? total + cur.paras.WH/length: total;
-        // }, 0)
-
-        // //console.log(hisStation)
-        // data[j] = hisStation
-        let TotalWh = 0
-        let minWh = 9000000000
-        let maxWh = 0
-        hisStations.map(await function(item){
-          if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
-            //console.log('item WH = ' + item.paras.WH)
-            if (item.paras.WH < minWh) {
-              console.log("-->", minWh, item.timestamp)
+      if (now > date1) {
+        // date >= 2021-07-01
+        let _whs = await WhDeviceData.find({  device: id,
+                                              timestamp: { $gte : StartMonth, $lte : EndMonth }
+                                            })
+                            //.sort({'timestamp': -1})
+                            //.limit(1)
+                            .exec()
+        for (let j = 1; j <= EndMonth.date(); j++) {
+          data[j] = 0
+          _whs.map(await function(item){
+            if (moment(item.timestamp).date() == j && item.wh > 0) {
+              data[j] = item.wh
             }
-            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
-            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
-          }
-        })
-        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-        data[j] = TotalWh
+          })
+        }
+        data.splice(0, 1);
 
-        //console.log(j, minWh, maxWh, TotalWh)
+      } else {
+        // date <= 2021-06-30
+        hisStations = await HistoryDeviceData.find({  device: id, 
+                                                      timestamp: {$gte: StartMonth, $lte: EndMonth } 
+                                                  })
+        //let StartDay = moment(req.query.date).startOf('day');     // set to 12:00 am today
+        let EndDay = moment(req.query.date).endOf('day');     // set to 12:00 am today
+
+        for (let j = 1; j <= EndMonth.date(); j++) {
+          data[j] = 0
+          let TotalWh = 0
+          let minWh = 9000000000
+          let maxWh = 0
+          hisStations.map(await function(item){
+            if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
+              //console.log('item WH = ' + item.paras.WH)
+              if (item.paras.WH < minWh) {
+                console.log("-->", minWh, item.timestamp)
+              }
+              minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+              maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+            }
+          })
+          TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+          data[j] = TotalWh
+        }
+        
+        data.splice(0, 1);
       }
-      
-      data.splice(0, 1);
 
 
-
-      //console.log(a)
-      //let startDate = req.query.date + " " + j  + ":00:00";
-      //let endDate = req.query.date + " " + j + ":59:59";
-      //data[0] = "Phuc is processing please wait to update. :)))"
     }else if (basedTime === 'year' && type === 'energy') {
       let StartYear = moment(req.query.date).startOf('year');
       let EndYear = moment(req.query.date).endOf('year');
       
+
       hisStations = await HistoryDeviceData.find({ device: id, 
                                                     timestamp: {$gte: StartYear, $lte: EndYear } 
                                                   })
 
       for (let j = 0; j <= 11; j++) {
-        data[j] = 0
-        let TotalWh = 0
-        let minWh = 9000000000
-        let maxWh = 0
-        hisStations.map(function(item){
-          if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
-            minWh = item.paras.WH < minWh ? item.paras.WH : minWh
-            maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
-          }
-        })
-        TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-        data[j] = TotalWh
+        if (j <= 5) {
+          data[j] = 0
+          let TotalWh = 0
+          let minWh = 9000000000
+          let maxWh = 0
+          hisStations.map(function(item){
+            if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
+              minWh = item.paras.WH < minWh ? item.paras.WH : minWh
+              maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
+            }
+          })
+          TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+          data[j] = TotalWh
+        }else{
+          let _whs = await WhDeviceData.find({  device: id,
+                                                timestamp: { $gte : StartYear, $lte : EndYear }
+                                            }).exec()
+          let _total = 0
+          _whs.map(await function(item){
+            if (moment(item.timestamp).month() == j && item.wh > 0) {
+              _total += item.wh
+            }
+          })
+          data[j] = _total
+        }
+        
       }
     }
     else{
