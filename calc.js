@@ -234,6 +234,15 @@ async function StoredWhDeviceData(){
   }
 }
 
+//---------------------------------------------------------------------
+// Service to delete database after 1 day
+let before25h;
+async function deleteData() {
+  before25h = moment().subtract(25, 'hours');
+  await DeviceData.deleteMany({ timestamp: { $lte: before25h } });
+}
+//---------------------------------------------------------------------
+
 setInterval(function(){
   StoredWhDeviceData()
 }, parseInt(4 * 60000));
@@ -245,3 +254,6 @@ setInterval(function(){
 setInterval(function(){
   StoredStationData()
 }, parseInt(process.env.STATION_CALC) * 60000);
+
+
+setInterval(deleteData , 30*60000);

@@ -224,7 +224,6 @@ router.get('/device/trend', auth, async(req, res) => {
     let date = req.query.date //"2021-04-22"
     let type = req.query.type //"power / energy"
 
-
     let deviceDataPowers;
     let data = []
 
@@ -258,6 +257,8 @@ router.get('/device/trend', auth, async(req, res) => {
           }
           return avg
         })
+
+        //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
         data.push(avg)
         start = end1
       }
