@@ -328,8 +328,8 @@ let to
 let now
 
 setInterval(function(){
-  from = moment().endOf('days').add(1, 'minutes')
-  to   = moment().endOf('days').add(40, 'minutes')
+  from = moment().startOf('days').add(1, 'minutes')
+  to   = moment().startOf('days').add(40, 'minutes')
   now  = moment()
 
   if (now > from && now < to) {
