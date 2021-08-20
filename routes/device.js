@@ -258,8 +258,13 @@ router.get('/device/trend', auth, async(req, res) => {
           return avg
         })
 
+        if (start1 > moment().subtract(5, 'minutes')) {
+          avg = undefined
+        }
+
         //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
         data.push(avg)
+        //console.log(start1, avg)
         start = end1
       }
 
@@ -281,7 +286,6 @@ router.get('/device/trend', auth, async(req, res) => {
 
       let StartMonth = moment(req.query.date).startOf('month');
       let EndMonth = moment(req.query.date).endOf('month');
-
 
       if (now > date1) {
         // date >= 2021-07-01
@@ -381,6 +385,72 @@ router.get('/device/trend', auth, async(req, res) => {
   }
 })
 
+router.get('/device/load/trend', auth, async(req, res) => {
+  try{
+    let id = req.query.id;  //device_id
+    let dataPoint = 'power' //req.query.dataPoint; //power
+    let basedTime = req.query.basedTime; // only month year
+    let date = req.query.date //"2021-04-22"
+    let type = 'energy'       //"power / energy"
+
+    let deviceDataPowers;
+    let data = []
+
+    let sum = 0
+    let count = 0
+    let avg = 0
+
+    if (basedTime === 'day') {
+      res.json(err.E40305)
+      return
+    }else if (basedTime === 'month' && type === 'energy') {
+
+      let StartMonth = moment(req.query.date).startOf('month');
+      let EndMonth = moment(req.query.date).endOf('month');
+      
+      // date >= 2021-07-01
+      let _loads = await WhDeviceData.find({  device: id,
+                                              timestamp: { $gte : StartMonth, $lte : EndMonth }
+                                        })
+                          //.sort({'timestamp': -1})
+                          //.limit(1)
+                          .exec()
+      for (let j = 1; j <= EndMonth.date(); j++) {
+        data[j] = 0
+        _loads.map(await function(item){
+          if (moment(item.timestamp).date() == j && item.load > 0) {
+            data[j] = item.load
+          }
+        })
+      }
+      data.splice(0, 1);
+
+    }else if (basedTime === 'year' && type === 'energy') {
+      let StartYear = moment(req.query.date).startOf('year');
+      let EndYear = moment(req.query.date).endOf('year');
+      
+      for (let j = 0; j <= 11; j++) {
+        let _loads = await WhDeviceData.find({  device: id,
+                                              timestamp: { $gte : StartYear, $lte : EndYear }
+                                            }).exec()
+        let _total = 0
+        _loads.map(await function(item){
+          if (moment(item.timestamp).month() == j && item.load > 0) {
+            _total += item.load
+          }
+        })
+        data[j] = _total
+      }
+    }
+    else{
+      res.json(err.E40010)
+      return
+    }
+    res.send({siteID: id, type: type,series: data})
+  }catch(error){
+    res.send(error.message)
+  }
+})
 
 router.delete('/device', auth, role(['SA']), async(req, res) => {
   try{

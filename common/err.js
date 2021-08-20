@@ -33,8 +33,13 @@ module.exports = {
   E40203 : {code: 40203, message: 'The site_id is required'},
   E40204 : {code: 40204, message: 'IOT Code is incorrect'},
 
+  //Device
   E40300 : {code: 40300, message: 'The device name is exist in database'},
   E40301 : {code: 40301, message: 'Device type is required'},
+
+  E40305 : {code: 40305, message: 'Basetime is incorrect. [month or year]'},
+
+
 
   E40400 : {code: 40400, message: 'Can not find user'},
 
@@ -51,6 +56,7 @@ module.exports = {
   // add
   E40800 : {code: 40800, message: 'Device is not active or dont have data'},
 
+  //
 
 }
 

@@ -420,7 +420,12 @@ router.get('/site/trend', auth, async(req, res) => {
           }
           return avg
         })
+
+        if (start1 > moment().subtract(5, 'minutes')) {
+          avg = undefined
+        }
         data.push(avg)
+        console.log(start1, avg)
         start = end1
       }
 
@@ -532,7 +537,6 @@ router.get('/site/trend', auth, async(req, res) => {
       //data[0] = "Phuc is processing please wait to update. :)))"
     }
     else{
-
       res.json(err.E40010)
       return
     }

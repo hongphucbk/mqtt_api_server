@@ -9,6 +9,9 @@ const WhDeviceDataSchema = mongoose.Schema({
         required: true,
         trim: true,
     },
+    load: {
+        type: Number,
+    },
     infors: {
         type: Array,
     },

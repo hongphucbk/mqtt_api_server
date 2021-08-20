@@ -12,6 +12,12 @@ const err = require('../common/err')
 const excel = require('node-excel-export');
 
 const router = express.Router()
+var controller = require('../controllers/report.controller');
+//var validate = require('../validate/station.validate');
+
+router.get('/manual', controller.getReportManual);
+
+
 
 router.get('/report', async (req, res) => {
   let before3d = moment().subtract(3, 'days');
@@ -219,9 +225,6 @@ router.get('/report', async (req, res) => {
   res.attachment('Report.xlsx'); // This is sails.js specific (in general you need to set headers)
   return res.send(report);
 })
-
-
-
 
 
 
