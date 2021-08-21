@@ -204,7 +204,8 @@ router.get('/site/overview', auth, async(req, res) => {
       curSumActPower: 0,    // power = Watts
       todaySumEnergy: 0,    // WH_calc = Tổng sản lượng điện trong ngày
       ratedSumPower: 0,     // nameplateWatts
-      allSumEnergy: 0,      // PowerGenerated = WH all = Total yield (kWh)
+      allSumEnergy: 0,    // PowerGenerated = WH all = Total yield (kWh)
+      comsumeEnergy: 0,       // Điện năng tiêu thụ Wh
       price: station.price,
       currency: station.currency,
       status : sts,
