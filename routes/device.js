@@ -44,11 +44,11 @@ router.get('/devices', auth, async(req, res) => {
     //let id = req.params.station_id;
     //try{
         let station_id = req.body.station_id
-        console.log(station_id)
+        //console.log(station_id)
         //let station = await Station.findOne({_id: station_id});
         let devices = await Device.find({station: station_id})
 
-        console.log( devices.length)
+        //console.log( devices.length)
 
         let data = []
         let d = {}
@@ -116,7 +116,7 @@ router.get('/devices', auth, async(req, res) => {
 router.get('/station/show/:id', auth, async(req, res) => {
     let id = req.params.id;
     //let id = req.body.id;
-    console.log(id)
+    //console.log(id)
     let station = await Station.findOne({ _id: id });
     res.send(station)
 })
@@ -258,7 +258,7 @@ router.get('/device/trend', auth, async(req, res) => {
           return avg
         })
 
-        if (start1 > moment().subtract(5, 'minutes')) {
+        if (start1 > moment().subtract(10, 'minutes')) {
           avg = undefined
         }
 
@@ -267,18 +267,6 @@ router.get('/device/trend', auth, async(req, res) => {
         //console.log(start1, avg)
         start = end1
       }
-
-      // for (let j = 0; j < 24; j++) {
-      //   data[j] = 0
-
-      //   let hisStation = hisStations.filter(function(item){
-      //     return moment(item.timestamp).hour() == j
-      //   })
-      //   //console.log(hisStation)
-      //   if (hisStation.length > 0) {
-      //     data[j] = hisStation[0].paras.power
-      //   }
-      // }
 
     }else if (basedTime === 'month' && type === 'energy') {
       var date1 = moment("2021-06-30")
@@ -322,7 +310,7 @@ router.get('/device/trend', auth, async(req, res) => {
             if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
               //console.log('item WH = ' + item.paras.WH)
               if (item.paras.WH < minWh) {
-                console.log("-->", minWh, item.timestamp)
+                //console.log("-->", minWh, item.timestamp)
               }
               minWh = item.paras.WH < minWh ? item.paras.WH : minWh
               maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
@@ -388,7 +376,7 @@ router.get('/device/trend', auth, async(req, res) => {
 router.get('/device/load/trend', auth, async(req, res) => {
   try{
     let id = req.query.id;  //device_id
-    let dataPoint = 'power' //req.query.dataPoint; //power
+    //let dataPoint = 'power' //req.query.dataPoint; //power
     let basedTime = req.query.basedTime; // only month year
     let date = req.query.date //"2021-04-22"
     let type = 'energy'       //"power / energy"

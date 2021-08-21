@@ -69,6 +69,7 @@ const iotDeviceRouter = require('./routes/iot_device');
 const eventRouter = require('./routes/event');
 
 const reportRouter = require('./routes/report');
+const emailRouter = require('./routes/email.route');
 
 app.use(userRouter)
 app.use(stationRouter)
@@ -79,6 +80,7 @@ app.use(deviceTypeRouter)
 app.use(iotDeviceRouter)
 app.use(eventRouter)
 app.use(reportRouter)
+app.use(emailRouter)
 
 //var authRouter = require('./routes/auth.route');
 //var stationRouter = require('./routes/station.route');
@@ -126,7 +128,7 @@ app.use(reportRouter)
 // }
 
 // manualUpdate()
-const HistoryStationData = require('./models/HistoryStationData')
+// const HistoryStationData = require('./models/HistoryStationData')
 
 // async function manualUpdateStation(){
 //   let a = await HistoryStationData.updateMany({station: '607c7e23ba23121608c8fc69' ,
@@ -140,3 +142,9 @@ const HistoryStationData = require('./models/HistoryStationData')
 // }
 
 //manualUpdateStation()
+
+// var CronJob = require('cron').CronJob;
+// var job = new CronJob('*/5 * * * * *', function() {
+//   console.log('You will see this message every second ' + moment().format('H mm ss'));
+// }, null, true, 'Asia/Ho_Chi_Minh');
+// job.start();

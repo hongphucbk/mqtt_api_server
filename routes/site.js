@@ -11,6 +11,7 @@ const HistoryStationData = require('../models/HistoryStationData')
 const err = require('../common/err')
 const IotDevice = require('../models/IotDevice')
 const WhDeviceData = require('../models/WhDeviceData')
+const LoadStationData = require('../models/LoadStationData')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -374,7 +375,6 @@ router.get('/site/devices', auth, async(req, res) => {
   }
 })
 
-
 router.get('/site/trend', auth, async(req, res) => {
   try{
     let id = req.query.id;
@@ -421,11 +421,11 @@ router.get('/site/trend', auth, async(req, res) => {
           return avg
         })
 
-        if (start1 > moment().subtract(5, 'minutes')) {
+        if (start1 > moment().subtract(10, 'minutes')) {
           avg = undefined
         }
         data.push(avg)
-        console.log(start1, avg)
+        //console.log(start1, avg)
         start = end1
       }
 
@@ -546,6 +546,63 @@ router.get('/site/trend', auth, async(req, res) => {
   }
 })
 
+router.get('/site/load/trend', auth, async(req, res) => {
+  try{
+    let id = req.query.id;
+    let basedTime = req.query.basedTime; //'day'
+    let date = req.query.date //"2021-04-22"
+    let type = req.query.type //'energy' // //"energy"
+
+    let data = []
+
+    if (basedTime === 'day') {
+      res.json(err.E40305)
+      return
+
+    }else if (basedTime === 'month' && type === 'energy') {
+      let StartMonth = moment(req.query.date).startOf('month');
+      let EndMonth = moment(req.query.date).endOf('month');
+      
+      let loads = await LoadStationData.find({ station: id,
+                                              timestamp: { $gte : StartMonth, $lte : EndMonth }
+                                            })
+                                      .exec()
+        for (let j = 1; j <= EndMonth.date(); j++) {
+          data[j] = 0
+          loads.map(await function(item){
+            if (moment(item.timestamp).date() == j && item.load > 0) {
+              data[j] += item.load
+            }
+          })
+        }
+        data.splice(0, 1);
+
+    }else if (basedTime === 'year' && type === 'energy') {
+      let StartYear = moment(req.query.date).startOf('year');
+      let EndYear = moment(req.query.date).endOf('year');
+      
+      for (let j = 0; j <= 11; j++) {
+        let _whs = await LoadStationData.find({  station: id,
+                                              timestamp: { $gte : StartYear, $lte : EndYear }
+                                          }).exec()
+        let _total = 0
+        _whs.map(await function(item){
+          if (moment(item.timestamp).month() == j && item.load > 0) {
+            _total += item.load
+          }
+        })
+        data[j] = _total
+      }
+    }
+    else{
+      res.json(err.E40010)
+      return
+    }
+    res.send({siteID: id, type: type, series: data})
+  }catch(error){
+    res.send(err.E40001)
+  }
+})
 
 router.post('/site/update', auth,async (req, res) => {
   // update site infor mation
