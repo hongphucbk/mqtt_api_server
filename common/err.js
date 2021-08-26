@@ -56,6 +56,12 @@ module.exports = {
   // add
   E40800 : {code: 40800, message: 'Device is not active or dont have data'},
 
+  //Report
+  E41000 : {code: 41000, message: 'The distance between start date and end date is too far. Select data in 2 months range'},
+  E41001 : {code: 41001, message: 'Too many requests from this IP, please try again after 10s'},
+
+
+
   //
 
 }

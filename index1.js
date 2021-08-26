@@ -143,8 +143,4 @@ app.use(emailRouter)
 
 //manualUpdateStation()
 
-// var CronJob = require('cron').CronJob;
-// var job = new CronJob('*/5 * * * * *', function() {
-//   console.log('You will see this message every second ' + moment().format('H mm ss'));
-// }, null, true, 'Asia/Ho_Chi_Minh');
-// job.start();
+

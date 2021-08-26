@@ -14,15 +14,64 @@ const HistoryDeviceRawData = require('../models/HistoryDeviceRawData')
 const WhDeviceData = require('../models/WhDeviceData')
 const WDeviceData = require('../models/WDeviceData')
 const LoadStationData = require('../models/LoadStationData')
+const axios = require('axios');
 
 const err = require('../common/err')
 //----------------------------------------------------------
 
 module.exports.getReportManual = async function(req, res) {
 	try{
-		let site_id = '607c7e23ba23121608c8fc69' //req.query.site_id
-		let date_start = req.query.date_start ? req.query.date_start : '2021-07-01'
-		let date_end = req.query.date_end ? req.query.date_end : '2021-08-30'
+		let site_id = req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
+		let email_to = req.query.email_to; 
+		let email_cc = req.query.email_cc; 
+		let date_start = req.query.date_start ? req.query.date_start : moment().startOf('months').format('YYYY-MM-DD')
+		let date_end = req.query.date_end ? req.query.date_end : moment().endOf('months').format('YYYY-MM-DD')
+		let dataPoint = 'energy'
+
+		let StartDate = moment(date_start).startOf('days');
+    let EndDate 	= moment(date_end).endOf('days');
+    let DateLengh = EndDate.diff(StartDate, 'days');
+    if (DateLengh > 60) {
+    	res.send(err.E41000)
+    }
+
+		let site = await Station.findOne({_id: site_id})
+
+		const res1 = await axios.post('http://127.0.0.1:5001/download-excel',{
+			site_id: site_id,
+			date_start: date_start,
+			date_end : date_end,
+		});
+    //console.log(res1.data);
+
+		const res_sendmail = await axios.post('http://127.0.0.1:5001/sendmail', {
+			site_id: site_id,
+			site_name: site.name,
+			email_cc: email_cc,
+			email_to: email_to,
+			file_name : res1.data.file_name,
+		})
+
+		//console.log(res_sendmail.data)
+
+    res.send({success: 'Sent successed'})
+    return
+	}catch(e){
+		res.send(e)
+		//console.log(e)
+	}
+};
+
+module.exports.postDownloadExcel = async function(req, res) {
+	try{
+		// let site_id = req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
+		// let date_start = req.query.date_start ? req.query.date_start : '2021-07-01'
+		// let date_end = req.query.date_end ? req.query.date_end : '2021-08-30'
+		// let dataPoint = 'energy'
+
+		let site_id = req.body.site_id;
+		let date_start = req.body.date_start
+		let date_end = req.body.date_end
 		let dataPoint = 'energy'
 
 		let StartDate = moment(date_start).startOf('days');
@@ -37,8 +86,6 @@ module.exports.getReportManual = async function(req, res) {
     let loads = await LoadStationData.find({ station: site_id,
                                              timestamp: { $gte : StartDate, $lte : EndDate }
                                           }).exec() 
-
-    //console.log(devices)
 
     var wb = new xl.Workbook();
 
@@ -202,150 +249,19 @@ module.exports.getReportManual = async function(req, res) {
 				}
 			}
 		} //End for devices
-		 
-		wb.write('./exports/Export_Excel_'+ moment().format('YYYYMMDD_Hmmss') +'.xlsx');
-    res.send('Done');
+		
+		let file_name = 'Solar_' + site_id +'.xlsx'
+		wb.write('./exports/' + file_name); // moment().format('YYYYMMDD_Hmmss')
+    res.send({result: 1, site_id: site_id, file_name: file_name});
     return;
   }catch(e){
   	console.log(e)
   }
 
 
-  //   if (basedTime === 'day' && type === 'power') {
-  //     let start = moment(date).startOf('day')
-  //     let end = moment(date).endOf('day')
-
-  //     hisStations = await HistoryDeviceData.find({ device: id, 
-  //                                                  timestamp: {$gte: start, $lte: end } 
-  //                                               })
-      
-  //     for (let j = 0; j < 288; j++) {
-  //       sum = 0, count = 0, avg = 0
-  //       let start1 = moment(start).startOf('minute')
-  //       let end1 = moment(start).add(5, 'minutes').startOf('minute')
-  //       //console.log(start1, end1)
-  //       let a1 = hisStations.map(x => {
-  //         if (x.timestamp <= end1 && x.timestamp >= start1) {
-  //           sum +=  x.paras.Watts
-  //           count++
-
-  //           if (count > 0) {
-  //             avg = sum/count
-  //           }else{
-  //             avg = 0
-  //           }
-  //         }
-  //         return avg
-  //       })
-
-  //       //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
-  //       data.push(avg)
-  //       start = end1
-  //     }
-
-      
-
-  //   }else if (basedTime === 'month' && type === 'energy') {
-  //     var date1 = moment("2021-06-30")
-  //     var now = moment(req.query.date);
-
-      
-
-
-  //     if (now > date1) {
-  //       // date >= 2021-07-01
-        
-  //                           //.sort({'timestamp': -1})
-  //                           //.limit(1)
-  //                           .exec()
-  //       for (let j = 1; j <= EndMonth.date(); j++) {
-  //         data[j] = 0
-  //         _whs.map(await function(item){
-  //           if (moment(item.timestamp).date() == j && item.wh > 0) {
-  //             data[j] = item.wh
-  //           }
-  //         })
-  //       }
-  //       data.splice(0, 1);
-
-  //     } else {
-  //       // date <= 2021-06-30
-  //       hisStations = await HistoryDeviceData.find({  device: id, 
-  //                                                     timestamp: {$gte: StartMonth, $lte: EndMonth } 
-  //                                                 })
-  //       //let StartDay = moment(req.query.date).startOf('day');     // set to 12:00 am today
-  //       let EndDay = moment(req.query.date).endOf('day');     // set to 12:00 am today
-
-  //       for (let j = 1; j <= EndMonth.date(); j++) {
-  //         data[j] = 0
-  //         let TotalWh = 0
-  //         let minWh = 9000000000
-  //         let maxWh = 0
-  //         hisStations.map(await function(item){
-  //           if (moment(item.timestamp).date() == j && item.paras.WH > 0) {
-  //             //console.log('item WH = ' + item.paras.WH)
-  //             if (item.paras.WH < minWh) {
-  //               console.log("-->", minWh, item.timestamp)
-  //             }
-  //             minWh = item.paras.WH < minWh ? item.paras.WH : minWh
-  //             maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
-  //           }
-  //         })
-  //         TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-  //         data[j] = TotalWh
-  //       }
-        
-  //       data.splice(0, 1);
-  //     }
-
-
-  //   }else if (basedTime === 'year' && type === 'energy') {
-  //     let StartYear = moment(req.query.date).startOf('year');
-  //     let EndYear = moment(req.query.date).endOf('year');
-      
-
-  //     hisStations = await HistoryDeviceData.find({ device: id, 
-  //                                                   timestamp: {$gte: StartYear, $lte: EndYear } 
-  //                                                 })
-
-  //     for (let j = 0; j <= 11; j++) {
-  //       if (j <= 5) {
-  //         data[j] = 0
-  //         let TotalWh = 0
-  //         let minWh = 9000000000
-  //         let maxWh = 0
-  //         hisStations.map(function(item){
-  //           if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
-  //             minWh = item.paras.WH < minWh ? item.paras.WH : minWh
-  //             maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
-  //           }
-  //         })
-  //         TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-  //         data[j] = TotalWh
-  //       }else{
-  //         let _whs = await WhDeviceData.find({  device: id,
-  //                                               timestamp: { $gte : StartYear, $lte : EndYear }
-  //                                           }).exec()
-  //         let _total = 0
-  //         _whs.map(await function(item){
-  //           if (moment(item.timestamp).month() == j && item.wh > 0) {
-  //             _total += item.wh
-  //           }
-  //         })
-  //         data[j] = _total
-  //       }
-        
-  //     }
-  //   }
-  //   else{
-  //     res.json(err.E40010)
-  //     return
-  //   }
-
-  //   res.send({siteID: id, type: type,series: data})
-  // }catch(error){
-  //   res.send(error.message)
-  // }
+  //   
 };
+
+
 
 

@@ -10,13 +10,21 @@ const HistoryDeviceRawData = require('../models/HistoryDeviceRawData')
 
 const err = require('../common/err')
 const excel = require('node-excel-export');
+const rateLimit = require("express-rate-limit");
 
 const router = express.Router()
 var controller = require('../controllers/report.controller');
 //var validate = require('../validate/station.validate');
 
-router.get('/manual', controller.getReportManual);
 
+const apiLimiter = rateLimit({
+  windowMs: 15 * 1000, // 10s
+  max: 1,
+  message: err.E41001
+});
+
+router.get('/report/manual', apiLimiter, controller.getReportManual);
+router.post('/download-excel', controller.postDownloadExcel);
 
 
 router.get('/report', async (req, res) => {
