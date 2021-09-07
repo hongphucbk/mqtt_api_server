@@ -373,7 +373,7 @@ async function sendAutoMail() {
   }
 }
 
-var jobSendMail = new CronJob('0 20 * * *', function() {
+var jobSendMail = new CronJob('0 23 * * *', function() {
   //console.log('You will see this message every minute ' + moment().format('H mm ss'));
   sendAutoMail()
 }, null, true, 'Asia/Ho_Chi_Minh');
