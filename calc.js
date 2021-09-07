@@ -383,7 +383,6 @@ jobSendMail.start();
 //========================================================
 var StoredWDeviceJob = new CronJob('20 0 * * *', function() {
   StoredWDeviceData()
-  await delay(2000);
   deleteData()
 }, null, true, 'Asia/Ho_Chi_Minh');
 
