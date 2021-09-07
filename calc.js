@@ -1,7 +1,9 @@
 require('dotenv').config();
 require('express-group-routes');
 var moment = require('moment');
-
+const CronJob = require('cron').CronJob;
+const axios = require('axios');
+const delay = require('delay');
 var bodyParser = require('body-parser')
 
 const express = require('express')
@@ -20,6 +22,7 @@ const HistoryDeviceData = require('./models/HistoryDeviceData')
 const HistoryStationData = require('./models/HistoryStationData')
 const WhDeviceData = require('./models/WhDeviceData')
 const WDeviceData = require('./models/WDeviceData')
+const AutoEmail = require('./models/AutoEmail')
 
 let stationData = []
 
@@ -323,18 +326,65 @@ setInterval(function(){
 }, parseInt(process.env.STATION_CALC) * 60000);
 
 //----------------------------------------------------
-let from
-let to
-let now
+// let from
+// let to
+// let now
 
-setInterval(function(){
-  from = moment().startOf('days').add(1, 'minutes')
-  to   = moment().startOf('days').add(40, 'minutes')
-  now  = moment()
+// setInterval(function(){
+//   from = moment().startOf('days').add(1, 'minutes')
+//   to   = moment().startOf('days').add(40, 'minutes')
+//   now  = moment()
 
-  if (now > from && now < to) {
-    StoredWDeviceData()
-    deleteData()
-  }
-}, parseInt(10 * 60000)); // 10 minutes
+//   if (now > from && now < to) {
+    
+//   }
+// }, parseInt(10 * 60000)); // 10 minutes
 //----------------------------------------------------
+
+
+//========================================================
+async function sendAutoMail() {
+  let emails = await AutoEmail.find({'is_active': 1})
+
+  for (var i = 0; i < emails.length; i++) {
+    email = emails[i]
+
+    let date_start = moment().subtract(email.range, 'days').startOf('days').format('YYYY-MM-DD')
+    let date_end = moment().endOf('days').format('YYYY-MM-DD')
+
+    let site = await Station.findOne({_id: email.station})
+
+    const res1 = await axios.post('http://127.0.0.1:5001/download-excel',{
+      site_id: email.station,
+      date_start: date_start,
+      date_end : date_end,
+    });
+    await delay(500);
+
+    const res_sendmail = await axios.post('http://127.0.0.1:5001/sendmail', {
+      site_id: email.station,
+      site_name: site.name,
+      email_cc: '',
+      email_to: email.email_to,
+      file_name : res1.data.file_name,
+      is_auto : 1,
+    })
+    await delay(15000);
+  }
+}
+
+var jobSendMail = new CronJob('0 20 * * *', function() {
+  //console.log('You will see this message every minute ' + moment().format('H mm ss'));
+  sendAutoMail()
+}, null, true, 'Asia/Ho_Chi_Minh');
+
+jobSendMail.start();
+
+//========================================================
+var StoredWDeviceJob = new CronJob('20 0 * * *', function() {
+  StoredWDeviceData()
+  await delay(2000);
+  deleteData()
+}, null, true, 'Asia/Ho_Chi_Minh');
+
+StoredWDeviceJob.start();

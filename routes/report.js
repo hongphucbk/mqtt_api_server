@@ -24,6 +24,7 @@ const apiLimiter = rateLimit({
 });
 
 router.get('/report/manual', apiLimiter, controller.getReportManual);
+
 router.post('/download-excel', controller.postDownloadExcel);
 
 

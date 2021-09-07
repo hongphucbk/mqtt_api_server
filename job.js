@@ -3,6 +3,7 @@ require('express-group-routes');
 const moment = require('moment');
 const CronJob = require('cron').CronJob;
 const axios = require('axios');
+const delay = require('delay');
 
 var bodyParser = require('body-parser')
 const express = require('express')
@@ -21,15 +22,10 @@ const HistoryStationData = require('./models/HistoryStationData')
 const WhDeviceData = require('./models/WhDeviceData')
 const WDeviceData = require('./models/WDeviceData')
 const LoadStationData = require('./models/LoadStationData')
+const AutoEmail = require('./models/AutoEmail')
 
 let stationData = []
 
 
-// var job = new CronJob('*/5 * * * *', function() {
-//   console.log('You will see this message every second ' + moment().format('H mm ss'));
-
-
-// }, null, true, 'Asia/Ho_Chi_Minh');
-// job.start();
 
 
