@@ -92,7 +92,7 @@ module.exports.postSaveAutoMail = async function(req, res){
 };
 
 module.exports.getAutoMail = async function(req, res){
-  let station_id = req.body.site_id
+  let station_id = req.query.site_id
   let user = req.user
 
   const filter = {station: station_id, user: user._id};
