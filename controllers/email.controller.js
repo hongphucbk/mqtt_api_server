@@ -1,6 +1,7 @@
 var nodemailer =  require('nodemailer'); // khai báo sử dụng module nodemailer
 const path = require('path');
 const AutoEmail = require('../models/AutoEmail')
+const err = require('../common/err')
 
 module.exports.sendMail = function(req, res) {
   let station_id = req.body.site_id
@@ -61,44 +62,55 @@ module.exports.sendMail = function(req, res) {
 
 // Save config setting auto email
 module.exports.postSaveAutoMail = async function(req, res){
-  let station_id = req.body.site_id
-  let email_to = req.body.email_to
-  let range = req.body.range
-  let is_active = req.body.is_active ? 1 : 0;
+  try{
+    let station_id = req.body.site_id
+    let email_to = req.body.email_to
+    let range = req.body.range
+    let is_active = req.body.is_active ? 1 : 0;
 
-  let user = req.user;
+    if (range > 30 || range < 1 ) {
+      res.json(err.E41002)
+      return
+    }
 
-  let json = {
-    station : station_id,
-    user : user,
-    email_to : email_to,
-    range : range,
-    is_active : is_active,
-    created_at : new Date()
+    let user = req.user;
+
+    let json = {
+      station : station_id,
+      user : user,
+      email_to : email_to,
+      range : range,
+      is_active : is_active,
+      created_at : new Date()
+    }
+    //console.log(req, json)
+
+    const filter = {station: station_id, user: user._id};
+    const update = json;
+
+    let doc = await AutoEmail.findOneAndUpdate(filter, update, {
+      new: true,
+      upsert: true  // Make this update into an upsert
+    });
+    res.send(doc)
+  } catch (error) {
+    res.status(500).send({error: error.message})
   }
-  console.log(req, json)
-
-  const filter = {station: station_id, user: user._id};
-  const update = json;
-
-  let doc = await AutoEmail.findOneAndUpdate(filter, update, {
-    new: true,
-    upsert: true  // Make this update into an upsert
-  });
-  res.send(doc)
-
-  return;
-
-};
+}
 
 module.exports.getAutoMail = async function(req, res){
-  let station_id = req.query.site_id
-  let user = req.user
+  try{
+    let station_id = req.query.site_id
+    let user = req.user
 
-  const filter = {station: station_id, user: user._id};
+    const filter = {station: station_id, user: user._id};
 
-  let result = await AutoEmail.findOne(filter);
-  res.send(result)
-  return;
+    let result = await AutoEmail.findOne(filter);
+    res.send(result)
+  }catch (error) {
+    res.status(500).send({error: error.message})
+  }
+  
+  
 
 };

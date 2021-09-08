@@ -40,9 +40,7 @@ module.exports = {
   E40305 : {code: 40305, message: 'Basetime is incorrect. [month or year]'},
 
 
-
   E40400 : {code: 40400, message: 'Can not find user'},
-
 
 
   E40500 : {code: 40500, message: 'Can not find device'},
@@ -52,13 +50,13 @@ module.exports = {
   E40700 : {code: 40700, message: 'Status event is incorrect'},
   E40701 : {code: 40701, message: 'Event type is incorrect'},
 
-
   // add
   E40800 : {code: 40800, message: 'Device is not active or dont have data'},
 
   //Report
   E41000 : {code: 41000, message: 'The distance between start date and end date is too far. Select data in 2 months range'},
   E41001 : {code: 41001, message: 'Too many requests from this IP, please try again after 10s'},
+  E41002 : {code: 41002, message: '"Range" value is incorrect. Refer value [1, 7, 14, 30]'},
 
 
 
