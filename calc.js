@@ -430,7 +430,7 @@ async function StoredLoadkWhStationData(){
 
       TotalWh = maxWh > minWh ?  maxWh - minWh : 0
 
-      jsStation.load_kwh = TotalWh
+      jsStation.load_kwh = TotalWh * 1000
       jsStation.infors = [
         {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt }
       ]
