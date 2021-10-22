@@ -11,7 +11,7 @@ const HistoryStationData = require('../models/HistoryStationData')
 const err = require('../common/err')
 const IotDevice = require('../models/IotDevice')
 const WhDeviceData = require('../models/WhDeviceData')
-const LoadStationData = require('../models/LoadStationData')
+const LoadWhStationData = require('../models/LoadWhStationData')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -564,7 +564,7 @@ router.get('/site/load/trend', auth, async(req, res) => {
       let StartMonth = moment(req.query.date).startOf('month');
       let EndMonth = moment(req.query.date).endOf('month');
       
-      let loads = await LoadStationData.find({ station: id,
+      let loads = await LoadWhStationData.find({ station: id,
                                               timestamp: { $gte : StartMonth, $lte : EndMonth }
                                             })
                                       .exec()
@@ -583,7 +583,7 @@ router.get('/site/load/trend', auth, async(req, res) => {
       let EndYear = moment(req.query.date).endOf('year');
       
       for (let j = 0; j <= 11; j++) {
-        let _whs = await LoadStationData.find({  station: id,
+        let _whs = await LoadWhStationData.find({  station: id,
                                               timestamp: { $gte : StartYear, $lte : EndYear }
                                           }).exec()
         let _total = 0

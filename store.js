@@ -24,6 +24,8 @@ const HistoryEvent = require('./models/HistoryEvent')
 const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 const AlarmCode = require('./models/AlarmCode')
 const Alarm = require('./models/Alarm')
+const StationData = require('./models/StationData')
+
 //---------------------------------------------------------------
 // Mqtt
 const mqtt = require('mqtt');
@@ -66,6 +68,20 @@ client.on("connect", ack => {
       if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
         data = JSON.parse(message.toString())
         processEvent(data, str_topic)
+      }
+
+      if(str_topic[0] == "STATION" && str_topic[2] == "reportData"){
+        data = JSON.parse(message.toString())
+        //console.log("----->",data )
+        data.station = str_topic[1] //process.env.DEVICE_ID        
+        data.timestamp = moment(data.timeStamp).add(7, 'hours')        
+        data.updated_at = new Date()
+        data.paras =  data.data;
+        //data.value = 0
+
+        StationData.insertMany(data)
+        //HistoryDeviceRawData.insertMany(data)
+        //Device.findOneAndUpdate({_id: str_topic[1]}, {updated_at: new Date()}, function(){})
       }
     }catch(error){
       console.log('error', error.message)

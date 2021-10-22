@@ -24,6 +24,11 @@ const WhDeviceData = require('./models/WhDeviceData')
 const WDeviceData = require('./models/WDeviceData')
 const AutoEmail = require('./models/AutoEmail')
 
+const StationData = require('./models/StationData')
+const LoadWhStationData = require('./models/LoadWhStationData')
+
+
+
 let stationData = []
 
 async function StoredDeviceData(){
@@ -172,6 +177,9 @@ async function StoredStationData(){
   }
 }
 
+
+//---------------------------------------
+// Calc Wh device data -> save
 async function StoredWhDeviceData(){
   try{
     let start = moment().subtract(2, 'minutes').startOf('days')
@@ -326,21 +334,6 @@ setInterval(function(){
 }, parseInt(process.env.STATION_CALC) * 60000);
 
 //----------------------------------------------------
-// let from
-// let to
-// let now
-
-// setInterval(function(){
-//   from = moment().startOf('days').add(1, 'minutes')
-//   to   = moment().startOf('days').add(40, 'minutes')
-//   now  = moment()
-
-//   if (now > from && now < to) {
-    
-//   }
-// }, parseInt(10 * 60000)); // 10 minutes
-//----------------------------------------------------
-
 
 //========================================================
 async function sendAutoMail() {
@@ -381,9 +374,82 @@ var jobSendMail = new CronJob('0 23 * * *', function() {
 jobSendMail.start();
 
 //========================================================
+// Run job stored w device (0h20p)
 var StoredWDeviceJob = new CronJob('20 0 * * *', function() {
   StoredWDeviceData()
   deleteData()
 }, null, true, 'Asia/Ho_Chi_Minh');
 
 StoredWDeviceJob.start();
+//========================================================
+
+//---------------------------------------
+// Calc kWh station data -> save
+async function StoredLoadkWhStationData(){
+  try{
+    let start = moment().subtract(2, 'minutes').startOf('days')
+    let end = moment().subtract(2, 'minutes').endOf('days')
+
+    let stations = await Station.find({is_active: 1});
+    for (let j = 0; j < stations.length; j++) {
+      let jsStation = {
+        station: stations[j]._id,
+        station_name : stations[j].name,
+        timestamp : start,
+        infors: []
+      }
+
+      let infors = await StationData.find({ station: stations[j]._id, 
+                                       timestamp: {$gte: start, $lte: end } 
+                                    })
+
+      let TotalWh = 0
+      let minWh = 9000000000
+      let maxWh = 0
+      let minAt
+      let maxAt
+      infors.map(await function(item){
+        let strWh = item.paras.filter(function(it){
+          return it.name == 'kWh'
+        })
+        let WH = parseInt(strWh[0].value)
+        if (WH > 0) {
+          // if (WH < minWh) {
+          //   console.log("-->", minWh, strWh, WH, item.timestamp)
+          // }
+          minWh = WH < minWh ? WH : minWh
+          maxWh = WH > maxWh ? WH : maxWh
+          if (WH < minWh) {
+            minAt = new Date()
+          }
+          if (WH > maxWh) {
+            maxAt = new Date()
+          }
+        }
+      })
+
+      TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+
+      jsStation.load_kwh = TotalWh
+      jsStation.infors = [
+        {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt }
+      ]
+      jsStation.updated_at = new Date();
+
+      const filter = {timestamp: start, station: stations[j]._id};
+      const update = jsStation;
+
+      let doc = await LoadWhStationData.findOneAndUpdate(filter, update, {
+        new: true,
+        upsert: true // Make this update into an upsert
+      });
+
+    }
+  }catch(error){
+    console.log(error)
+  }
+}
+
+setInterval(function(){
+  StoredLoadkWhStationData()
+}, parseInt(5 * 60000));
