@@ -571,8 +571,8 @@ router.get('/site/load/trend', auth, async(req, res) => {
         for (let j = 1; j <= EndMonth.date(); j++) {
           data[j] = 0
           loads.map(await function(item){
-            if (moment(item.timestamp).date() == j && item.load > 0) {
-              data[j] += item.load
+            if (moment(item.timestamp).date() == j && item.load_kwh > 0) {
+              data[j] += item.load_kwh
             }
           })
         }
@@ -588,8 +588,8 @@ router.get('/site/load/trend', auth, async(req, res) => {
                                           }).exec()
         let _total = 0
         _whs.map(await function(item){
-          if (moment(item.timestamp).month() == j && item.load > 0) {
-            _total += item.load
+          if (moment(item.timestamp).month() == j && item.load_kwh > 0) {
+            _total += item.load_kwh
           }
         })
         data[j] = _total
