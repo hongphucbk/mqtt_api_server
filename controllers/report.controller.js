@@ -207,7 +207,7 @@ module.exports.postDownloadExcel = async function(req, res) {
 
 			if(_loads){
 				ws.cell(row, 4)
-	  			.number(_loads[0] ? _loads[0].load_kwh : 0)
+	  			.number(_loads[0] ? _loads[0].load_kwh / 1000 : 0)
 			  	.style({style, numberFormat: '#,###; (#,###); -'});
 			}
 		}
