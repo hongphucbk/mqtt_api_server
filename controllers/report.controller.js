@@ -14,6 +14,8 @@ const HistoryDeviceRawData = require('../models/HistoryDeviceRawData')
 const WhDeviceData = require('../models/WhDeviceData')
 const WDeviceData = require('../models/WDeviceData')
 const LoadStationData = require('../models/LoadStationData')
+const StationData = require('../models/StationData')
+
 const axios = require('axios');
 
 const err = require('../common/err')
@@ -83,9 +85,9 @@ module.exports.postDownloadExcel = async function(req, res) {
 
     let devices = await Device.find({station: site_id, is_active: 1});
 
-    let loads = await LoadStationData.find({ station: site_id,
-                                             timestamp: { $gte : StartDate, $lte : EndDate }
-                                          }).exec() 
+    let loads = await StationData.find({ station: site_id,
+                                         timestamp: { $gte : StartDate, $lte : EndDate }
+                                      }).exec() 
 
     var wb = new xl.Workbook();
 
@@ -204,7 +206,7 @@ module.exports.postDownloadExcel = async function(req, res) {
 
 			if(_loads){
 				ws.cell(row, 4)
-	  			.number(_loads[0] ? _loads[0].load : 0)
+	  			.number(_loads[0] ? _loads[0].load_kwh : 0)
 			  	.style({style, numberFormat: '#,###; (#,###); -'});
 			}
 		}
