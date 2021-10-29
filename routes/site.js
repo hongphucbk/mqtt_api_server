@@ -287,6 +287,10 @@ router.get('/site/overview', auth, async(req, res) => {
     })
     d.todaySumEnergy = sum_wh
 
+
+    let consum = await LoadWhStationData.findOne({station: id}).sort({ timestamp: -1 }).limit(1)
+    d.comsumeEnergy = consum.load_kwh * 1000
+
     res.send({site: d})
   }catch(error){
     res.send({error: error})

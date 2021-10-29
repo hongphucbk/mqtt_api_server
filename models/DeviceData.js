@@ -32,6 +32,7 @@ const deviceDataSchema = mongoose.Schema({
         type: Number,
     },
     device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
+    //station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     // password: {
     //     type: String,
     //     required: true,

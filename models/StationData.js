@@ -15,16 +15,29 @@ const stationDataSchema = mongoose.Schema({
     updated_at: {
         type: Date,
     },
-    load_kw: {
+    load_w: {
         type: Number,
     },
-    load_kwh: {
+    sum_w: {
+        type: Number,
+    },
+    consum_w: {
+        type: Number,
+    },
+    load_wh: {
         type: Number,
     },
     paras: {
         type: Object,
         required: true,
         trim: true,
+    },
+    is_update: {
+        type: Number,
+        default: 0,
+    },
+    infor: {
+        type: Object,
     },
 })
 
