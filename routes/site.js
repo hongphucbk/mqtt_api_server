@@ -12,6 +12,8 @@ const err = require('../common/err')
 const IotDevice = require('../models/IotDevice')
 const WhDeviceData = require('../models/WhDeviceData')
 const LoadWhStationData = require('../models/LoadWhStationData')
+const StationData = require('../models/StationData')
+const LoadWStationData = require('../models/LoadWStationData')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -404,6 +406,12 @@ router.get('/site/trend', auth, async(req, res) => {
       let start = moment(date).startOf('day')
       let end = moment(date).endOf('day')
 
+      let today = moment().startOf('day');
+
+      if (start < today) {
+      }else{
+        
+      }
       hisStations = await HistoryStationData.find({ station: id, 
                                                     timestamp: {$gte: start, $lte: end } 
                                                   })
@@ -547,7 +555,8 @@ router.get('/site/trend', auth, async(req, res) => {
     }
     res.send({siteID: id, type: type, series: data})
   }catch(error){
-    res.send(err.E40001)
+    var mess = {...err.E40001,...{'description': error.message} }
+    res.send(mess)   
   }
 })
 
@@ -561,8 +570,47 @@ router.get('/site/load/trend', auth, async(req, res) => {
     let data = []
 
     if (basedTime === 'day') {
-      res.json(err.E40305)
-      return
+      //res.json(err.E40305)
+      let start = moment(date).startOf('day')
+      let end = moment(date).endOf('day')
+
+      let today = moment().startOf('day');
+
+      if (start < today) {
+        let hisStation = await LoadWStationData.findOne({timestamp: start})
+        //console.log(hisStation)
+        data = hisStation.watts
+      }else{
+        hisStations = await StationData.find({ station: id, 
+                                             timestamp: {$gte: start, $lte: end } 
+                                          })
+        for (let j = 0; j < 288; j++) {
+          sum = 0, count = 0, avg = 0
+          let start1 = moment(start).startOf('minute')
+          let end1 = moment(start).add(5, 'minutes').startOf('minute')
+          //console.log(start1, end1)
+          let a1 = hisStations.map(x => {
+            if (x.timestamp <= end1 && x.timestamp >= start1) {
+              sum +=  x.load_w
+              count++
+
+              if (count > 0) {
+                avg = sum/count
+              }else{
+                avg = 0
+              }
+            }
+            return avg
+          })
+
+          if (start1 > moment().subtract(10, 'minutes')) {
+            avg = undefined
+          }
+          data.push(avg)
+          //console.log(start1, avg)
+          start = end1
+        }
+      }
 
     }else if (basedTime === 'month' && type === 'energy') {
       let StartMonth = moment(req.query.date).startOf('month');
@@ -605,7 +653,8 @@ router.get('/site/load/trend', auth, async(req, res) => {
     }
     res.send({siteID: id, type: type, series: data})
   }catch(error){
-    res.send(err.E40001)
+    var mess = {...err.E40001,...{'description': error.message} }
+    res.send(mess)
   }
 })
 

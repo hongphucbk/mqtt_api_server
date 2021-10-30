@@ -23,6 +23,7 @@ const LoadStationData = require('./models/LoadStationData')
 
 let stationData = []
 const StationData = require('./models/StationData')
+const LoadWStationData = require('./models/LoadWStationData')
 
 async function CalcLoadWStation(){
   let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()
@@ -75,32 +76,65 @@ async function StoredLoadWStationData(){
   try{
     let start = moment().subtract(2, 'hours').startOf('days')
 
-    let devices = await Device.find({is_active: 1});
-    for (let j = 0; j < devices.length; j++) {
-      let jsonDevice = {
-        device: devices[j]._id,
-        device_name : devices[j].name,
-        station: devices[j].station,
+    let stations = await Station.find({is_active: 1});
+    for (let j = 0; j < stations.length; j++) {
+      let jsStation = {
+        station: stations[j]._id,
+        station_name : stations[j].name,
         timestamp : start,
         updated_at: new Date(),
         watts: []
       }
       
-      jsonDevice.watts = await getWatts(devices[j]._id, start.format('YYYY-MM-DD'))
+      jsStation.watts = await getLoadW(stations[j]._id, start.format('YYYY-MM-DD'))
       
-      const filter = {timestamp: start, device: devices[j]._id};
-      const update = jsonDevice;
+      const filter = {timestamp: start, station: stations[j]._id};
+      const update = jsStation;
 
-      let doc = await WDeviceData.findOneAndUpdate(filter, update, {
+      let doc = await LoadWStationData.findOneAndUpdate(filter, update, {
         new: true,
         upsert: true  // Make this update into an upsert
       });
     }
   }catch(error){
-    //console.log(error.message)
+    console.log(error.message)
   }
 }
 
+
+async function getLoadW(station, date){
+  let start = moment(date).startOf('day')
+  let end = moment(date).endOf('day')
+
+  let data = []
+
+  hisStations = await StationData.find({  station: station, 
+                                      timestamp: {$gte: start, $lte: end } 
+                                  })      
+  for (let j = 0; j < 288; j++) {
+    sum = 0, count = 0, avg = 0
+    let start1 = moment(start).startOf('minute')
+    let end1 = moment(start).add(5, 'minutes').startOf('minute')
+    let a1 = hisStations.map(x => {
+      if (x.timestamp <= end1 && x.timestamp >= start1) {
+        sum +=  x.load_w
+        count++
+        if (count > 0) {
+          avg = sum/count
+        }else{
+          avg = 0
+        }
+      }
+      return avg
+    })
+
+    //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
+    data.push(avg)
+    start = end1
+  }
+  return data;
+}
+
 setInterval(function(){
-  CalcLoadWStation()
-}, parseInt(1000)); // 10 minutes
+  StoredLoadWStationData()
+}, parseInt(5000)); // 10 minutes

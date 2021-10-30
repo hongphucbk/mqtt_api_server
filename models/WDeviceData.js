@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 
-const LoadWDeviceDataSchema = mongoose.Schema({
+const WDeviceDataSchema = mongoose.Schema({
     watts: {
         type: Array,
         required: true,
@@ -30,6 +30,6 @@ const LoadWDeviceDataSchema = mongoose.Schema({
 
 
 
-const LoadWDeviceData = mongoose.model('LoadWDeviceData', LoadWDeviceDataSchema, 'load_w_device_data')
+const WDeviceData = mongoose.model('WDeviceData', WDeviceDataSchema, 'w_device_data')
 
-module.exports = LoadWDeviceData
+module.exports = WDeviceData

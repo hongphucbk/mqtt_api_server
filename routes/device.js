@@ -9,6 +9,7 @@ const HistoryDeviceData = require('../models/HistoryDeviceData')
 const role = require('../middlewares/role')
 const DeviceType = require('../models/DeviceType')
 const WhDeviceData = require('../models/WhDeviceData')
+const WDeviceData = require('../models/WDeviceData')
 
 const err = require('../common/err')
 
@@ -235,38 +236,48 @@ router.get('/device/trend', auth, async(req, res) => {
       let start = moment(date).startOf('day')
       let end = moment(date).endOf('day')
 
-      hisStations = await HistoryDeviceData.find({ device: id, 
-                                                   timestamp: {$gte: start, $lte: end } 
-                                                })
+      let today = moment().startOf('day');
+
+      if (start < today){
+        let hisStation = await WDeviceData.findOne({timestamp: start})
+        //console.log(hisStation)
+        data = hisStation.watts
+      }else{
+        hisStations = await HistoryDeviceData.find({ device: id, 
+                                              timestamp: {$gte: start, $lte: end } 
+                                            })
       
-      for (let j = 0; j < 288; j++) {
-        sum = 0, count = 0, avg = 0
-        let start1 = moment(start).startOf('minute')
-        let end1 = moment(start).add(5, 'minutes').startOf('minute')
-        //console.log(start1, end1)
-        let a1 = hisStations.map(x => {
-          if (x.timestamp <= end1 && x.timestamp >= start1) {
-            sum +=  x.paras.Watts
-            count++
+        for (let j = 0; j < 288; j++) {
+          sum = 0, count = 0, avg = 0
+          let start1 = moment(start).startOf('minute')
+          let end1 = moment(start).add(5, 'minutes').startOf('minute')
+          //console.log(start1, end1)
+          let a1 = hisStations.map(x => {
+            if (x.timestamp <= end1 && x.timestamp >= start1) {
+              sum +=  x.paras.Watts
+              count++
 
-            if (count > 0) {
-              avg = sum/count
-            }else{
-              avg = 0
+              if (count > 0) {
+                avg = sum/count
+              }else{
+                avg = 0
+              }
             }
+            return avg
+          })
+
+          if (start1 > moment().subtract(10, 'minutes')) {
+            avg = undefined
           }
-          return avg
-        })
 
-        if (start1 > moment().subtract(10, 'minutes')) {
-          avg = undefined
+          //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
+          data.push(avg)
+          //console.log(start1, avg)
+          start = end1
         }
-
-        //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
-        data.push(avg)
-        //console.log(start1, avg)
-        start = end1
       }
+
+      
 
     }else if (basedTime === 'month' && type === 'energy') {
       var date1 = moment("2021-06-30")
@@ -323,7 +334,6 @@ router.get('/device/trend', auth, async(req, res) => {
         data.splice(0, 1);
       }
 
-
     }else if (basedTime === 'year' && type === 'energy') {
       let StartYear = moment(req.query.date).startOf('year');
       let EndYear = moment(req.query.date).endOf('year');
@@ -369,7 +379,8 @@ router.get('/device/trend', auth, async(req, res) => {
 
     res.send({siteID: id, type: type,series: data})
   }catch(error){
-    res.send(error.message)
+    var mess = {...err.E40001,...{'description': error.message} }
+    res.send(mess) 
   }
 })
 
