@@ -252,7 +252,7 @@ let before25h;
 async function deleteData() {
   before25h = moment().subtract(25, 'hours');
   await DeviceData.deleteMany({ timestamp: { $lte: before25h } });
-  //await StationData.deleteMany({ timestamp: { $lte: before25h } });
+  await StationData.deleteMany({ timestamp: { $lte: before25h } });
 }
 //---------------------------------------------------------------------
 
@@ -378,6 +378,9 @@ jobSendMail.start();
 // Run job stored w device (0h20p)
 var StoredWDeviceJob = new CronJob('20 0 * * *', function() {
   StoredWDeviceData()
+
+  StoredLoadWStationData()
+
   deleteData()
 }, null, true, 'Asia/Ho_Chi_Minh');
 
@@ -504,4 +507,69 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(2000)); // 10 minutes
+}, parseInt(60000)); // 10 minutes
+
+
+//-----------------------------
+async function StoredLoadWStationData(){
+  try{
+    let start = moment().subtract(2, 'hours').startOf('days')
+
+    let stations = await Station.find({is_active: 1});
+    for (let j = 0; j < stations.length; j++) {
+      let jsStation = {
+        station: stations[j]._id,
+        station_name : stations[j].name,
+        timestamp : start,
+        updated_at: new Date(),
+        watts: []
+      }
+      
+      jsStation.watts = await getLoadW(stations[j]._id, start.format('YYYY-MM-DD'))
+      
+      const filter = {timestamp: start, station: stations[j]._id};
+      const update = jsStation;
+
+      let doc = await LoadWStationData.findOneAndUpdate(filter, update, {
+        new: true,
+        upsert: true  // Make this update into an upsert
+      });
+    }
+  }catch(error){
+    console.log(error.message)
+  }
+}
+
+
+async function getLoadW(station, date){
+  let start = moment(date).startOf('day')
+  let end = moment(date).endOf('day')
+
+  let data = []
+
+  hisStations = await StationData.find({  station: station, 
+                                      timestamp: {$gte: start, $lte: end } 
+                                  })      
+  for (let j = 0; j < 288; j++) {
+    sum = 0, count = 0, avg = 0
+    let start1 = moment(start).startOf('minute')
+    let end1 = moment(start).add(5, 'minutes').startOf('minute')
+    let a1 = hisStations.map(x => {
+      if (x.timestamp <= end1 && x.timestamp >= start1) {
+        sum +=  x.load_w
+        count++
+        if (count > 0) {
+          avg = sum/count
+        }else{
+          avg = 0
+        }
+      }
+      return avg
+    })
+
+    //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
+    data.push(avg)
+    start = end1
+  }
+  return data;
+}
