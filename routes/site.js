@@ -291,7 +291,7 @@ router.get('/site/overview', auth, async(req, res) => {
 
 
     let consum = await LoadWhStationData.findOne({station: id}).sort({ timestamp: -1 }).limit(1)
-    d.comsumeEnergy = consum.load_kwh * 1000
+    d.comsumeEnergy = consum.load_kwh
 
     res.send({site: d})
   }catch(error){

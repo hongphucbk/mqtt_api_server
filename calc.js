@@ -26,7 +26,7 @@ const AutoEmail = require('./models/AutoEmail')
 
 const StationData = require('./models/StationData')
 const LoadWhStationData = require('./models/LoadWhStationData')
-
+const StationData = require('./models/StationData')
 
 
 let stationData = []
