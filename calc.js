@@ -574,7 +574,3 @@ async function getLoadW(station, date){
   return data;
 }
 
-
-setInterval(()=>{
-  StoredLoadWStationData()
-}, 2000)
