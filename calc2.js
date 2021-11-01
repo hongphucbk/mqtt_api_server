@@ -74,7 +74,7 @@ async function CalcLoadWStation(){
 
 async function StoredLoadWStationData(){
   try{
-    let start = moment().subtract(2, 'hours').startOf('days')
+    let start = moment().subtract(22, 'hours').startOf('days')
 
     let stations = await Station.find({is_active: 1});
     for (let j = 0; j < stations.length; j++) {

@@ -26,7 +26,7 @@ const AutoEmail = require('./models/AutoEmail')
 
 const StationData = require('./models/StationData')
 const LoadWhStationData = require('./models/LoadWhStationData')
-const StationData = require('./models/StationData')
+const LoadWStationData = require('./models/LoadWStationData')
 
 
 let stationData = []
@@ -573,3 +573,8 @@ async function getLoadW(station, date){
   }
   return data;
 }
+
+
+setInterval(()=>{
+  StoredLoadWStationData()
+}, 2000)
