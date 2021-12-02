@@ -21,10 +21,11 @@ const WDeviceDataSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    station_name: {
+    device_name: {
         type: String,
         trim: true,
     },
+    device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
     station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
 })
 

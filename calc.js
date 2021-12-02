@@ -381,7 +381,7 @@ var StoredWDeviceJob = new CronJob('20 0 * * *', function() {
 
   StoredLoadWStationData()
 
-  deleteData()
+  deleteData() // delete temp data before 25h
 }, null, true, 'Asia/Ho_Chi_Minh');
 
 StoredWDeviceJob.start();
