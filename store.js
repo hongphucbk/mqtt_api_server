@@ -92,7 +92,7 @@ client.on("connect", ack => {
       StationData.insertMany(data)
       }
 
-      else
+      
         
         //HistoryDeviceRawData.insertMany(data)
         //Device.findOneAndUpdate({_id: str_topic[1]}, {updated_at: new Date()}, function(){})
