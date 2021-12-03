@@ -460,6 +460,7 @@ setInterval(function(){
 
 
 async function CalcLoadWStation(){
+  try{
   let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()
 
   let station_data = await StationData.findOne({is_update: 0}).exec(); // {is_update: { $ne: null }}
@@ -503,6 +504,9 @@ async function CalcLoadWStation(){
               }
 
   let result = await StationData.findOneAndUpdate({_id: station_data._id}, update).exec()
+  }catch(error){
+    console.log(error)
+  }
 }
 
 setInterval(function(){

@@ -136,5 +136,5 @@ async function getLoadW(station, date){
 }
 
 setInterval(function(){
-  StoredLoadWStationData()
-}, parseInt(5000)); // 10 minutes
+  CalcLoadWStation()
+}, parseInt(3000)); // 10 minutes
