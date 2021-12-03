@@ -414,7 +414,7 @@ async function StoredLoadkWhStationData(){
       let maxAt
       infors.map(await function(item){
         let strWh = item.paras.filter(function(it){
-          return it.name == 'kWh'
+          return it.name.toUpperCase() == 'KWH'
         })
         let WH = parseInt(strWh[0].value)
         if (WH > 0) {
