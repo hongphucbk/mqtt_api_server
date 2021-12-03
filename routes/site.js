@@ -577,8 +577,7 @@ router.get('/site/load/trend', auth, async(req, res) => {
       let today = moment().startOf('day');
 
       if (start < today) {
-        let hisStation = await LoadWStationData.findOne({timestamp: start})
-        //console.log(hisStation)
+        let hisStation = await LoadWStationData.findOne({timestamp: start, station: id})
         data = hisStation.watts
       }else{
         hisStations = await StationData.find({ station: id, 
