@@ -243,9 +243,9 @@ module.exports.postDownloadExcel = async function(req, res) {
 					ws.cell(row, 1).number(i+1).style(style);
 					ws.cell(row, 2).date(localDate).style({numberFormat: 'dd-mm-yyyy'})
 				  ws.cell(row, wh_offset + col)
-				  	.number(wh.wh ? wh.wh : 0)
+				  	.number(wh.wh ? wh.wh / 1000 : 0)
 				  	.style({style, numberFormat: '#,###; (#,###); -'});
-				  arrWh[i] += wh.wh
+				  arrWh[i] += wh.wh / 1000
 				  //Column C
 		  		ws.cell(row, 3).number(arrWh[i])
 		  			.style({style, numberFormat: '#,###; (#,###); -'});

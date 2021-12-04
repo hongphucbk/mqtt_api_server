@@ -434,12 +434,14 @@ async function StoredLoadkWhStationData(){
 
       TotalWh = maxWh > minWh ?  maxWh - minWh : 0
 
-      jsStation.load_kwh = TotalWh * 1000
+      let _wh = await getTotalLoadkWhStation(stations[j]._id, start);
+
+      jsStation.load_kwh = TotalWh * 1000 + _wh
+
       jsStation.infors = [
-        {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt }
+        {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt, wh: _wh, load: TotalWh * 1000, load_kwh: jsStation.load_kwh, unit: "Wh"  }
       ]
       jsStation.updated_at = new Date();
-
       const filter = {timestamp: start, station: stations[j]._id};
       const update = jsStation;
 
