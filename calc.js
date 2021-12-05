@@ -458,7 +458,7 @@ async function StoredLoadkWhStationData(){
 
 setInterval(function(){
   StoredLoadkWhStationData()
-}, parseInt(5 * 60000));
+}, parseInt(5 * 1000));
 
 
 async function getTotalLoadkWhStation(station, start) {
