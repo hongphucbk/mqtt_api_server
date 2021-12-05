@@ -461,6 +461,25 @@ setInterval(function(){
 }, parseInt(5 * 60000));
 
 
+async function getTotalLoadkWhStation(station, start) {
+  let devices = await Device.find({station: station})
+  let arr_device = devices.map((device) => {
+      return device._id
+  })
+
+  let strQuery = {  device: { $in: arr_device }, 
+                    timestamp: start
+                 }
+  let device_data = await WhDeviceData.find(strQuery)
+
+  let sum = 0
+  device_data.map((d) => {
+    sum += d.wh
+    //console.log(Watts)
+  })
+  return sum;
+}
+
 async function CalcLoadWStation(){
   try{
   let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()

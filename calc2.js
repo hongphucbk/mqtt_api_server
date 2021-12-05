@@ -28,13 +28,8 @@ const LoadWhStationData = require('./models/LoadWhStationData')
 
 async function StoredLoadkWhStationData(){
   try{
-
-    let start1 = moment('02-12-2021 17:00:00', "DD-MM-YYYY hh:mm:ss");
-
-
-    let start = moment(start1).subtract(2, 'minutes').startOf('days')
-
-    let end = moment(start1).subtract(2, 'minutes').endOf('days')
+    let start = moment().subtract(2, 'minutes').startOf('days')
+    let end = moment().subtract(2, 'minutes').endOf('days')
 
     let stations = await Station.find({is_active: 1});
     for (let j = 0; j < stations.length; j++) {
@@ -54,8 +49,6 @@ async function StoredLoadkWhStationData(){
       let maxWh = 0
       let minAt
       let maxAt
-
-      //console.log(infors)
       infors.map(await function(item){
         let strWh = item.paras.filter(function(it){
           return it.name.toUpperCase() == 'KWH'
@@ -78,8 +71,6 @@ async function StoredLoadkWhStationData(){
 
       TotalWh = maxWh > minWh ?  maxWh - minWh : 0
 
-      
-
       let _wh = await getTotalLoadkWhStation(stations[j]._id, start);
 
       jsStation.load_kwh = TotalWh * 1000 + _wh
@@ -88,7 +79,6 @@ async function StoredLoadkWhStationData(){
         {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt, wh: _wh, load: TotalWh * 1000, load_kwh: jsStation.load_kwh, unit: "Wh"  }
       ]
       jsStation.updated_at = new Date();
-
       const filter = {timestamp: start, station: stations[j]._id};
       const update = jsStation;
 
