@@ -512,29 +512,14 @@ router.get('/site/trend', auth, async(req, res) => {
       let StartYear = moment(req.query.date).startOf('year');
       let EndYear = moment(req.query.date).endOf('year');
       
-      hisStations = await HistoryStationData.find({ station: id, 
-                                                    timestamp: {$gte: StartYear, $lte: EndYear } 
-                                                  })
-
-      for (let j = 0; j <= 11; j++) {
-        if (j <= 5) {
-          data[j] = 0
-
-          let TotalWh = 0
-          let minWh = 9000000000
-          let maxWh = 0
-          hisStations.map(function(item){
-            if (moment(item.timestamp).month() == j && item.paras.WH > 0) {
-              minWh = item.paras.WH < minWh ? item.paras.WH : minWh
-              maxWh = item.paras.WH > maxWh ? item.paras.WH : maxWh
-            }
-          })
-          TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-          data[j] = TotalWh
-        }else{
-          let _whs = await WhDeviceData.find({  station: id,
+      // hisStations = await HistoryStationData.find({ station: id, 
+      //                                               timestamp: {$gte: StartYear, $lte: EndYear } 
+      //                                             })
+      let _whs = await WhDeviceData.find({  station: id,
                                                 timestamp: { $gte : StartYear, $lte : EndYear }
                                             }).exec()
+      for (let j = 0; j <= 11; j++) {
+        
           let _total = 0
           _whs.map(await function(item){
             if (moment(item.timestamp).month() == j && item.wh > 0) {
@@ -542,7 +527,6 @@ router.get('/site/trend', auth, async(req, res) => {
             }
           })
           data[j] = _total
-        } 
       }
       //console.log(a)
       //let startDate = req.query.date + " " + j  + ":00:00";
@@ -632,11 +616,13 @@ router.get('/site/load/trend', auth, async(req, res) => {
     }else if (basedTime === 'year' && type === 'energy') {
       let StartYear = moment(req.query.date).startOf('year');
       let EndYear = moment(req.query.date).endOf('year');
-      
+
+      let _whs = await LoadWhStationData.find({ station: id,
+                                                timestamp: { $gte : StartYear, $lte : EndYear }
+                                            }).exec()
+
       for (let j = 0; j <= 11; j++) {
-        let _whs = await LoadWhStationData.find({  station: id,
-                                              timestamp: { $gte : StartYear, $lte : EndYear }
-                                          }).exec()
+        
         let _total = 0
         _whs.map(await function(item){
           if (moment(item.timestamp).month() == j && item.load_kwh > 0) {
