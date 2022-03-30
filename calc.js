@@ -247,10 +247,10 @@ async function StoredWhDeviceData(){
 }
 
 //---------------------------------------------------------------------
-// Service to delete database after 1 day
+// Service to delete database after 2 day
 let before25h;
 async function deleteData() {
-  before25h = moment().subtract(25, 'hours');
+  before25h = moment().subtract(50, 'hours');
   await DeviceData.deleteMany({ timestamp: { $lte: before25h } });
   await StationData.deleteMany({ timestamp: { $lte: before25h } });
 }
@@ -458,7 +458,7 @@ async function StoredLoadkWhStationData(){
 
 setInterval(function(){
   StoredLoadkWhStationData()
-}, parseInt(10 * 1000));
+}, parseInt(30 * 1000));
 
 
 async function getTotalLoadkWhStation(station, start) {
@@ -500,7 +500,6 @@ async function CalcLoadWStation(){
                  }
   let device_data = await DeviceData.find(strQuery)
   
-
   let sum = 0
   
   let b = device_data.map((d) => {
@@ -532,7 +531,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(6000)); // 10 seconds
+}, parseInt(60000)); // 1 minutes
 
 
 //-----------------------------
