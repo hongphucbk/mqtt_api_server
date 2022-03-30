@@ -531,7 +531,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(60000)); // 1 minutes
+}, parseInt(20000)); // 1 minutes
 
 
 //-----------------------------

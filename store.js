@@ -73,7 +73,7 @@ client.on("connect", ack => {
 
       if(str_topic[0] == "STATION" && str_topic[2] == "reportData"){
         if (str_topic[1] != "60ca422f05c9e02304f88b27") {
-          console.log('Good: ' + str_topic[1])
+          //console.log('Good: ' + str_topic[1])
           data = JSON.parse(message.toString())
           //console.log("----->",data )
           data.station = str_topic[1] //process.env.DEVICE_ID        
@@ -84,7 +84,7 @@ client.on("connect", ack => {
         }
 
         if (str_topic[1] == "60ca422f05c9e02304f88b27" ) {
-          console.log('Incorrect: ' + str_topic[1])
+          //console.log('Incorrect: ' + str_topic[1])
           data = JSON.parse(message.toString())
           //console.log("----->",data )
           data.station = "6195f8617fd2a1dbf860af4a" //process.env.DEVICE_ID        
