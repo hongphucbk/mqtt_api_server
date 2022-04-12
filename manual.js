@@ -21,6 +21,7 @@ const HistoryDeviceData = require('./models/HistoryDeviceData')
 const HistoryStationData = require('./models/HistoryStationData')
 const WDeviceData = require('./models/WDeviceData')
 const WhDeviceData = require('./models/WhDeviceData')
+const WhDeviceData3Price = require('./models/WhDeviceData3Price')
 const LoadStationData = require('./models/LoadStationData')
 
 let stationData = []
@@ -202,9 +203,6 @@ function manu(argument) {
 
 async function StoredWDeviceData(start1){
   try{
-
-    
-
     let start = moment(start1).startOf('days')
 
     let devices = await Device.find({is_active: 1});
