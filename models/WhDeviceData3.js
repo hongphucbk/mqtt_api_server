@@ -3,7 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const WhDeviceData3PriceSchema = mongoose.Schema({
+const WhDeviceData3Schema = mongoose.Schema({
     kwh: {
         type: Number,
         required: true,
@@ -53,6 +53,6 @@ const WhDeviceData3PriceSchema = mongoose.Schema({
 
 
 
-const WhDeviceData3Price = mongoose.model('WhDeviceData3Price', WhDeviceData3PriceSchema, 'wh_device_data_3_price')
+const WhDeviceData3 = mongoose.model('WhDeviceData3', WhDeviceData3Schema, 'wh_device_data_3')
 
-module.exports = WhDeviceData3Price
+module.exports = WhDeviceData3

@@ -17,6 +17,21 @@ const stationSchema = mongoose.Schema({
     price: {
         type: Number,
     },
+    unit_price_td: {
+        type: Number,
+    },
+    unit_price_bt: {
+        type: Number,
+    },
+    unit_price_cd: {
+        type: Number,
+    },
+    discount: {
+        type: Number,
+    },
+    vat: {
+        type: Number,
+    },
     currency: {
         type: String,
         //required: false,

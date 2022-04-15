@@ -23,21 +23,23 @@ const HistoryDeviceData = require('./models/HistoryDeviceData')
 const HistoryStationData = require('./models/HistoryStationData')
 const WDeviceData = require('./models/WDeviceData')
 const WhDeviceData = require('./models/WhDeviceData')
-const WhDeviceData3Price = require('./models/WhDeviceData3Price')
-const LoadStationData = require('./models/LoadStationData')
+const WhDeviceData3 = require('./models/WhDeviceData3')
+const WhStation3Price = require('./models/WhStation3Price')
 
 let stationData = []
 
 //========================================================
 // Run job stored w device (every 10 minutes)
-var StoredkWh3PriceJob = new CronJob('*/10 * * * *', function() {
-  StoredWhDeviceData3PriceAuto()
+var StoredkWh3Job = new CronJob('*/1 * * * *', function() {
+  StoredWhDeviceData3Auto()
+  StoredWhStation3PriceAuto()
+  //console.log('-----------> ' + moment())
 }, null, true, 'Asia/Ho_Chi_Minh');
 
-StoredkWh3PriceJob.start();
+StoredkWh3Job.start();
 //========================================================
 
-async function StoredWhDeviceData3PriceAuto(){
+async function StoredWhDeviceData3Auto(){
   let point;
   let strDate = moment().subtract(10, 'minutes').format('DD-MM-YYYY') + " "
   const hours_arrs = [
@@ -79,10 +81,10 @@ async function StoredWhDeviceData3PriceAuto(){
         dt.kwh_max = data.max 
         dt.kwh = data.wh 
 
-        const filter = {timestamp: moment(point.min,  "DD-MM-YYYY hh:mm:ss"), device: devices[j]._id, type_number: point.code};
+        const filter = {timestamp: moment(strDate + '00:00:00', "DD-MM-YYYY hh:mm:ss"), device: devices[j]._id, type_number: point.code};
         const update = dt;
 
-        let doc = await WhDeviceData3Price.findOneAndUpdate(filter, update, {
+        let doc = await WhDeviceData3.findOneAndUpdate(filter, update, {
           new: true,
           upsert: true  // Make this update into an upsert
         });
@@ -131,4 +133,73 @@ async function getkWhCurrent(device, start1, end1){
 
   TotalWh = maxWh > minWh ?  maxWh - minWh : 0
   return {wh: TotalWh/1000, min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt } 
+}
+
+//=======================================================
+async function StoredWhStation3PriceAuto(){
+  //console.log(date)
+  try{
+    let strDate = moment().subtract(10, 'minutes').format('DD-MM-YYYY') + " "
+    
+
+    //let station_id = "6237b1c479f5fbbe6a6086a5";
+    let stations = await Station.find({is_active: 1})
+    if (stations.length < 1) {
+      return
+    }
+    for (var i = 0; i < stations.length; i++) {
+      let station = stations[i]       
+      //console.log('station ' + station)
+        let dt = {
+          station: station._id,
+          station_name : station.name,
+          timestamp : moment(strDate + '00:00:00', "DD-MM-YYYY hh:mm:ss"),
+          updated_at: new Date(),
+          unit_price_td: station.unit_price_td,
+          unit_price_bt: station.unit_price_bt,
+          unit_price_cd: station.unit_price_cd, 
+        }
+
+        let data = await WhDeviceData3.find({station: station._id, timestamp: dt.timestamp});
+
+        let sum_td = 0;
+        let sum_bt = 0;
+        let sum_cd = 0;
+
+        await data.forEach(e => {
+          if (e.type_name == 'TD') {
+            sum_td += e.kwh
+          }
+          if (e.type_name == 'BT') {
+            sum_bt += e.kwh
+          }
+          if (e.type_name == 'CD') {
+            sum_cd += e.kwh
+          }
+        })
+        
+
+        dt.kwh_td = sum_td
+        dt.kwh_bt = sum_bt 
+        dt.kwh_cd = sum_cd 
+
+        dt.price_td = dt.kwh_td * dt.unit_price_td
+        dt.price_bt = dt.kwh_bt * dt.unit_price_bt
+        dt.price_cd = dt.kwh_cd * dt.unit_price_cd
+
+        dt.befor_price = dt.price_td + dt.price_bt + dt.price_cd
+        dt.total_price = dt.befor_price - station.discount + station.vat
+
+        const filter = {timestamp: dt.timestamp, station: station._id};
+        const update = dt;
+
+        let doc = await WhStation3Price.findOneAndUpdate(filter, update, {
+          new: true,
+          upsert: true  // Make this update into an upsert
+        });
+      }
+      //console.log(dt)
+  }catch(error){
+    console.log(error.message)
+  }
 }
