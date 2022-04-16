@@ -14,6 +14,7 @@ const WhDeviceData = require('../models/WhDeviceData')
 const LoadWhStationData = require('../models/LoadWhStationData')
 const StationData = require('../models/StationData')
 const LoadWStationData = require('../models/LoadWStationData')
+const WhStation3Price = require('../models/WhStation3Price')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -212,7 +213,12 @@ router.get('/site/overview', auth, async(req, res) => {
       currency: station.currency,
       status : sts,
       product:0,
-      workingHours : 0
+      workingHours : 0,
+      unit_price_td: station.unit_price_td,
+      unit_price_bt: station.unit_price_bt,
+      unit_price_cd: station.unit_price_cd,
+      discount: station.discount,
+      vat: station.vat,
 
     }
     let devices = await Device.find({ station: id, is_active: 1 })
@@ -292,6 +298,19 @@ router.get('/site/overview', auth, async(req, res) => {
 
     let consum = await LoadWhStationData.findOne({station: id}).sort({ timestamp: -1 }).limit(1)
     d.comsumeEnergy = consum.load_kwh
+
+    let station_price = await WhStation3Price.findOne({ station: id, timestamp: moment().startOf('day')})
+    d.kwh_td = station_price.kwh_td
+    d.kwh_bt = station_price.kwh_bt
+    d.kwh_cd = station_price.kwh_cd
+    d.kwh_total = d.kwh_td + d.kwh_bt + d.kwh_cd
+
+    d.price_td = station_price.price_td
+    d.price_bt = station_price.price_bt
+    d.price_cd = station_price.price_cd
+
+    d.befor_price = station_price.befor_price
+    d.total_price = station_price.total_price
 
     res.send({site: d})
   }catch(error){
@@ -650,12 +669,23 @@ router.post('/site/update', auth,async (req, res) => {
     let price = req.body.price
     let currency = req.body.currency
     let name = req.body.name
+    let unit_price_td = req.body.unit_price_td
+    let unit_price_bt = req.body.unit_price_bt
+    let unit_price_cd = req.body.unit_price_cd
+    let discount = req.body.discount
+    let vat = req.body.vat
     //----------------------------------------------
-    let update
+    let update = {
+      price: price, 
+      currency: currency, 
+      unit_price_td: unit_price_td,
+      unit_price_bt: unit_price_bt,
+      unit_price_cd: unit_price_cd,
+      discount: discount,
+      vat: vat,
+    }
     if (name) {
-      update = {price: price, currency: currency, name: name}
-    }else{
-      update = {price: price, currency: currency}
+      update.name = name
     }
 
     let query = {_id: id} 

@@ -190,7 +190,7 @@ router.post('/users/update-role', auth, role(["SA"]), async(req, res) => {
     const role = req.body.role.toUpperCase()
     //const sites = req.body.sites
     //console.log(id, role)
-    if (role != "AD" && role != "SA" && role != "US") {
+    if (role != "AD" && role != "SA" && role != "US" && role != "MA" && role != "EN") {
       res.status(400).send({error: 40002, message: 'Role is incorrect systax. Please use [SA, AD, US]'})
       return
     }
@@ -209,7 +209,7 @@ router.get('/users/list', async(req, res) => {
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1;
 
-    if (role != "AD" && role != "SA" && role != "US" && role != undefined) {
+    if (role != "AD" && role != "SA" && role != "US" && role != "MA" && role != "EN" && role != undefined) {
       res.status(400).send(err.E40002)
       return
     }
