@@ -99,12 +99,12 @@ app.use(emailRouter)
 // app.use('/', fontendRouter);
 // app.use('/email', emailRouter);
 
-// app.group("/admin", (router) => {
-//   //router.use('/users', userRouter);
-//   router.use('/station', stationRouter);
-//   router.use('/datainfor', datainforRouter);
-//   //router.get("/users", loginController.store); // /api/v1/login 
-// });
+app.group("/admin", (router) => {
+  //router.use('/users', userRouter);
+  //router.use('/station', stationRouter);
+  //router.use('/datainfor', datainforRouter);
+  //router.get("/users", loginController.store); // /api/v1/login 
+});
 
 //app.use('*', fontendRouter);
 //-------------------------------------------------------------------
@@ -112,35 +112,5 @@ app.use(emailRouter)
 // 	console.log(`Server listening on port ${port}!`)
 // });
 
-
-
-
-
-// async function manualUpdate(){
-//   let a = await HistoryDeviceData.updateMany({device: '609ea4982aec141dc890ffbd' ,
-//                                        timestamp: { $gte: "2021-06-20T20:04:00.000+07:00",
-//                                        $lte: "2021-06-21T05:19:00.000+07:00" }},
-//                                             { $set: { "paras.WH": 16198290, "paras.workingHours": 154.269428571429 } }) 
-  
-
-//   //let a = await HistoryDeviceData.find()                                            //{paras : true });
-//   console.log("result", a)
-// }
-
-// manualUpdate()
-// const HistoryStationData = require('./models/HistoryStationData')
-
-// async function manualUpdateStation(){
-//   let a = await HistoryStationData.updateMany({station: '607c7e23ba23121608c8fc69' ,
-//                                        timestamp: { $gte: "2021-07-05T00:00:01.000+07:00",
-//                                        $lte: "2021-07-05T22:50:59.000+07:00" }},
-//                                             { $set: { "paras.WH": 42876710, "paras.workingHours": 413 } }) 
-  
-
-//   //let a = await HistoryDeviceData.find()                                            //{paras : true });
-//   console.log("result", a)
-// }
-
-//manualUpdateStation()
 
 

@@ -31,7 +31,7 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('07-04-2022',"DD-MM-YYYY")
+  let date = moment('14-04-2022',"DD-MM-YYYY")
 
   setInterval(function() {
     date = date.add(1, 'days')
