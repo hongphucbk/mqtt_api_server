@@ -92,7 +92,7 @@ async function StoredWhStation3Price(date){
         dt.price_cd = dt.kwh_cd * dt.unit_price_cd
 
         dt.befor_price = dt.price_td + dt.price_bt + dt.price_cd
-        dt.total_price = dt.befor_price + dt.befor_price * ( station.vat - station.discount) 
+        dt.total_price = dt.befor_price + dt.befor_price * (station.vat - station.discount)/100 
 
         const filter = {timestamp: dt.timestamp, station: station._id};
         const update = dt;
