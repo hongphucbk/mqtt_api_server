@@ -176,6 +176,8 @@ router.get('/site/list', auth, async(req, res) => {
           jsonStation.workingHours.toFixed(3)
         }
       }
+
+      jsonStation.price_sum = 9999
       stationData.push(jsonStation)
       //console.log(jsonStation)
     }
@@ -207,8 +209,8 @@ router.get('/site/overview', auth, async(req, res) => {
       curSumActPower: 0,    // power = Watts
       todaySumEnergy: 0,    // WH_calc = Tổng sản lượng điện trong ngày
       ratedSumPower: 0,     // nameplateWatts
-      allSumEnergy: 0,    // PowerGenerated = WH all = Total yield (kWh)
-      comsumeEnergy: 0,       // Điện năng tiêu thụ Wh
+      allSumEnergy: 0,      // PowerGenerated = WH all = Total yield (kWh)
+      comsumeEnergy: 0,     // Điện năng tiêu thụ Wh
       price: station.price,
       currency: station.currency,
       status : sts,
@@ -311,6 +313,8 @@ router.get('/site/overview', auth, async(req, res) => {
 
     d.befor_price = station_price.befor_price
     d.total_price = station_price.total_price
+
+    d.price_sum = d.total_price
 
     res.send({site: d})
   }catch(error){
