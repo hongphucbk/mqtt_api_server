@@ -307,7 +307,7 @@ router.get('/site/overview', auth, async(req, res) => {
     d.kwh_td = station_price.kwh_td
     d.kwh_bt = station_price.kwh_bt
     d.kwh_cd = station_price.kwh_cd
-    d.kwh_total = d.kwh_td + d.kwh_bt + d.kwh_cd
+    d.kwh_total = d.kwh_td + d.kwh_bt + d.kwh_cd  //kwh_total: Trong ngày
 
     d.price_td = station_price.price_td
     d.price_bt = station_price.price_bt
@@ -316,8 +316,8 @@ router.get('/site/overview', auth, async(req, res) => {
     d.befor_price = station_price.befor_price
     d.total_price = station_price.total_price
 
-    d.price_sum = d.total_price
-
+    d.price_sum = d.total_price   //  price_sum: tích lũy
+    d.kwh_sum = 999999            //  kwh_sum: tích lũy,
     res.send({site: d})
   }catch(error){
     res.send({error: error})
