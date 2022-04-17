@@ -133,7 +133,8 @@ router.get('/site/list', auth, async(req, res) => {
         name: stations[j].name,
         status: stations[j].is_active == 1 ? stations[j].status : 'offline',
         product : 0, //Math.random()*100, //kWh powerGenerated = WH
-        workingHours : 0
+        workingHours : 0,
+
       }
 
       let data = []
@@ -177,7 +178,8 @@ router.get('/site/list', auth, async(req, res) => {
         }
       }
 
-      jsonStation.price_sum = 9999
+      jsonStation.price_sum = 9999999
+      jsonStation.kwh_sum = 99999
       stationData.push(jsonStation)
       //console.log(jsonStation)
     }
