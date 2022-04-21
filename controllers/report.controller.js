@@ -3,6 +3,12 @@ const moment = require('moment'); // require
 const excel = require('node-excel-export');
 const xl = require('excel4node');
 
+var pdf = require("pdf-creator-node");
+var fs = require("fs");
+var path = require("path");
+// Read HTML Template
+
+
 //-- User defind
 const User = require('../models/User')
 const Station = require('../models/Station')
@@ -266,6 +272,91 @@ module.exports.postDownloadExcel = async function(req, res) {
   //   
 };
 
+//-----------------------
+module.exports.getReportManu = async function(req, res) {
+	try{
+		console.log('Hello menu')
+	// Read HTML Template
+	var html = fs.readFileSync(path.join(__dirname, "../templates/template.html"), "utf8");
 
+	//var html = fs.readFileSync("./template.html", "utf8");
+  var options = {
+    format: "A4",
+    orientation: "portrait",
+    border: "5mm",
+    header: {
+        height: "10mm",
+        contents: '<div style="text-align: center;">Author: NTV Solar</div>'
+    },
+    footer: {
+        height: "28mm",
+        contents: {
+            first: 'Cover page',
+            2: 'Second page', // Any page number is working. 1-based index
+            default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
+            last: 'Last Page'
+        }
+    }
+	};
+
+	var users = [
+	  {
+	    name: "Shyam",
+	    age: "26",
+	  },
+	  {
+	    name: "Navjot",
+	    age: "26",
+	  },
+	  {
+	    name: "Vitthal",
+	    age: "26",
+	  },
+	  {
+	    name: "Navjot",
+	    age: "26",
+	  },
+	  {
+	    name: "Vitthal",
+	    age: "26",
+	  },
+	];
+
+	const bitmap = fs.readFileSync('./public/img/ntv.png');
+	const logo = bitmap.toString('base64');
+
+	var document = {
+	  html: html,
+	  data: {
+	    users: users,
+	    logo: logo,
+	  },
+	  path: "./exports/output.pdf",
+	  type: "",
+	};
+
+		
+	pdf
+	  .create(document, options)
+	  .then((res) => {
+	    console.log(res);
+	  })
+	  .catch((error) => {
+	    console.error(error);
+	  });
+	  console.log('good')
+	  res.send('successed')
+	  return 
+
+  }catch(e){
+  	console.log(e)
+  	res.send(e.message)
+  }
+
+
+
+
+  //   
+};
 
 

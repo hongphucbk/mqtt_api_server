@@ -15,6 +15,10 @@ const LoadWhStationData = require('../models/LoadWhStationData')
 const StationData = require('../models/StationData')
 const LoadWStationData = require('../models/LoadWStationData')
 const WhStation3Price = require('../models/WhStation3Price')
+const WhDeviceData3 = require('../models/WhDeviceData3')
+
+//----------
+const calc_kwh_today = require('../function/calc_kwh_today')
 
 const random = require('random')
 const moment = require('moment'); // require
@@ -124,10 +128,12 @@ router.get('/site/list', auth, async(req, res) => {
     //console.log(req.user.stations)
     
     let stations = await Station.find(strQuery).skip((limit * nextPageToken) - limit).limit(limit)
+    
     let stationData = []
     //console.log(stations)
 
     for (let j = 0; j < stations.length; j++) {
+      let station = stations[j];
       let jsonStation = {
         id: stations[j]._id,
         name: stations[j].name,
@@ -178,8 +184,10 @@ router.get('/site/list', auth, async(req, res) => {
         }
       }
 
-      jsonStation.price_sum = 9999999
-      jsonStation.kwh_sum = 99999
+      let d2 = await calc_kwh_today.calc_kwh_today(stations[j]._id)
+
+      jsonStation.price_sum = station.price_sum + station.price_init + d2.total_price
+      jsonStation.kwh_sum = station.kwh_sum + station.kwh_init + d2.kwh_total
       stationData.push(jsonStation)
       //console.log(jsonStation)
     }
@@ -231,19 +239,6 @@ router.get('/site/overview', auth, async(req, res) => {
 
       let start = moment().startOf('day')
       let end = moment(start).add(30, 'minutes').startOf('minute')
-      //console.log(start, end)
-      // let str = { device: devices[i]._id,
-      //             timestamp: {$gte: start, $lte: end }
-      //           }
-      // let rawData = await HistoryDeviceData.find(str)
-
-      // let minWh = 90000000000;
-      // rawData.map(function(item){
-      //   minWh = item.paras.WH < minWh ? item.paras.WH : minWh        
-      // })
-
-      //console.log(minWh)
-
 
       let query1 = {device: devices[i]._id}
       let deviceData = await DeviceData.find(query1).sort({_id: -1}).limit(1)
@@ -315,14 +310,17 @@ router.get('/site/overview', auth, async(req, res) => {
 
     d.befor_price = station_price.befor_price
     d.total_price = station_price.total_price
-
-    d.price_sum = d.total_price   //  price_sum: tích lũy
-    d.kwh_sum = 999999            //  kwh_sum: tích lũy,
+    
+    d.price_sum = station.price_sum + station.price_init + d.total_price   //  price_sum: tích lũy
+    d.kwh_sum = station.kwh_sum + station.kwh_init + d.kwh_total //999999            //  kwh_sum: tích lũy,
+    
     res.send({site: d})
   }catch(error){
-    res.send({error: error})
+    res.send({error: error.message})
   }
 })
+
+
 
 router.get('/site/devices', auth, async(req, res) => {
   try{

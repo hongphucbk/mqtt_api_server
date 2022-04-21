@@ -235,6 +235,11 @@ router.get('/report', async (req, res) => {
   return res.send(report);
 })
 
+//New 2022-04-20
+router.get('/report/manual/:number', apiLimiter, controller.getReportManu);
+
+
+
 
 
 
