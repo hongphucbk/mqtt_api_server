@@ -6,47 +6,72 @@ const jwt = require('jsonwebtoken')
 const WhStation3PriceSchema = mongoose.Schema({
     kwh_td: {
         type: Number,
+        default: 0,
     },
     kwh_bt: {
         type: Number,
+        default: 0,
     },
     kwh_cd: {
         type: Number,
+        default: 0,
+    },
+    kwh_diff: {
+        type: Number,
+        default: 0,
     },
     unit_price_td:{
         type: Number,
+        default: 0,
     },
     unit_price_bt:{
         type: Number,
+        default: 0,
     },
     unit_price_cd:{
         type: Number,
+        default: 0,
     },
     
     price_td:{
         type: Number,
+        default: 0,
     },
     price_bt:{
         type: Number,
+        default: 0,
     },
     price_cd:{
         type: Number,
+        default: 0,
+    },
+    price_diff:{
+        type: Number,
+        default: 0,
     },
 
     befor_price:{
         type: Number,
+        default: 0,
     },
 
     discount:{
         type: Number,
+        default: 0,
     },
 
     vat:{
         type: Number,
+        default: 0,
     },
 
     total_price:{
         type: Number,
+        default: 0,
+    },
+    total_kwh:{
+        type: Number,
+        default: 0,
     },
 
     infors: {

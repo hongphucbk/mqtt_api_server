@@ -32,7 +32,7 @@ const WhStation3Price = require('../../models/WhStation3Price')
 // Tính tổng giá (3 khung giờ) theo cho tất cả station
 // Update vào bảng stations
 module.exports.calc_price_sum = async function calc_price_sum(){
-  console.log('Price sum' + new Date())
+  //console.log('Price sum' + new Date())
   let stations = await Station.find({is_active: 1})
   let price_sum = 0
 

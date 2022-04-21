@@ -32,9 +32,10 @@ const WhStation3Price = require('../../models/WhStation3Price')
 //calc_kwh_sum()
 
 // Tính tổng kwh (3 khung giờ) theo cho tất cả station
+
 // Update vào bảng stations
-module.exports.calc_kwh_sum = async function calc_kwh_sum(){
-  console.log(new Date())
+module.exports.calc_kwh_sum = async function(){
+  //console.log(new Date())
   let stations = await Station.find({is_active: 1})
   let kwh_sum = 0
 
@@ -49,6 +50,8 @@ module.exports.calc_kwh_sum = async function calc_kwh_sum(){
 }
 
 // Tính tổng kwh (3 khung giờ) theo station id
+// từ đầu đến thời gian hiện tại
+//--> update vào bảng station
 async function get_kwh_sum(station_id){
   let prices = await WhDeviceData3.find({ station: station_id})
   let kwh_sum = 0
