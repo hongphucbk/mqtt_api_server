@@ -40,6 +40,7 @@ var options = {
 
 const Queue = require('./common/Queue')
 let _queue = new Queue();
+let _queue_station = new Queue();
 
 const client = mqtt.connect(process.env.MQTT_URL, options );
 let data;
@@ -58,12 +59,14 @@ client.on("connect", ack => {
         data.device = str_topic[1] //process.env.DEVICE_ID        
         data.timestamp = moment(data.timeStamp).add(7, 'hours')        
         data.updated_at = new Date()
-        data.paras =  data.data;
+        data.paras =  data.data
         data.value = 0
+        data.topic = 'SOLAR'
 
-        DeviceData.insertMany(data)
-        HistoryDeviceRawData.insertMany(data)
-        Device.findOneAndUpdate({_id: str_topic[1]}, {updated_at: new Date()}, function(){})
+        _queue.enqueue(data);
+        //DeviceData.insertMany(data)
+        //HistoryDeviceRawData.insertMany(data)
+        //Device.findOneAndUpdate({_id: str_topic[1]}, {updated_at: new Date()}, function(){})
       }
 
       if(str_topic[0] == "SOLAR" && str_topic[2] == "reportEvent"){
@@ -73,35 +76,59 @@ client.on("connect", ack => {
 
       if(str_topic[0] == "STATION" && str_topic[2] == "reportData"){
         if (str_topic[1] != "60ca422f05c9e02304f88b27") {
-          //console.log('Good: ' + str_topic[1])
           data = JSON.parse(message.toString())
-          //console.log("----->",data )
           data.station = str_topic[1] //process.env.DEVICE_ID        
           data.timestamp = moment(data.timeStamp).add(7, 'hours')        
           data.updated_at = new Date()
           data.paras =  data.data;
-          StationData.insertMany(data)
+          //StationData.insertMany(data)
         }
 
         if (str_topic[1] == "60ca422f05c9e02304f88b27" ) {
-          //console.log('Incorrect: ' + str_topic[1])
           data = JSON.parse(message.toString())
-          //console.log("----->",data )
           data.station = "6195f8617fd2a1dbf860af4a" //process.env.DEVICE_ID        
           data.timestamp = moment(data.timeStamp).add(7, 'hours')        
           data.updated_at = new Date()
           data.paras =  data.data;
-          StationData.insertMany(data)
+          //StationData.insertMany(data)
         }
 
-        //HistoryDeviceRawData.insertMany(data)
-        //Device.findOneAndUpdate({_id: str_topic[1]}, {updated_at: new Date()}, function(){})
+        _queue_station.enqueue(data);
       }
     }catch(error){
       console.log('error', error.message)
     }
   });
 });
+
+setInterval(async function(){
+  //console.log(_queue.getSize())
+  //console.log('Station: ' + _queue_station.getSize())
+  try{
+    if(_queue.getSize() > 0){
+      let data =  _queue.dequeue()
+      //console.log(a)
+   
+      //console.log('start: ' + new Date())
+      await DeviceData.insertMany(data)
+      await HistoryDeviceRawData.insertMany(data)
+      await Device.findOneAndUpdate({_id: data.device}, {updated_at: new Date()}, function(){})
+      //console.log('stop: ' + new Date())
+   
+     }
+   
+     if(_queue_station.getSize() > 0){
+       let ds =  _queue_station.dequeue()
+       //console.log(a)
+       await StationData.insertMany(ds)
+    
+      }
+    
+  } catch {
+
+  }
+  
+}, 3000)
 
 
 async function processEvent(data, str_topic){

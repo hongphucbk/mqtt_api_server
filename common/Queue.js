@@ -20,8 +20,17 @@ peek() {
 // helper method
 isEmpty() {
 	return !this.queue.length
-	}
 }
+
+getSize(){
+	return this.queue.length
+}
+
+
+
+}
+
+
 
 module.exports = Queue;
 
