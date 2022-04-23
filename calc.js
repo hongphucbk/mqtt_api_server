@@ -480,11 +480,18 @@ async function getTotalLoadkWhStation(station, start) {
   return sum;
 }
 
+
 async function CalcLoadWStation(){
   try{
+  let start_condtion = moment().subtract(30,'seconds')
   let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()
 
-  let station_data = await StationData.findOne({is_update: 0}).exec(); // {is_update: { $ne: null }}
+  let station_data = await StationData.findOne({is_update: 0, timestamp: { $lte: start_condtion}}).exec(); // {is_update: { $ne: null }}
+  
+  //console.log('-->', start_condtion, station_data)
+  if(!station_data){
+      return
+  }
   let kw = station_data.paras.filter((para) => para.name === 'kiloWatts')
 
   let devices = await Device.find({station: station_data.station})
@@ -531,7 +538,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(6000)); // 1 minutes
+}, parseInt(10000)); // 1 minutes
 
 
 //-----------------------------

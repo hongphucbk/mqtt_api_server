@@ -128,7 +128,7 @@ setInterval(async function(){
 
   }
   
-}, 3000)
+}, 2000)
 
 
 async function processEvent(data, str_topic){
