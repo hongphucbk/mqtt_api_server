@@ -29,7 +29,7 @@ const WhDeviceData3 = require('../../models/WhDeviceData3')
 const WhStation3Price = require('../../models/WhStation3Price')
 
 
-//StoredStationDataManual()
+//Set is_update from 1 to 0
 
 manu()
 
