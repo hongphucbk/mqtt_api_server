@@ -11,33 +11,34 @@ var mongoose = require('mongoose');
 //mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true});
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 
-const User = require('./models/User')
-const Station = require('./models/Station')
-const auth = require('./middlewares/auth')
-const role = require('./middlewares/role')
-const Device = require('./models/Device')
-const DeviceData = require('./models/DeviceData')
-const HistoryDeviceData = require('./models/HistoryDeviceData')
-const HistoryStationData = require('./models/HistoryStationData')
-const WDeviceData = require('./models/WDeviceData')
-const WhDeviceData = require('./models/WhDeviceData')
-const WhDeviceData3 = require('./models/WhDeviceData3')
-const LoadStationData = require('./models/LoadStationData')
-let stationData = []
-
-//StoredStationDataManual()
+const User = require('../../models/User')
+const Station = require('../../models/Station')
+const auth = require('../../middlewares/auth')
+const role = require('../../middlewares/role')
+const Device = require('../../models/Device')
+const DeviceData = require('../../models/DeviceData')
+const HistoryDeviceData = require('../../models/HistoryDeviceData')
+const HistoryStationData = require('../../models/HistoryStationData')
+const WhDeviceData = require('../../models/WhDeviceData')
+const WDeviceData = require('../../models/WDeviceData')
+const LoadStationData = require('../../models/LoadStationData')
+const StationData = require('../../models/StationData')
+const LoadWStationData = require('../../models/LoadWStationData')
+const LoadWhStationData = require('../../models/LoadWhStationData')
+const WhDeviceData3 = require('../../models/WhDeviceData3')
+const WhStation3Price = require('../../models/WhStation3Price')
 
 manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('25-03-2022',"DD-MM-YYYY")
+  let date = moment('14-04-2022',"DD-MM-YYYY")
 
   setInterval(function() {
     date = date.add(1, 'days')
     console.log('---> ', date);
 
-    //StoredWhDeviceData3(date)
+    StoredWhDeviceData3(date)
   }, 25000);
 
   
@@ -79,7 +80,9 @@ async function StoredWhDeviceData3(date){
         console.log(hours[i].code, data)
         dt.kwh_min = data.min
         dt.kwh_max = data.max 
-        dt.kwh = data.wh 
+        dt.kwh = data.wh.toFixed(0)
+
+        //console.log(dt)
 
         const filter = {timestamp: date, device: devices[j]._id, type_number: hours[i].code};
         const update = dt;
@@ -102,8 +105,8 @@ async function getkWh(device, start1, end1){
   let start = moment(start1, "DD-MM-YYYY hh:mm:ss")
   let end = moment(end1, "DD-MM-YYYY hh:mm:ss")
 
-  console.log(start, end)
-  let data = []
+  //console.log(start, end)
+  //let data = []
 
   hisStations = await HistoryDeviceData.find({  device: device, 
                                                 timestamp: {$gte: start, $lte: end } 

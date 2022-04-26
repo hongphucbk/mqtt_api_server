@@ -35,7 +35,7 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('06-04-2022',"DD-MM-YYYY")
+  let date = moment('10-04-2022',"DD-MM-YYYY")
 
   setInterval(function() {
     date = date.add(1, 'days')
@@ -96,6 +96,7 @@ async function StoredWhStation3Price(date){
         dt.price_cd = dt.kwh_cd * dt.unit_price_cd
         //----------
         kwh = await get_total_kwh(station._id, dt.timestamp)
+        kwh = Math.round(kwh)
         kwh_3 = dt.kwh_td + dt.kwh_bt + dt.kwh_cd
     
         let kwh_diff = kwh - kwh_3

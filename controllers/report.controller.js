@@ -22,6 +22,8 @@ const WDeviceData = require('../models/WDeviceData')
 const LoadStationData = require('../models/LoadStationData')
 const StationData = require('../models/StationData')
 const LoadWhStationData = require('../models/LoadWhStationData')
+const WhStation3Price = require('../models/WhStation3Price')
+const rvn = require('read-vietnamese-number')
 
 const axios = require('axios');
 
@@ -272,10 +274,91 @@ module.exports.postDownloadExcel = async function(req, res) {
   //   
 };
 
+function number_format(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 //-----------------------
 module.exports.getReportManu = async function(req, res) {
 	try{
-		console.log('Hello menu')
+    //let site_id = req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
+    let site_id = '6237b1c479f5fbbe6a6086a5'// req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
+	let email_to = req.query.email_to; 
+	let email_cc = req.query.email_cc; 
+	let date_start = '2022-03-26' // req.query.date_start ? req.query.date_start : moment().startOf('months').format('YYYY-MM-DD')
+	let date_end = '2022-04-25' // req.query.date_end ? req.query.date_end : moment().endOf('months').format('YYYY-MM-DD')
+
+	let start = moment(date_start).startOf('days');
+    let end   = moment(date_end).endOf('days');
+    let DateLengh = end.diff(start, 'days');
+    if (DateLengh > 60) {
+    	res.send(err.E41000)
+    }
+
+    let station = await Station.findOne({_id: site_id}).lean()
+
+    let station_prices = await WhStation3Price.find({station: site_id, timestamp: {$gte: start, $lte: end }})
+
+    let kwh_td = 0
+    let kwh_bt = 0
+    let kwh_cd = 0
+
+	let price_td = 0
+	let price_bt = 0
+	let price_cd = 0
+
+	let price_before = 0
+
+    station_prices.map(e => {
+      kwh_td = kwh_td + e.kwh_td
+      kwh_bt = kwh_bt + e.kwh_bt + e.kwh_diff
+      kwh_cd = kwh_cd + e.kwh_cd
+
+	  price_td = price_td + e.price_td
+	  price_bt = price_bt + e.price_bt + e.price_diff
+	  price_cd = price_cd + e.price_cd
+
+    })
+
+	let total_kwh = kwh_td + kwh_bt + kwh_cd
+	let total_price_before = price_td + price_bt + price_cd
+	
+	let discount = total_price_before * station.discount /100;
+	let total_price_discounted = total_price_before - discount
+
+	let vat = total_price_discounted * station.vat /100
+
+	let total_price_vated = Math.round(total_price_discounted - vat)
+
+	// Access everything by rvn
+	const config = new rvn.ReadingConfig()
+	config.unit = ['đồng']
+
+	const number1 = rvn.parseNumberData(config, total_price_vated.toString())
+	//console.log(rvn.readNumber(config, number1))
+
+
+    let electric = {
+      kwh_td: kwh_td,
+      kwh_bt: kwh_bt,
+      kwh_cd: kwh_cd,
+	  price_td: price_td,
+	  price_bt: price_bt,
+	  price_cd: price_cd,
+
+	  total_kwh: total_kwh,
+	  total_price_before: number_format(total_price_before),
+	  total_kwh: number_format(total_kwh),
+
+	  discount: number_format(discount.toFixed(0)),
+	  total_price_discounted: number_format(total_price_discounted.toFixed(0)),
+	  vat: number_format(vat.toFixed(0)),
+	  total_price_vated: number_format(total_price_vated.toFixed(0)),
+
+	  read_number: rvn.readNumber(config, number1),
+    }
+
+	console.log('Hello menu')
 	// Read HTML Template
 	var html = fs.readFileSync(path.join(__dirname, "../templates/template.html"), "utf8");
 
@@ -283,19 +366,19 @@ module.exports.getReportManu = async function(req, res) {
   var options = {
     format: "A4",
     orientation: "portrait",
-    border: "5mm",
+    border: "10mm",
     header: {
-        height: "10mm",
-        contents: '<div style="text-align: center;">Author: NTV Solar</div>'
+        height: "5mm",
+        // contents: '<div style="text-align: center;">Author: NTV Solar</div>'
     },
     footer: {
-        height: "28mm",
-        contents: {
-            first: 'Cover page',
-            2: 'Second page', // Any page number is working. 1-based index
-            default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
-            last: 'Last Page'
-        }
+        height: "5mm",
+        // contents: {
+        //     first: 'Cover page',
+        //     2: 'Second page', // Any page number is working. 1-based index
+        //     default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
+        //     last: 'Last Page'
+        // }
     }
 	};
 
@@ -328,10 +411,13 @@ module.exports.getReportManu = async function(req, res) {
 	var document = {
 	  html: html,
 	  data: {
+      station: station,
+      electric: electric,
 	    users: users,
 	    logo: logo,
+      
 	  },
-	  path: "./exports/output.pdf",
+	  path: `./exports/output ${moment().format("hhmmss")}.pdf`,
 	  type: "",
 	};
 
@@ -344,7 +430,7 @@ module.exports.getReportManu = async function(req, res) {
 	  .catch((error) => {
 	    console.error(error);
 	  });
-	  console.log('good')
+	  //console.log('good')
 	  res.send('successed')
 	  return 
 

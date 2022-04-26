@@ -29,7 +29,7 @@ const WhStation3Price = require('./models/WhStation3Price')
 
 async function CalcLoadWStation(){
     try{
-    let start_condtion = moment().subtract(30,'seconds')
+    let start_condtion = moment().subtract(5,'minutes')
     let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()
 
     let station_data = await StationData.findOne({is_update: 0, timestamp: { $lte: start_condtion}}).exec(); // {is_update: { $ne: null }}
