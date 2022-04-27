@@ -243,7 +243,7 @@ router.get('/device/trend', auth, async(req, res) => {
         //console.log(hisStation)
         data = hisStation.watts
       }else{
-        hisStations = await HistoryDeviceData.find({ device: id, 
+        device_datas = await DeviceData.find({ device: id, 
                                               timestamp: {$gte: start, $lte: end } 
                                             })
       
@@ -252,27 +252,28 @@ router.get('/device/trend', auth, async(req, res) => {
           let start1 = moment(start).startOf('minute')
           let end1 = moment(start).add(5, 'minutes').startOf('minute')
           //console.log(start1, end1)
-          let a1 = hisStations.map(x => {
-            if (x.timestamp <= end1 && x.timestamp >= start1) {
-              sum +=  x.paras.Watts
+          device_datas.map(await function(item){
+            if (item.timestamp <= end1 && item.timestamp >= start1) {
+              let str_w = item.paras.filter(function(it){
+                return it.name == 'Watts'
+              })
+              let watts = parseInt(str_w[0].value)
+              sum +=  watts
               count++
-
-              if (count > 0) {
-                avg = sum/count
-              }else{
-                avg = 0
-              }
             }
-            return avg
           })
+
+          if (count > 0) {
+            avg = sum/count
+          }else{
+            avg = 0
+          }
 
           if (start1 > moment().subtract(10, 'minutes')) {
             avg = undefined
           }
-
-          //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
+          //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg, sum, count)
           data.push(avg)
-          //console.log(start1, avg)
           start = end1
         }
       }

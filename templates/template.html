@@ -81,6 +81,7 @@
       </table>
 
       <h4>TÌNH HÌNH SỬ DỤNG ĐIỆN CỦA KHÁCH HÀNG</h4>
+
       <h4>TỔNG SỐ TIỀN THANH TOÁN</h4>
       <table>
         <tr style="background-color: rgb(228, 227, 227);">
@@ -150,13 +151,29 @@
 
       </table>
 
-      <h4>THÔNG TIN LIÊN HỆ</h4>
+      <h4>THÔNG TIN LIÊN HỆ THANH TOÁN</h4>
       <p>CTY TNHH TM N.T.V<br>
         49/13 Hoàng Dư Khương, P.12, Q10, Tp.HCM<br>
-
-
         support@ntvvietnam.vn
       </p>
+
+      <h4>THÔNG TIN HIỆN TẠI</h4>
+      <p>Tính đến ngày 25-04-2022</p>
+      <table>
+        <tr style="background-color: rgb(228, 227, 227);">
+          <td>Tên biến tần</td>
+          <td>Chỉ số kWh</td>
+        </tr>
+        {{#each arr_device}}
+        <tr>
+          <td>{{this.name}}</td>
+          <td>{{ this.kwh }}</td>
+        </tr>
+        {{/each}}
+      </table>
+      
+
+      
       
       
     </div>

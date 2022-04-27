@@ -23,6 +23,8 @@ const LoadStationData = require('../models/LoadStationData')
 const StationData = require('../models/StationData')
 const LoadWhStationData = require('../models/LoadWhStationData')
 const WhStation3Price = require('../models/WhStation3Price')
+const WhDeviceData3 = require('../models/WhDeviceData3')
+
 const rvn = require('read-vietnamese-number')
 
 const axios = require('axios');
@@ -318,6 +320,13 @@ module.exports.getReportManu = async function(req, res) {
 	  price_bt = price_bt + e.price_bt + e.price_diff
 	  price_cd = price_cd + e.price_cd
 
+	  if(e.kwh_edit){
+		kwh_bt = kwh_bt + e.kwh_edit
+		price_bt = price_bt + e.price_edit
+		console.log(e.kwh_edit)
+	  }
+	  //console.log(e.timestamp, e.kwh_edit)
+
     })
 
 	let total_kwh = kwh_td + kwh_bt + kwh_cd
@@ -342,20 +351,20 @@ module.exports.getReportManu = async function(req, res) {
       kwh_td: kwh_td,
       kwh_bt: kwh_bt,
       kwh_cd: kwh_cd,
-	  price_td: price_td,
-	  price_bt: price_bt,
-	  price_cd: price_cd,
+      price_td: number_format(price_td),
+      price_bt: number_format(price_bt),
+      price_cd: number_format(price_cd),
 
-	  total_kwh: total_kwh,
-	  total_price_before: number_format(total_price_before),
-	  total_kwh: number_format(total_kwh),
+      total_kwh: total_kwh,
+      total_price_before: number_format(total_price_before),
+      total_kwh: number_format(total_kwh),
 
-	  discount: number_format(discount.toFixed(0)),
-	  total_price_discounted: number_format(total_price_discounted.toFixed(0)),
-	  vat: number_format(vat.toFixed(0)),
-	  total_price_vated: number_format(total_price_vated.toFixed(0)),
+      discount: number_format(discount.toFixed(0)),
+      total_price_discounted: number_format(total_price_discounted.toFixed(0)),
+      vat: number_format(vat.toFixed(0)),
+      total_price_vated: number_format(total_price_vated.toFixed(0)),
 
-	  read_number: rvn.readNumber(config, number1),
+      read_number: rvn.readNumber(config, number1),
     }
 
 	console.log('Hello menu')
@@ -381,6 +390,23 @@ module.exports.getReportManu = async function(req, res) {
         // }
     }
 	};
+
+	let devices = await Device.find({is_active: 1, station: site_id})
+  let arr_device = []
+  for (let i = 0; i < devices.length; i++) {
+    
+    let device = devices[i]
+
+    let kwh = await WhDeviceData3.findOne({timestamp: moment(date_end).startOf('days'), type_number: 4, device: device._id })
+    arr_device.push({
+      name: device.name,
+      kwh: kwh.kwh_max
+    })
+    
+  }
+	
+
+  console.log(arr_device)
 
 	var users = [
 	  {
@@ -411,6 +437,7 @@ module.exports.getReportManu = async function(req, res) {
 	var document = {
 	  html: html,
 	  data: {
+      arr_device: arr_device,
       station: station,
       electric: electric,
 	    users: users,

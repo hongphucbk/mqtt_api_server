@@ -20,6 +20,10 @@ const WhStation3PriceSchema = mongoose.Schema({
         type: Number,
         default: 0,
     },
+    kwh_edit: {
+        type: Number,
+        default: 0,
+    },
     unit_price_td:{
         type: Number,
         default: 0,
@@ -46,6 +50,11 @@ const WhStation3PriceSchema = mongoose.Schema({
         default: 0,
     },
     price_diff:{
+        type: Number,
+        default: 0,
+    },
+
+    price_edit:{
         type: Number,
         default: 0,
     },
