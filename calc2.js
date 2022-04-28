@@ -25,64 +25,96 @@ const LoadWStationData = require('./models/LoadWStationData')
 const LoadWhStationData = require('./models/LoadWhStationData')
 const WhDeviceData3 = require('./models/WhDeviceData3')
 const WhStation3Price = require('./models/WhStation3Price')
+const WStationData = require('./models/WStationData')
 
 
-async function CalcLoadWStation(){
-    try{
-    let start_condtion = moment().subtract(5,'minutes')
-    let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()
+async function StoredWStation(date, station_id){
+  try{
+    let start = moment(date).subtract(2, 'hours').startOf('days')
+    //let start = moment(date).startOf('day')
+    let end = moment(date).endOf('day')
 
-    let station_data = await StationData.findOne({is_update: 0, timestamp: { $lte: start_condtion}}).exec(); // {is_update: { $ne: null }}
-    
-    //console.log('-->', start_condtion, station_data)
-    if(!station_data){
-        return
-    }
-    let kw = station_data.paras.filter((para) => para.name === 'kiloWatts')
-  
-    let devices = await Device.find({station: station_data.station})
-    let arr_device = devices.map((device) => {
-        return device._id
+
+    let devices = await Device.find({ station: station_id, is_active: 1 })
+    let ids = []
+    devices.forEach(function(device){
+      ids.push(device._id)
     })
-  
-    let start = moment(station_data.timestamp).subtract(30, 'seconds')
-    let end = moment(station_data.timestamp).add(30, 'seconds')
-  
-    let strQuery = {  device: { $in: arr_device }, 
-                      timestamp: {$gte: start, $lte: end }
-                   }
-    let device_data = await DeviceData.find(strQuery)
-    
+
+    let data = []
     let sum = 0
-    
-    let b = device_data.map((d) => {
-      let Watts = d.paras.filter((para) => para.name === 'Watts')
-      sum += Watts[0].value
-      //console.log(Watts)
-    })
-  
-    let total = sum + kw[0].value * 1000
-    
-    let infor = {
-      sum : sum,
-      consum : kw[0].value * 1000,
-      total : total
-    };
-  
-    let update = {infor: infor, 
-                  is_update: 1, 
-                  load_w : total,
-                  sum_w : infor.sum,
-                  consum_w : infor.consum
-                }
-  
-    let result = await StationData.findOneAndUpdate({_id: station_data._id}, update).exec()
-    }catch(error){
-      console.log(error)
+    let count = 0
+    let avg = 0
+
+    device_datas = await DeviceData.find({ device: { $in: ids}, 
+                                              timestamp: {$gte: start, $lte: end } 
+                                            })
+      
+    for (let j = 0; j < 288; j++) {
+      sum = 0, count = 0, avg = 0
+      let start1 = moment(start).startOf('minute')
+      let end1 = moment(start).add(5, 'minutes').startOf('minute')
+      //console.log(start1, end1)
+      device_datas.map(await function(item){
+        if (item.timestamp <= end1 && item.timestamp >= start1) {
+          let str_w = item.paras.filter(function(it){
+            return it.name == 'Watts'
+          })
+          let watts = parseInt(str_w[0].value)
+          sum +=  watts
+          count++
+        }
+      })
+
+      if (count > 0) {
+        avg = sum
+      }else{
+        avg = 0
+      }
+
+      if (start1 > moment().subtract(10, 'minutes')) {
+        avg = undefined
+      }
+      //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg, sum, count)
+      data.push(avg)
+      start = end1
     }
+
+    return data
+
+  }catch(error){
+    //console.log(error.message)
+  }
+}
+  
+setInterval(async function(){
+  let start = moment().startOf('days')
+  let stations = await Station.find({is_active: 1})
+
+  
+
+  for (let i = 0; i < stations.length; i++) {
+    const station = stations[i];
+    
+    let watts = await StoredWStation(start, station._id)
+
+    let d = {
+      station: station._id,
+      station_name: station.name,
+      watts: watts,
+      timestamp: start,
+      updated_at: new Date(),
+
+    }
+
+    const filter = {timestamp: start, station: station._id};
+    const update = d;
+
+    let doc = await WStationData.findOneAndUpdate(filter, update, {
+      new: true,
+      upsert: true  // Make this update into an upsert
+    });
   }
   
-  setInterval(function(){
-    CalcLoadWStation()
-  }, parseInt(10000)); // 1 minutes
+}, parseInt(10000)); // 1 minutes
   

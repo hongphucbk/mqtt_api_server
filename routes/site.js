@@ -764,7 +764,6 @@ router.get('/site/events', auth, async(req, res) => {
   }
 })
 
-
 // Get events by device ID
 router.get('/site/events/:id', auth, async(req, res) => {
   try {
