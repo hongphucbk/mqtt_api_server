@@ -18,6 +18,7 @@ const role = require('../../middlewares/role')
 const Device = require('../../models/Device')
 const DeviceData = require('../../models/DeviceData')
 const HistoryDeviceData = require('../../models/HistoryDeviceData')
+const HistoryDeviceRawData = require('../../models/HistoryDeviceRawData')
 const HistoryStationData = require('../../models/HistoryStationData')
 const WhDeviceData = require('../../models/WhDeviceData')
 const WDeviceData = require('../../models/WDeviceData')
@@ -32,14 +33,19 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('14-04-2022',"DD-MM-YYYY")
+  let date = moment('26-04-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
+  let end =  moment('03-05-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+
 
   setInterval(function() {
-    date = date.add(1, 'days')
+    
     console.log('---> ', date);
+    if(date <= end){
+      StoredWhDeviceData3(date)
+    }
 
-    StoredWhDeviceData3(date)
-  }, 25000);
+    date = date.add(1, 'days')
+  }, 30000);
 
   
 }
@@ -47,7 +53,7 @@ function manu(argument) {
 
 async function StoredWhDeviceData3(date){
   console.log(date)
-  try{
+  //try{
     //let start = moment(start1).startOf('days')
     let station = "6237b1c479f5fbbe6a6086a5";
     let strDate = moment(date).format('DD-MM-YYYY') + " "
@@ -57,11 +63,15 @@ async function StoredWhDeviceData3(date){
       {code: 3, name: 'BT', description: '11h30->17h00', min: strDate +'11:30:00', max: strDate +'17:00:00' },
       {code: 4, name: 'CD', description: '17h00->20h00', min: strDate +'17:00:00', max: strDate +'20:00:00' },
       {code: 5, name: 'BT', description: '20h00->22h00', min: strDate +'20:00:00', max: strDate +'22:00:00' },
+      {code: 6, name: 'TD', description: '22h00->24h00', min: strDate +'22:00:00', max: strDate +'24:00:00' },
+      {code: 7, name: 'TD', description: '00h00->04h00', min: strDate +'00:00:00', max: strDate +'04:00:00' },
+
     ]
 
 
     let devices = await Device.find({is_active: 1, station: station});
     for (let j = 0; j < devices.length; j++) {
+      let device = devices[j]
       for (var i = 0; i < hours.length; i++) {
         let dt = {
           device: devices[j]._id,
@@ -76,15 +86,28 @@ async function StoredWhDeviceData3(date){
           watts: []
         }
 
-        let data = await getkWh(devices[j]._id, hours[i].min, hours[i].max)
-        console.log(hours[i].code, data)
-        dt.kwh_min = data.min
-        dt.kwh_max = data.max 
-        dt.kwh = data.wh.toFixed(0)
+        // let data = await getkWh(devices[j]._id, hours[i].min, hours[i].max)
+        // console.log(hours[i].code, data)
+        // dt.kwh_min = data.min
+        // dt.kwh_max = data.max 
+        // dt.kwh = data.wh.toFixed(0)
+        let now = moment(hours[i].min, "DD-MM-YYYY hh:mm:ss").add(30, 'minutes')
+        console.log(now)
 
-        //console.log(dt)
+        let point = await getPoint(hours, now)
+        //console.log(point)
+        
 
-        const filter = {timestamp: date, device: devices[j]._id, type_number: hours[i].code};
+        let current_max = await getkWhMax(device._id, point.current_start , point.current_end)
+        let premax_max = await getkWhMax(device._id, point.pre_start, point.pre_end)
+      
+        dt.kwh_min = premax_max.max
+        dt.kwh_max = current_max.max 
+        dt.kwh = Math.round((current_max.max -  premax_max.max)/ 1000 )
+
+        console.log(dt)
+
+        const filter = {timestamp: dt.timestamp, device: devices[j]._id, type_number: hours[i].code};
         const update = dt;
 
         let doc = await WhDeviceData3.findOneAndUpdate(filter, update, {
@@ -96,12 +119,12 @@ async function StoredWhDeviceData3(date){
 
       
     }
-  }catch(error){
-    console.log(error.message)
-  }
+  // }catch(error){
+  //   console.log(error.message)
+  // }
 }
 
-async function getkWh(device, start1, end1){
+async function getkWhNotUse(device, start1, end1){
   let start = moment(start1, "DD-MM-YYYY hh:mm:ss")
   let end = moment(end1, "DD-MM-YYYY hh:mm:ss")
 
@@ -140,6 +163,99 @@ async function getkWh(device, start1, end1){
   return {wh: TotalWh/1000, min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt }   
 }
 
+async function getPoint(hours_arrs, now){
+  let point
+  let pre_start
+  let pre_end
+  let pre_code
 
+  await hours_arrs.forEach(function(e){
+    if ((now > moment(e.min,  "DD-MM-YYYY hh:mm:ss")) && (now < moment(e.max,  "DD-MM-YYYY hh:mm:ss")) ){
+      point = e        
+    }
+  })
+
+  switch (point.code) {
+    case 1:
+      pre_code = 7;
+      break;
+    case 2:
+      pre_code = 1;
+      break;
+    case 3:
+      pre_code = 2;
+      break;
+    case 4:
+      pre_code = 3;
+      break;
+    case 5:
+      pre_code = 4;
+      break;
+    case 6:
+      pre_code = 5;
+      break;
+    case 7:
+      pre_code = 6;
+  }
+
+  await hours_arrs.forEach(function(e){
+    if(point.code == 7 && e.code == 6){
+      //let start = moment(now).subtract(1, 'days').startOf('day').format('DD-MM-YYYY') + " "
+      pre_start = moment(e.min,  "DD-MM-YYYY hh:mm:ss").subtract(1, 'days')
+      pre_end = moment(e.max,  "DD-MM-YYYY hh:mm:ss").subtract(1, 'days')
+      //console.log(pre_start, pre_end)
+    }else{
+      if (e.code == pre_code ){
+        pre_start = moment(e.min,  "DD-MM-YYYY hh:mm:ss")
+        pre_end = moment(e.max,  "DD-MM-YYYY hh:mm:ss")
+          
+      }
+    }
+    
+  })
+
+
+  let d = {
+    current_start : moment(point.min,  "DD-MM-YYYY hh:mm:ss"),
+    current_end : moment(point.max,  "DD-MM-YYYY hh:mm:ss"),
+    pre_start: pre_start,
+    pre_end: pre_end,
+    infor: point,
+  }
+  console.log(point.code, '--> ', d)
+  return  d;
+
+  
+  
+}
+
+async function getkWhMax(device, start, end){
+  let data = []
+  let infors = await HistoryDeviceRawData.find({  device: device, 
+                                                  timestamp: {$gte: start, $lte: end } 
+                                              })
+
+  let maxWh = 0
+  let maxAt
+  
+  infors.map(async function(item){
+    //let strWh = item.paras.WH    
+    //let WH = parseInt(strWh)
+    //console.log(infors.length, item)
+
+    let strWh = item.paras.filter(function(it){
+      return it.name == 'WH'
+    })
+    let WH = parseInt(strWh[0].value)
+    if (WH > 0) {
+      maxWh = WH > maxWh ? WH : maxWh
+      if (WH > maxWh) {
+        maxAt = new Date()
+      }
+    }
+  })
+
+  return {max: maxWh, maxAt: maxAt } 
+}
 
 

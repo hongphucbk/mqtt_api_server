@@ -42,6 +42,7 @@ module.exports.calc_kwh_diff = async function(){
     let station = stations[i]
 
     kwh = await get_total_kwh(station._id, strDate)
+    kwh = Math.round(kwh)
     kwh_3 = await get_kwh_3(station._id, strDate)
 
     kwh_diff = kwh - kwh_3

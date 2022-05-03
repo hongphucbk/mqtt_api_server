@@ -31,6 +31,9 @@ const historyDeviceDataSchema = mongoose.Schema({
     watts: {
         type: Number,
     },
+    wh: {
+        type: Number,
+    },
     device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
     // password: {
     //     type: String,
