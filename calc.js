@@ -98,6 +98,20 @@ async function StoredDeviceData(){
         jsonDevice.paras.workingHours = 0
       }
 
+
+      let maxWh = 0    
+      infors.map(async function(item){
+        let strWh = item.paras.filter(function(it){
+          return it.name == 'WH'
+        })
+        let WH = parseInt(strWh[0].value)
+        if (WH > 0) {
+          maxWh = WH > maxWh ? WH : maxWh
+        }
+      })
+
+      jsonDevice.wh = maxWh
+
       jsonDevice.updated_at = new Date();
 
       const filter = {timestamp: end, device: devices[j]._id};
