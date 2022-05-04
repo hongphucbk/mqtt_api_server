@@ -30,7 +30,7 @@ let stationData = []
 
 //========================================================
 // Run job stored w device (every 10 minutes)
-var StoredkWh3Job = new CronJob('*/10 * * * *', function() {
+var StoredkWh3Job = new CronJob('*/5 * * * *', function() {
   StoredWhDeviceData3Auto()
   StoredWhStation3PriceAuto()
   //console.log('-----------> ' + moment())
@@ -84,7 +84,7 @@ async function StoredWhDeviceData3Auto(){
 
         //console.log(dt)
 
-        const filter = {timestamp: moment(strDate + '00:00:00', "DD-MM-YYYY hh:mm:ss"), device: devices[j]._id, type_number: point.code};
+        const filter = {timestamp: dt.timestamp, device: device._id, type_number: point.infor.code};
         const update = dt;
 
         let doc = await WhDeviceData3.findOneAndUpdate(filter, update, {
@@ -93,7 +93,7 @@ async function StoredWhDeviceData3Auto(){
         });
     }
 
-    console.log('point ', point)
+    //console.log('point ', point)
   }catch(error){
     console.log(error.message)
   }
