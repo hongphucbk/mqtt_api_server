@@ -30,7 +30,7 @@ let stationData = []
 
 //========================================================
 // Run job stored w device (every 10 minutes)
-var StoredkWh3Job = new CronJob('*/5 * * * *', function() {
+var StoredkWh3Job = new CronJob('*/10 * * * *', function() {
   StoredWhDeviceData3Auto()
   StoredWhStation3PriceAuto()
   //console.log('-----------> ' + moment())
