@@ -239,9 +239,10 @@ router.get('/device/trend', auth, async(req, res) => {
       let today = moment().startOf('day');
 
       if (start < today){
-        let hisStation = await WDeviceData.findOne({timestamp: start})
+        let hisStation = await WDeviceData.findOne({timestamp: start, device: id})
         //console.log(hisStation)
         data = hisStation.watts
+        console.log(start, hisStation)
       }else{
         device_datas = await DeviceData.find({ device: id, 
                                               timestamp: {$gte: start, $lte: end } 
