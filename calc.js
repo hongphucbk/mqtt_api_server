@@ -525,7 +525,11 @@ async function CalcLoadWStation(){
   
   let b = device_data.map((d) => {
     let Watts = d.paras.filter((para) => para.name === 'Watts')
-    sum += Watts[0].value
+    //console.log(Watts)
+    if(Watts[0]){
+      sum += Watts[0].value
+    }
+    
     //console.log(Watts)
   })
 

@@ -33,8 +33,8 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('01-05-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
-  let end =  moment('04-05-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('10-05-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
+  let end =  moment('10-05-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
 
   setInterval(function() {
