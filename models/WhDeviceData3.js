@@ -9,6 +9,12 @@ const WhDeviceData3Schema = mongoose.Schema({
         required: true,
         trim: true,
     },
+    wh_min: {
+        type: Number,
+    },
+    wh_max: {
+        type: Number,
+    },
     kwh_min: {
         type: Number,
     },

@@ -34,13 +34,20 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('25-04-2022',"DD-MM-YYYY")
+  let date = moment('24-03-2022',"DD-MM-YYYY")
+  let end =  moment('30-04-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
-  setInterval(function() {
+  
+
+  setInterval(async function() {
+    if(date <= end){
+      await GetWhStation31(date)
+    }
+
     date = date.add(1, 'days')
     //console.log('---> ', date);
 
-    GetWhStation31(date)
+    
   }, 1000);
 }
 

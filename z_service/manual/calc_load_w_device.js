@@ -38,7 +38,7 @@ async function CalcLoadWStation(){
 
   let station_data = await StationData.findOne({is_update: 0, timestamp: { $lte: start_condtion}}).exec(); // {is_update: { $ne: null }}
   
-  //console.log('-->', start_condtion, station_data)
+  console.log('-->', start_condtion, station_data)
   if(!station_data){
       return
   }
@@ -88,7 +88,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(10000)); // 1 minutes
+}, parseInt(5000)); // 1 minutes
 
 
 

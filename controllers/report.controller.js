@@ -287,8 +287,8 @@ module.exports.getReportManu = async function(req, res) {
     let site_id = '6237b1c479f5fbbe6a6086a5'// req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
 	let email_to = req.query.email_to; 
 	let email_cc = req.query.email_cc; 
-	let date_start = '2022-03-26' // req.query.date_start ? req.query.date_start : moment().startOf('months').format('YYYY-MM-DD')
-	let date_end = '2022-04-25' // req.query.date_end ? req.query.date_end : moment().endOf('months').format('YYYY-MM-DD')
+	let date_start = '2022-03-24' // req.query.date_start ? req.query.date_start : moment().startOf('months').format('YYYY-MM-DD')
+	let date_end = '2022-04-30' // req.query.date_end ? req.query.date_end : moment().endOf('months').format('YYYY-MM-DD')
 
 	let start = moment(date_start).startOf('days');
     let end   = moment(date_end).endOf('days');
@@ -337,7 +337,7 @@ module.exports.getReportManu = async function(req, res) {
 
 	let vat = total_price_discounted * station.vat /100
 
-	let total_price_vated = Math.round(total_price_discounted - vat)
+	let total_price_vated = Math.round(total_price_discounted + vat)
 
 	// Access everything by rvn
 	const config = new rvn.ReadingConfig()
@@ -442,6 +442,8 @@ module.exports.getReportManu = async function(req, res) {
       electric: electric,
 	    users: users,
 	    logo: logo,
+      start: start.format('DD/MM/yyyy'),
+      end: end.format('DD/MM/yyyy')
       
 	  },
 	  path: `./exports/output ${moment().format("hhmmss")}.pdf`,
