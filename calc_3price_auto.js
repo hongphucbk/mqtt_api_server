@@ -26,6 +26,7 @@ const WhDeviceData = require('./models/WhDeviceData')
 const WhDeviceData3 = require('./models/WhDeviceData3')
 const WhStation3Price = require('./models/WhStation3Price')
 
+
 let stationData = []
 
 //========================================================
@@ -71,16 +72,32 @@ async function StoredWhDeviceData3Auto(){
 
           watts: []
         }
-
+      
         let current_max = await getkWhMax(device._id, point.current_start , point.current_end)
         let premax_max = await getkWhMax(device._id, point.pre_start, point.pre_end)
+
+        dt.kwh_min = premax_max.max
+        dt.kwh_max = current_max.max
+
+        let min
+        if(dt.kwh_min == 0){
+          min = await getkWhMin(device._id, point.current_start, point.current_end)
+          dt.kwh_min = min.min
+        }
+        
+
+        if(dt.kwh_max == 0){
+          dt.kwh_max = dt.kwh_min
+        }
       
+        if(dt.kwh_max > 0 && dt.kwh_min > 0 ){
+          dt.kwh = Math.floor((dt.kwh_max -  dt.kwh_min)/ 1000 )
+        }else{
+          dt.kwh = 0
+        }
 
         //let data = await getkWhCurrent(devices[j]._id, point.min, point.max)
         //console.log(point.code, data)
-        dt.kwh_min = premax_max.max
-        dt.kwh_max = current_max.max 
-        dt.kwh = Math.round((current_max.max -  premax_max.max)/ 1000 )
 
         //console.log(dt)
 
@@ -278,23 +295,59 @@ async function getPoint(hours_arrs, now){
 async function getkWhMax(device, start, end){
   let data = []
   let infors = await DeviceData.find({  device: device, 
-                                        timestamp: {$gte: start, $lte: end } 
-                                })
+                                                  timestamp: {$gte: start, $lte: end } 
+                                              })
 
   let maxWh = 0
   let maxAt
-  infors.map(await function(item){
+  
+  infors.map(async function(item){
+    //let strWh = item.paras.WH    
+    //let WH = parseInt(strWh)
+    //console.log(infors.length, item)
+
     let strWh = item.paras.filter(function(it){
       return it.name == 'WH'
     })
     let WH = parseInt(strWh[0].value)
     if (WH > 0) {
-      maxWh = WH > maxWh ? WH : maxWh
-      if (WH > maxWh) {
+      maxWh = WH >= maxWh ? WH : maxWh
+      if (WH >= maxWh) {
         maxAt = new Date()
       }
     }
   })
 
   return {max: maxWh, maxAt: maxAt } 
+}
+
+async function getkWhMin(device, start, end){
+  let data = []
+  let infors = await DeviceData.find({  device: device, 
+                                                  timestamp: {$gte: start, $lte: end } 
+                                              })
+
+  let minWh = 999999999
+  let minAt;
+  infors.map(async function(item){
+    //let strWh = item.paras.WH    
+    //let WH = parseInt(strWh)
+    //console.log(infors.length, item)
+
+    let strWh = item.paras.filter(function(it){
+      return it.name == 'WH'
+    })
+    let WH = parseInt(strWh[0].value)
+    if (WH > 0) {
+      minWh = WH <= minWh ? WH : minWh
+      if (WH <= minWh) {
+        minAt = new Date()
+      }
+    }
+  })
+  if(minWh == 999999999 ){
+    minWh = 0
+  }
+
+  return {min: minWh, minAt: minAt } 
 }
