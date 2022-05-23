@@ -22,6 +22,7 @@ const calc_kwh_today = require('../function/calc_kwh_today')
 
 const random = require('random')
 const moment = require('moment'); // require
+const { E40001 } = require('../common/err')
 
 
 const router = express.Router()
@@ -201,7 +202,7 @@ router.get('/site/list', auth, async(req, res) => {
       res.send({sites: stationData})
     }
   }catch(error){
-    res.send(error.message)
+    res.send({...E40001, message: error.message})
   }
 })
 
@@ -471,22 +472,37 @@ router.get('/site/trend', auth, async(req, res) => {
           let start1 = moment(start).startOf('minute')
           let end1 = moment(start).add(5, 'minutes').startOf('minute')
           //console.log(start1, end1)
-          device_datas.map(await function(item){
+          await device_datas.map(await function(item){
             if (item.timestamp <= end1 && item.timestamp >= start1) {
               let str_w = item.paras.filter(function(it){
                 return it.name == 'Watts'
               })
+
               let watts = parseInt(str_w[0].value)
-              sum +=  watts
+
+              if(count < ids.length){
+                sum +=  watts
+              }
               count++
+
+              // if(start1.hours() >= 10 && start1.hours() <= 11 ){
+              //   console.log(start1, item.timestamp, item.device, watts, count)
+              // }
             }
           })
+
+          
 
           if (count > 0) {
             avg = sum
           }else{
             avg = 0
           }
+
+          // if(avg > 400000){
+          //   console.log(start1, avg)
+          // }
+          
 
           if (start1 > moment().subtract(10, 'minutes')) {
             avg = undefined

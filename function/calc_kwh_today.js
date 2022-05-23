@@ -31,8 +31,20 @@ const WhStation3Price = require('../models/WhStation3Price')
 
 // Tính các thông số hôm nay
 module.exports.calc_kwh_today = async function calc_kwh_sum(station_id){
-	let d = {}
+	let d = {
+    kwh_td : 0,
+    kwh_bt  : 0,
+    kwh_cd: 0,
+    kwh_total : 0,
+    price_td: 0,
+    price_bt : 0,
+    price_cd : 0,
+    befor_price :0,
+    total_price :0
+  }
+
   let station_price = await WhStation3Price.findOne({ station: station_id, timestamp: moment().startOf('day')})
+  if(station_price){
     d.kwh_td = station_price.kwh_td ? station_price.kwh_td : 0
     d.kwh_bt = station_price.kwh_bt ? station_price.kwh_bt : 0
     d.kwh_cd = station_price.kwh_cd ? station_price.kwh_cd : 0
@@ -44,6 +56,7 @@ module.exports.calc_kwh_today = async function calc_kwh_sum(station_id){
 
     d.befor_price = station_price.befor_price
     d.total_price = station_price.total_price
+  }
   return d;
 }
 

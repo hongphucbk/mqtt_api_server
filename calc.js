@@ -26,7 +26,8 @@ const AutoEmail = require('./models/AutoEmail')
 
 const StationData = require('./models/StationData')
 const LoadWhStationData = require('./models/LoadWhStationData')
-const LoadWStationData = require('./models/LoadWStationData')
+const LoadWStationData = require('./models/LoadWStationData');
+const { count } = require('./models/User');
 
 
 let stationData = []
@@ -315,10 +316,12 @@ async function getWatts(device, date){
     let end1 = moment(start).add(5, 'minutes').startOf('minute')
     let a1 = hisStations.map(x => {
       if (x.timestamp <= end1 && x.timestamp >= start1) {
-        sum +=  x.paras.Watts
+        if(count <= ids.length){
+          sum +=  x.paras.Watts
+        }
         count++
         if (count > 0) {
-          avg = sum/count
+          avg = sum
         }else{
           avg = 0
         }
