@@ -477,14 +477,14 @@ router.get('/site/trend', auth, async(req, res) => {
               let str_w = item.paras.filter(function(it){
                 return it.name == 'Watts'
               })
+              //console.log(str_w[0])
 
-              let watts = parseInt(str_w[0].value)
+              let watts = str_w[0] ? parseInt(str_w[0].value) : 0
 
               if(count < ids.length){
                 sum +=  watts
               }
               count++
-
               // if(start1.hours() >= 10 && start1.hours() <= 11 ){
               //   console.log(start1, item.timestamp, item.device, watts, count)
               // }
@@ -498,11 +498,6 @@ router.get('/site/trend', auth, async(req, res) => {
           }else{
             avg = 0
           }
-
-          // if(avg > 400000){
-          //   console.log(start1, avg)
-          // }
-          
 
           if (start1 > moment().subtract(10, 'minutes')) {
             avg = undefined
@@ -611,7 +606,7 @@ router.get('/site/trend', auth, async(req, res) => {
     res.send({siteID: id, type: type, series: data})
   }catch(error){
     var mess = {...err.E40001,...{'description': error.message} }
-    res.send(mess)   
+    res.status(500).send(mess)   
   }
 })
 

@@ -34,7 +34,7 @@ StoredLoadWStationData()
 //-----------------------------
 async function StoredLoadWStationData(){
   try{
-    let start = moment('2022-05-09 18:07:23').subtract(2, 'hours').startOf('days')
+    let start = moment('2022-05-23 18:07:23').subtract(2, 'hours').startOf('days')
 
     let stations = await Station.find({is_active: 1});
     for (let j = 0; j < stations.length; j++) {
@@ -80,7 +80,7 @@ async function getLoadW(station, date){
         sum +=  x.load_w
         count++
         if (count > 0) {
-          avg = sum/count
+          avg = sum
         }else{
           avg = 0
         }
