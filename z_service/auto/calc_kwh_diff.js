@@ -30,7 +30,10 @@ const WhDeviceData3 = require('../../models/WhDeviceData3')
 const WhStation3Price = require('../../models/WhStation3Price')
 
 // Tính tổng giá (3 khung giờ) theo cho tất cả station
-// Update vào bảng stations
+// Tính tổng số total_kwh (cuối này - đầu ngày)
+// kWh diff = total - tổng 3 khung giờ
+// Update vào bảng WhStation3Price
+
 module.exports.calc_kwh_diff = async function(){
   let strDate = moment().subtract(2, 'hours').startOf('day')
 
@@ -84,6 +87,7 @@ async function get_total_kwh(station_id, strDate){
   return sum/1000;
 }
 
+// Tính tổng kwh (td + bt + cd)
 async function get_kwh_3(station_id, strDate){
   let station_price = await WhStation3Price.findOne({ station: station_id, timestamp: strDate})
   let sum = station_price.kwh_td + station_price.kwh_bt + station_price.kwh_cd

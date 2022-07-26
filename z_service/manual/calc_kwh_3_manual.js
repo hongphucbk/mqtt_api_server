@@ -33,8 +33,8 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('10-05-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
-  let end =  moment('17-05-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('24-07-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
+  let end =  moment('25-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
 
   setInterval(async function() {
@@ -47,7 +47,7 @@ function manu(argument) {
     }
 
     
-  }, 12000);
+  }, 20000);
 
   
 }
@@ -57,7 +57,7 @@ async function StoredWhDeviceData3(date){
   //console.log(date)
   //try{
     //let start = moment(start1).startOf('days')
-    let station = "607c7e23ba23121608c8fc69";
+    let station = "6299b165d5b1b9149d44744c";
     let strDate = moment(date).format('DD-MM-YYYY') + " "
     let hours = [
       {code: 1, name: 'BT', description: '4h00->9h30',  min: strDate +'04:00:00', max: strDate +'09:30:00' },
@@ -262,7 +262,7 @@ async function getkWhMax(device, start, end){
     let strWh = item.paras.filter(function(it){
       return it.name == 'WH'
     })
-    let WH = parseInt(strWh[0].value)
+    let WH = strWh[0] ? parseInt(strWh[0].value) : 0
     if (WH > 0) {
       maxWh = WH >= maxWh ? WH : maxWh
       if (WH >= maxWh) {
@@ -290,7 +290,7 @@ async function getkWhMin(device, start, end){
     let strWh = item.paras.filter(function(it){
       return it.name == 'WH'
     })
-    let WH = parseInt(strWh[0].value)
+    let WH = strWh[0] != null ? parseInt(strWh[0].value) : 0
     if (WH > 0) {
       minWh = WH <= minWh ? WH : minWh
       if (WH <= minWh) {

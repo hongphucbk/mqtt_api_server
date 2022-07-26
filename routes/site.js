@@ -478,6 +478,9 @@ router.get('/site/trend', auth, async(req, res) => {
                 return it.name == 'Watts'
               })
               //console.log(str_w[0])
+              if(!str_w[0]){
+                console.log(item)
+              }
 
               let watts = str_w[0] ? parseInt(str_w[0].value) : 0
 

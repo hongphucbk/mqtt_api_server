@@ -32,48 +32,69 @@ const WhStation3Price = require('../../models/WhStation3Price')
 //Set is_update from 1 to 0
 manu()
 
-function manu(argument) {
+async function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('24-03-2022',"DD-MM-YYYY")
-  let end =  moment('30-04-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+  let station_id = "6299b165d5b1b9149d44744c";
+  let station = await Station.findOne({_id: station_id})
+  let devices = await Device.find({station: station_id, is_active: 1})
 
   
 
-  setInterval(async function() {
-    if(date <= end){
-      await GetWhStation31(date)
+  for (let i = 0; i < devices.length; i++) {
+    const device = devices[i];
+
+    let date = moment('10-06-2022',"DD-MM-YYYY")
+    let end =  moment('25-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+
+
+    console.log(device._id, device.name)
+    console.log('------------------------')
+    for (let j = 1; j <= 30; j++) {
+      if(date <= end){
+        await GetWhStation31(date, device._id)
+      }
+       
+
+      date = date.add(1, 'days')
     }
 
-    date = date.add(1, 'days')
-    //console.log('---> ', date);
+
+  }
+
+  // setInterval(async function() {
+  //   if(date <= end){
+  //     await GetWhStation31(date)
+  //   }
+
+  //   date = date.add(1, 'days')
+  //   //console.log('---> ', date);
 
     
-  }, 1000);
+  // }, 1000);
 }
 
 
-async function GetWhStation31(date){
+async function GetWhStation31(date, device_id){
   //console.log(date)
   try{
     //let start = moment(start1).startOf('days')
     let station_id = "6237b1c479f5fbbe6a6086a5";
-    let device_id = '6237bb7379f5fbbe6a6086ae'
+    //let device_id = '6237bb7379f5fbbe6a6086ae'
+
     let strDate = moment(date).format('DD-MM-YYYY') + " "
+
+    let dt = {
+      timestamp : moment(strDate + '00:00:00', "DD-MM-YYYY hh:mm:ss"),
+      updated_at: new Date(),
+    }
     
     //let devices = await Device.find({is_active: 1, station: station});
-    let station = await Station.findOne({_id: station_id})
-        //console.log('station ' + station)
-        let dt = {
-          station: station._id,
-          station_name : station.name,
-          timestamp : moment(strDate + '00:00:00', "DD-MM-YYYY hh:mm:ss"),
-          updated_at: new Date(),
-          unit_price_td: station.unit_price_td,
-          unit_price_bt: station.unit_price_bt,
-          unit_price_cd: station.unit_price_cd, 
-        }
+    
 
-        let data = await WhDeviceData3.find({station: station_id, device: device_id, timestamp: dt.timestamp});
+      
+      
+      
+      let data = await WhDeviceData3.find({station: station_id, device: device_id, timestamp: dt.timestamp});
 
         let sum_td = 0;
         let sum_bt = 0;
@@ -101,9 +122,8 @@ async function GetWhStation31(date){
         })
         
         console.log(moment(date).format('DD-MM-YYYY'),",", min, ",", max)
-        //let sum = 
-        
 
+  
         
       
   }catch(error){

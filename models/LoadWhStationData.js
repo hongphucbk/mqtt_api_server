@@ -4,10 +4,17 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const LoadWhStationDataSchema = mongoose.Schema({
-    load_kwh: {
+    load_kwh: { // kwh_iot + kwh_3
         type: Number,
         required: true,
     },
+    kwh_iot: {
+        type: Number,
+    },
+    kwh_3: {
+        type: Number,
+    },
+
     infors: {
         type: Array,
     },

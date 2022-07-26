@@ -35,8 +35,8 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('24-03-2022',"DD-MM-YYYY")
-  let end =  moment('30-04-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('24-07-2022',"DD-MM-YYYY")
+  let end =  moment('25-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
   setInterval(async function() {
     if(date <= end){
@@ -57,7 +57,7 @@ async function StoredWhStation3Price(date){
   console.log(date)
   try{
     //let start = moment(start1).startOf('days')
-    let station_id = "6237b1c479f5fbbe6a6086a5";
+    let station_id = "6299b165d5b1b9149d44744c";
     let strDate = moment(date).format('DD-MM-YYYY') + " "
     
     //let devices = await Device.find({is_active: 1, station: station});
@@ -105,10 +105,12 @@ async function StoredWhStation3Price(date){
 
         kwh = Math.floor(kwh)
         kwh_3 = dt.kwh_td + dt.kwh_bt + dt.kwh_cd
-    
+        dt.kwh_3 = kwh_3
+        
         let kwh_diff = kwh - kwh_3
         dt.total_kwh = kwh
         dt.kwh_diff = kwh_diff
+        
     
         let price_diff = kwh_diff * station.unit_price_bt
         dt.price_diff = price_diff

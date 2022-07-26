@@ -25,6 +25,7 @@ const HistoryDeviceRawData = require('./models/HistoryDeviceRawData')
 const AlarmCode = require('./models/AlarmCode')
 const Alarm = require('./models/Alarm')
 const StationData = require('./models/StationData')
+const StationDataRaw = require('./models/StationDataRaw')
 
 //---------------------------------------------------------------
 // Mqtt
@@ -121,7 +122,7 @@ setInterval(async function(){
        let ds =  _queue_station.dequeue()
        //console.log(a)
        await StationData.insertMany(ds)
-    
+        await StationDataRaw.insertMany(ds)
       }
     
   } catch {
