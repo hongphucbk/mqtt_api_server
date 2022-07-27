@@ -125,7 +125,7 @@ async function calc_billing(date){
         let price_after_discount = total_price - price_discount; //Math.round(total_price * (100 - station.discount) / 100);
         
         let price_vat = Math.round(price_after_discount * station.vat / 100)
-        let price_after_vat = price_after_discount -  price_vat //     Math.round(price_after_discount * (100 + station.vat) /100);
+        let price_after_vat = price_after_discount +  price_vat //     Math.round(price_after_discount * (100 + station.vat) /100);
 
         let index_station = await IndexStation.findOne({plant: bill.plant, timestamp: {$lt: moment().startOf('day') }}).sort({created_at: -1})
 

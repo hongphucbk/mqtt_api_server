@@ -26,4 +26,4 @@ var jobCalcEvery10 = new CronJob('*/10 * * * *', async function() {
 jobCalc.start(); //Run at 1h00
 jobCalcEvery10.start(); //Run at every 10 minute
 
-calc_load_kwh_station.calc_load_kwh_station()
+//calc_load_kwh_station.calc_load_kwh_station()

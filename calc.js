@@ -161,9 +161,9 @@ async function StoredStationData(){
       let WH = 0;
       let workingHours = 0
 
-      infors = await HistoryDeviceData.find({ device: { $in: ids }, 
-                                              timestamp: {$gte: start, $lte: end } 
-                                          })
+      infors = await DeviceData.find({ device: { $in: ids }, 
+                                        timestamp: {$gte: start, $lte: end } 
+                                    })
 
       //console.log(infors)
       for (var i = 0; i < infors.length; i++) {
@@ -406,101 +406,103 @@ StoredWDeviceJob.start();
 
 //---------------------------------------
 // Calc kWh station data -> save
-async function StoredLoadkWhStationData(){
-  try{
-    let start = moment().subtract(2, 'minutes').startOf('days')
-    let end = moment().subtract(2, 'minutes').endOf('days')
+//--> move this to service 
+  // async function StoredLoadkWhStationData(){
+  //   try{
+  //     let start = moment().subtract(2, 'minutes').startOf('days')
+  //     let end = moment().subtract(2, 'minutes').endOf('days')
 
-    let stations = await Station.find({is_active: 1});
-    for (let j = 0; j < stations.length; j++) {
-      let jsStation = {
-        station: stations[j]._id,
-        station_name : stations[j].name,
-        timestamp : start,
-        infors: []
-      }
+  //     let stations = await Station.find({is_active: 1});
+  //     for (let j = 0; j < stations.length; j++) {
+  //       let jsStation = {
+  //         station: stations[j]._id,
+  //         station_name : stations[j].name,
+  //         timestamp : start,
+  //         infors: []
+  //       }
 
-      let infors = await StationData.find({ station: stations[j]._id, 
-                                       timestamp: {$gte: start, $lte: end } 
-                                    })
+  //       let infors = await StationData.find({ station: stations[j]._id, 
+  //                                       timestamp: {$gte: start, $lte: end } 
+  //                                     })
 
-      let TotalWh = 0
-      let minWh = 9000000000
-      let maxWh = 0
-      let minAt
-      let maxAt
-      infors.map(await function(item){
-        let strWh = item.paras.filter(function(it){
-          return it.name.toUpperCase() == 'KWH'
-        })
-        let WH = parseInt(strWh[0].value)
-        if (WH > 0) {
-          // if (WH < minWh) {
-          //   console.log("-->", minWh, strWh, WH, item.timestamp)
-          // }
-          minWh = WH < minWh ? WH : minWh
-          maxWh = WH > maxWh ? WH : maxWh
-          if (WH < minWh) {
-            minAt = new Date()
-          }
-          if (WH > maxWh) {
-            maxAt = new Date()
-          }
-        }
-      })
+  //       let TotalWh = 0
+  //       let minWh = 9000000000
+  //       let maxWh = 0
+  //       let minAt
+  //       let maxAt
+  //       infors.map(await function(item){
+  //         let strWh = item.paras.filter(function(it){
+  //           return it.name.toUpperCase() == 'KWH'
+  //         })
+  //         let WH = parseInt(strWh[0].value)
+  //         if (WH > 0) {
+  //           // if (WH < minWh) {
+  //           //   console.log("-->", minWh, strWh, WH, item.timestamp)
+  //           // }
+  //           minWh = WH < minWh ? WH : minWh
+  //           maxWh = WH > maxWh ? WH : maxWh
+  //           if (WH < minWh) {
+  //             minAt = new Date()
+  //           }
+  //           if (WH > maxWh) {
+  //             maxAt = new Date()
+  //           }
+  //         }
+  //       })
 
-      TotalWh = maxWh > minWh ?  maxWh - minWh : 0
+  //       TotalWh = maxWh > minWh ?  maxWh - minWh : 0
 
-      let _wh = await getTotalLoadkWhStation(stations[j]._id, start);
+  //       let _wh = await getTotalLoadkWhStation(stations[j]._id, start);
 
-      jsStation.load_kwh = TotalWh * 1000 + _wh
+  //       jsStation.load_kwh = TotalWh * 1000 + _wh
 
-      jsStation.infors = [
-        {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt, wh: _wh, load: TotalWh * 1000, load_kwh: jsStation.load_kwh, unit: "Wh"  }
-      ]
-      jsStation.updated_at = new Date();
-      const filter = {timestamp: start, station: stations[j]._id};
-      const update = jsStation;
+  //       jsStation.infors = [
+  //         {min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt, wh: _wh, load: TotalWh * 1000, load_kwh: jsStation.load_kwh, unit: "Wh"  }
+  //       ]
+  //       jsStation.updated_at = new Date();
+  //       const filter = {timestamp: start, station: stations[j]._id};
+  //       const update = jsStation;
 
-      let doc = await LoadWhStationData.findOneAndUpdate(filter, update, {
-        new: true,
-        upsert: true // Make this update into an upsert
-      });
+  //       let doc = await LoadWhStationData.findOneAndUpdate(filter, update, {
+  //         new: true,
+  //         upsert: true // Make this update into an upsert
+  //       });
 
-    }
-  }catch(error){
-    console.log(error)
-  }
-}
+  //     }
+  //   }catch(error){
+  //     console.log(error)
+  //   }
+  // }
 
-setInterval(function(){
-  StoredLoadkWhStationData()
-}, parseInt(10 * 1000));
+// setInterval(function(){
+//   //StoredLoadkWhStationData()
+// }, parseInt(10 * 1000));        //--> move this to service 
 
 
-async function getTotalLoadkWhStation(station, start) {
-  let devices = await Device.find({station: station})
-  let arr_device = devices.map((device) => {
-      return device._id
-  })
 
-  let strQuery = {  device: { $in: arr_device }, 
-                    timestamp: start
-                 }
-  let device_data = await WhDeviceData.find(strQuery)
+// async function getTotalLoadkWhStation(station, start) {
+//   let devices = await Device.find({station: station})
+//   let arr_device = devices.map((device) => {
+//       return device._id
+//   })
 
-  let sum = 0
-  device_data.map((d) => {
-    sum += d.wh
-    //console.log(Watts)
-  })
-  return sum;
-}
+//   let strQuery = {  device: { $in: arr_device }, 
+//                     timestamp: start
+//                  }
+//   let device_data = await WhDeviceData.find(strQuery)
+
+//   let sum = 0
+//   device_data.map((d) => {
+//     sum += d.wh
+//     //console.log(Watts)
+//   })
+//   return sum;
+// }
 
 
 async function CalcLoadWStation(){
   try{
-  let start_condtion = moment().subtract(5,'minutes')
+  let start_condtion = moment().subtract(10,'minutes')
   let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()
 
   let station_data = await StationData.findOne({is_update: 0, timestamp: { $lte: start_condtion}}).exec(); // {is_update: { $ne: null }}
@@ -539,8 +541,8 @@ async function CalcLoadWStation(){
   let total = sum + kw[0].value * 1000
   
   let infor = {
-    sum : sum,
-    consum : kw[0].value * 1000,
+    sum : sum,                    // kw device
+    consum : kw[0].value * 1000,  // kw iot station
     total : total
   };
 
@@ -559,7 +561,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(10000)); // 1 minutes
+}, parseInt(30000)); // 1 minutes
 
 
 //-----------------------------
