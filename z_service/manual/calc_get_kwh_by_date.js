@@ -34,7 +34,7 @@ manu()
 
 async function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let station_id = "6299b165d5b1b9149d44744c";
+  let station_id = "6237b1c479f5fbbe6a6086a5";
   let station = await Station.findOne({_id: station_id})
   let devices = await Device.find({station: station_id, is_active: 1})
 
@@ -43,8 +43,8 @@ async function manu(argument) {
   for (let i = 0; i < devices.length; i++) {
     const device = devices[i];
 
-    let date = moment('10-06-2022',"DD-MM-YYYY")
-    let end =  moment('25-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+    let date = moment('01-07-2022',"DD-MM-YYYY")
+    let end =  moment('29-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
 
     console.log(device._id, device.name)

@@ -28,6 +28,7 @@ const LoadWhStationData = require('../../models/LoadWhStationData')
 const WhDeviceData3 = require('../../models/WhDeviceData3')
 const WhStation3Price = require('../../models/WhStation3Price')
 
+const CONST_MIN = 999999999999;
 
 //StoredStationDataManual()
 
@@ -35,8 +36,8 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('24-07-2022',"DD-MM-YYYY")
-  let end =  moment('25-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('29-07-2022',"DD-MM-YYYY")
+  let end =  moment('29-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
   setInterval(async function() {
     if(date <= end){
@@ -46,10 +47,8 @@ function manu(argument) {
       console.log('-> done: --->', date);
       date = date.add(1, 'days')
     }
-    
   }, 20000);
 
-  
 }
 
 
@@ -57,7 +56,7 @@ async function StoredWhStation3Price(date){
   console.log(date)
   try{
     //let start = moment(start1).startOf('days')
-    let station_id = "6299b165d5b1b9149d44744c";
+    let station_id = "6237b1c479f5fbbe6a6086a5";
     let strDate = moment(date).format('DD-MM-YYYY') + " "
     
     //let devices = await Device.find({is_active: 1, station: station});
@@ -90,7 +89,6 @@ async function StoredWhStation3Price(date){
             sum_cd += e.kwh
           }
         })
-        
 
         dt.kwh_td = sum_td
         dt.kwh_bt = sum_bt 
@@ -102,21 +100,19 @@ async function StoredWhStation3Price(date){
         //----------
         //kwh = await get_total_kwh(station._id, dt.timestamp)
         kwh = await get_total_kwh(station._id, dt.timestamp)
-
+        console.log(date, kwh)
         kwh = Math.floor(kwh)
-        kwh_3 = dt.kwh_td + dt.kwh_bt + dt.kwh_cd
+        let kwh_3 = dt.kwh_td + dt.kwh_bt + dt.kwh_cd
         dt.kwh_3 = kwh_3
         
         let kwh_diff = kwh - kwh_3
         dt.total_kwh = kwh
         dt.kwh_diff = kwh_diff
-        
-    
+            
         let price_diff = kwh_diff * station.unit_price_bt
         dt.price_diff = price_diff
 
         //-------------------
-
         dt.befor_price = dt.price_td + dt.price_bt + dt.price_cd + dt.price_diff
         dt.total_price_discounted =  dt.befor_price * ((100 - station.discount)/100)
         dt.total_price = dt.total_price_discounted  * ((100 + station.vat)/100 )
@@ -137,16 +133,6 @@ async function StoredWhStation3Price(date){
 
 
 async function get_total_kwh(station_id, date){
-  // let whs = await WhDeviceData.find({ station: station_id, timestamp: strDate})
-  // let sum = 0
-  // await whs.forEach(e => {
-  //   sum = sum + e.wh
-  // })
-  // return sum/1000;
-  //let strDate = moment(date).format('DD-MM-YYYY') + " "
-  //let date = moment(strDate + '00:00:00', "DD-MM-YYYY hh:mm:ss");
-
-  //let station = await Station.findOne({_id: station_id})
   let devices = await Device.find({is_active: 1, station: station_id});
 
   let sum = 0
@@ -159,25 +145,26 @@ async function get_total_kwh(station_id, date){
   return sum;
 }
 
-
-
 async function get_kwh(device_id, date){
   let data = await WhDeviceData3.find({device: device_id, timestamp: date});
 
-  let sum_td = 0;
-  let sum_bt = 0;
-  let sum_cd = 0;
-  
-  let min = 999999999
+  let min = CONST_MIN
   let max = 0
 
   await data.forEach(e => {
+    
     if (e.kwh_min > 0) {
       min = e.kwh_min <= min ? e.kwh_min : min
       max = e.kwh_max >= max ? e.kwh_max : max
-      
     }
+    //console.log(e.kwh_min, e.kwh_max)
   })
+
+  if(min == CONST_MIN){
+    min = 0
+  }
+
+  console.log('--->', min, max)
     
   return Math.floor( (max - min)/1000 )
 }

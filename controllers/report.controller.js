@@ -24,6 +24,8 @@ const StationData = require('../models/StationData')
 const LoadWhStationData = require('../models/LoadWhStationData')
 const WhStation3Price = require('../models/WhStation3Price')
 const WhDeviceData3 = require('../models/WhDeviceData3')
+const IndexStation = require('../models/IndexStation')
+
 const rvn = require('read-vietnamese-number')
 
 const axios = require('axios');
@@ -285,61 +287,21 @@ module.exports.getReportManu = async function(req, res) {
 	try{
     
     //let site_id = req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
-    let site_id = '6299b165d5b1b9149d44744c'// req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
-    let invoice = await Invoice.findOne({station: site_id});
+    let site_id = '6237b1c479f5fbbe6a6086a5'// req.query.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
+    let invoice = await Invoice.findOne({station: site_id}).sort({timestamp: -1});
     let email_to = req.query.email_to; 
 	let email_cc = req.query.email_cc; 
 	let date_start = '2022-06-10' // req.query.date_start ? req.query.date_start : moment().startOf('months').format('YYYY-MM-DD')
 	let date_end = '2022-07-25' // req.query.date_end ? req.query.date_end : moment().endOf('months').format('YYYY-MM-DD')
 
 	let start = moment(date_start).startOf('days');
-    let end   = moment(date_end).endOf('days');
-    let DateLengh = end.diff(start, 'days');
-    if (DateLengh > 60) {
-    	res.send(err.E41000)
-    }
+  let end   = moment(date_end).endOf('days');
+  let DateLengh = end.diff(start, 'days');
+  if (DateLengh > 60) {
+    res.send(err.E41000)
+  }
 
-    let station = await Station.findOne({_id: site_id}).lean()
-
-    let station_prices = await WhStation3Price.find({station: site_id, timestamp: {$gte: start, $lte: end }})
-
-    let kwh_td = 0
-    let kwh_bt = 0
-    let kwh_cd = 0
-
-	let price_td = 0
-	let price_bt = 0
-	let price_cd = 0
-
-	let price_before = 0
-
-    station_prices.map(e => {
-      kwh_td = kwh_td + e.kwh_td
-      kwh_bt = kwh_bt + e.kwh_bt + e.kwh_diff
-      kwh_cd = kwh_cd + e.kwh_cd
-
-      price_td = price_td + e.price_td
-      price_bt = price_bt + e.price_bt + e.price_diff
-      price_cd = price_cd + e.price_cd
-
-	  if(e.kwh_edit){
-		kwh_bt = kwh_bt + e.kwh_edit
-		price_bt = price_bt + e.price_edit
-		console.log(e.kwh_edit)
-	  }
-	  //console.log(e.timestamp, e.kwh_edit)
-
-    })
-
-	let total_kwh = kwh_td + kwh_bt + kwh_cd
-	let total_price_before = price_td + price_bt + price_cd
-	
-	let discount = total_price_before * station.discount /100;
-	let total_price_discounted = total_price_before - discount
-
-	let vat = total_price_discounted * station.vat /100
-
-	let total_price_vated = Math.round(total_price_discounted + vat)
+  let station = await Station.findOne({_id: site_id}).lean()
 
 	// Access everything by rvn
 	const config = new rvn.ReadingConfig()
@@ -354,13 +316,13 @@ module.exports.getReportManu = async function(req, res) {
     kwh_td: invoice.kwh_td,
     kwh_bt: invoice.kwh_bt,
     kwh_cd: invoice.kwh_cd,
-    price_td: number_format(kwh_td * invoice.unit_price_td),
-    price_bt: number_format(kwh_bt* invoice.unit_price_bt),
-    price_cd: number_format(kwh_cd * invoice.unit_price_cd),
 
-    total_kwh: invoice.total_kwh,
-    total_price_before: number_format(total_price_before),
-    total_kwh: number_format(total_kwh),
+    price_td: number_format(invoice.kwh_td * invoice.unit_price_td),
+    price_bt: number_format(invoice.kwh_bt* invoice.unit_price_bt),
+    price_cd: number_format(invoice.kwh_cd * invoice.unit_price_cd),
+
+    total_price_before: number_format(invoice.total_price),
+    total_kwh: number_format(invoice.total_kwh),
 
     discount: number_format(invoice.price_discount.toFixed(0)),
     total_price_discounted: number_format(invoice.price_after_discount.toFixed(0)),
@@ -373,7 +335,20 @@ module.exports.getReportManu = async function(req, res) {
   //---------------------------------------------------------------------------------------
   // Index
 
-  let index_station = await IndexStation.findOne({_id: site_id}).sort({ timestamp: -1})
+  let idx_station = await IndexStation.findOne({station: site_id}).sort({ timestamp: -1})
+  //console.log(idx_station)
+  let index_station = {
+    old_kwh_td_index : idx_station.old_kwh_td_index,
+    old_kwh_cd_index : idx_station.old_kwh_cd_index,
+    old_kwh_bt_index : idx_station.old_kwh_bt_index,
+    kwh_td_index : idx_station.kwh_td_index,
+    kwh_cd_index : idx_station.kwh_cd_index,
+    kwh_bt_index : idx_station.kwh_bt_index,
+  }
+
+  let inv = {
+    name: invoice.name,
+  }
 
 	console.log('Hello menu')
 	// Read HTML Template
@@ -383,9 +358,9 @@ module.exports.getReportManu = async function(req, res) {
   var options = {
     format: "A4",
     orientation: "portrait",
-    border: "10mm",
+    border: "8mm",
     header: {
-        height: "5mm",
+        height: "3mm",
         // contents: '<div style="text-align: center;">Author: NTV Solar</div>'
     },
     footer: {
@@ -414,7 +389,7 @@ module.exports.getReportManu = async function(req, res) {
   }
 	
 
-  console.log(arr_device)
+  //console.log(arr_device)
 
 	var users = [
 	  {
@@ -442,20 +417,22 @@ module.exports.getReportManu = async function(req, res) {
 	const bitmap = fs.readFileSync('./public/img/ntv.png');
 	const logo = bitmap.toString('base64');
 
+  //console.log(invoice)
 	var document = {
 	  html: html,
 	  data: {
       arr_device: arr_device,
       station: station,
       electric: electric,
-      index: index,
 	    users: users,
 	    logo: logo,
-      start: start.format('DD/MM/yyyy'),
-      end: end.format('DD/MM/yyyy')
+      inv: inv,
+      index_station: index_station,
+      start: moment(invoice.start_date).format('DD/MM/yyyy'),
+      end: moment(invoice.end_date).format('DD/MM/yyyy')
       
 	  },
-	  path: `./exports/output ${moment().format("hhmmss")}.pdf`,
+	  path: `./exports/${invoice.station_name}-${invoice.name}-${moment().format("hhmmss")}.pdf`,
 	  type: "",
 	};
 

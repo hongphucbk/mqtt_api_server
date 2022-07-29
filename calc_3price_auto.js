@@ -26,8 +26,7 @@ const WhDeviceData = require('./models/WhDeviceData')
 const WhDeviceData3 = require('./models/WhDeviceData3')
 const WhStation3Price = require('./models/WhStation3Price')
 
-
-let stationData = []
+const CONST_MIN = 999999999999;
 
 //========================================================
 // Run job stored w device (every 10 minutes)
@@ -206,9 +205,17 @@ async function StoredWhStation3PriceAuto(){
         dt.kwh_bt = sum_bt 
         dt.kwh_cd = sum_cd 
 
+        dt.kwh_3 = dt.kwh_td + dt.kwh_bt + dt.kwh_cd
+
         dt.price_td = dt.kwh_td * dt.unit_price_td
         dt.price_bt = dt.kwh_bt * dt.unit_price_bt
         dt.price_cd = dt.kwh_cd * dt.unit_price_cd
+
+        let kwh = await get_total_kwh(station._id, dt.timestamp)
+        kwh = Math.floor(kwh)
+        
+        dt.kwh_diff = kwh - dt.kwh_3
+        dt.total_kwh = kwh
 
         dt.befor_price = dt.price_td + dt.price_bt + dt.price_cd
 
@@ -351,3 +358,39 @@ async function getkWhMin(device, start, end){
 
   return {min: minWh, minAt: minAt } 
 }
+
+//========================
+// Function call price auto
+async function get_total_kwh(station_id, date){
+  let devices = await Device.find({is_active: 1, station: station_id});
+
+  let sum = 0
+  for (let i = 0; i < devices.length; i++) {
+    const device = devices[i];
+    let kwh = await get_kwh(device._id, date)
+    sum = sum + kwh
+  }
+  
+  return sum;
+}
+
+async function get_kwh(device_id, date){
+  let data = await WhDeviceData3.find({device: device_id, timestamp: date});
+
+  let min = CONST_MIN
+  let max = 0
+
+  await data.forEach(e => {
+    if (e.kwh_min > 0) {
+      min = e.kwh_min <= min ? e.kwh_min : min
+      max = e.kwh_max >= max ? e.kwh_max : max
+    }
+  })
+
+  if(min == CONST_MIN){
+    min = 0
+  }
+    
+  return Math.floor( (max - min)/1000 )
+}
+//=====================================================

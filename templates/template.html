@@ -5,6 +5,9 @@
     <title>Hello world!</title>
     <link rel="stylesheet" type="text/css" href="css/css.css">
     <style type="text/css">
+      body{
+        font-size: 13px;
+      }
       table {
         font-family: arial, sans-serif;
         border-collapse: collapse;
@@ -14,7 +17,7 @@
       td, th {
         border: 1px solid #dddddd;
         text-align: left;
-        padding: 4px;
+        padding: 3px;
       }
 
       tr td.price {
@@ -81,7 +84,7 @@
       </table>
 
       <h4>TÌNH HÌNH SỬ DỤNG ĐIỆN CỦA KHÁCH HÀNG</h4>
-      <p>Kỳ hóa đơn Tháng 7/2022 Từ ngày {{ start }} đến ngày {{ end }}</p>
+      <p>Kỳ hóa đơn {{ inv.name }} Từ ngày {{ start }} đến ngày {{ end }}</p>
 
       <table>
         <tr style="background-color: rgb(228, 227, 227);">
@@ -94,27 +97,27 @@
         <tr>
           <td>Khung giờ bình thường</td>
           <td>1</td>
-          <td>0</td>
-          <td>75724</td>
-          <td>75724</td>
+          <td>{{ index_station.old_kwh_bt_index }}</td>
+          <td>{{ index_station.kwh_bt_index }}</td>
+          <td>{{ electric.kwh_bt }}</td>
         </tr>
         <tr>
           <td>Khung giờ cao điểm</td>
           <td>1</td>
-          <td>0</td>
-          <td>24474</td>
-          <td>24474</td>
+          <td>{{ index_station.old_kwh_cd_index }}</td>
+          <td>{{ index_station.kwh_cd_index }}</td>
+          <td>{{ electric.kwh_cd }}</td>
         </tr>
         <tr>
           <td>Khung giờ thấp điểm</td>
           <td>1</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
+          <td>{{ index_station.old_kwh_td_index }}</td>
+          <td>{{ index_station.kwh_td_index }}</td>
+          <td>{{ electric.kwh_td }}</td>
         </tr>
         <tr>
           <td colspan="4">Tổng:</td>
-          <td>100,198</td>
+          <td>{{ electric.total_kwh }}</td>
         </tr>
         
 
@@ -202,7 +205,7 @@
         support@ntvvietnam.vn
       </p>
 
-      <h4>TÓM TẮT</h4>
+      <!-- <h4>TÓM TẮT</h4>
 
       <table>
         <tr style="background-color: rgb(228, 227, 227);">
@@ -227,7 +230,7 @@
         
         
 
-      </table>
+      </table> -->
 
       <!-- <h4>THÔNG TIN HIỆN TẠI</h4>
       <p>Tính đến ngày 25-04-2022</p>
