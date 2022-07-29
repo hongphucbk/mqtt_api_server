@@ -165,7 +165,7 @@ async function StoredStationData(){
                                         timestamp: {$gte: start, $lte: end } 
                                     })
 
-      //console.log(infors)
+      console.log(infors, start, end)
       for (var i = 0; i < infors.length; i++) {
         Watts += infors[i].paras.Watts
         WH += infors[i].paras.WH
@@ -265,7 +265,7 @@ async function StoredWhDeviceData(){
 // Service to delete database after 2 day
 let before25h;
 async function deleteData() {
-  before25h = moment().subtract(25, 'hours');
+  before25h = moment().subtract(48, 'hours');
   await DeviceData.deleteMany({ timestamp: { $lte: before25h } });
   await StationData.deleteMany({ timestamp: { $lte: before25h } });
 }
@@ -273,7 +273,7 @@ async function deleteData() {
 
 async function StoredWDeviceData(){
   try{
-    let start = moment().subtract(2, 'hours').startOf('days')
+    let start = moment().subtract(15, 'hours').startOf('days')
 
     let devices = await Device.find({is_active: 1});
     for (let j = 0; j < devices.length; j++) {
@@ -297,7 +297,7 @@ async function StoredWDeviceData(){
       });
     }
   }catch(error){
-    //console.log(error.message)
+    console.log(error.message)
   }
 }
 
@@ -311,12 +311,12 @@ async function getWatts(device, date){
                                                 timestamp: {$gte: start, $lte: end } 
                                             })      
   for (let j = 0; j < 288; j++) {
-    sum = 0, count = 0, avg = 0
+    let sum = 0; let count = 0; let avg = 0
     let start1 = moment(start).startOf('minute')
     let end1 = moment(start).add(5, 'minutes').startOf('minute')
     let a1 = hisStations.map(x => {
       if (x.timestamp <= end1 && x.timestamp >= start1) {
-        if(count <= ids.length){
+        if(count <= 1){
           sum +=  x.paras.Watts
         }
         count++
@@ -565,9 +565,10 @@ setInterval(function(){
 
 
 //-----------------------------
+//Stored Load W Station data
 async function StoredLoadWStationData(){
-  try{
-    let start = moment().subtract(2, 'hours').startOf('days')
+  //try{
+    let start = moment().subtract(15, 'hours').startOf('days')
 
     let stations = await Station.find({is_active: 1});
     for (let j = 0; j < stations.length; j++) {
@@ -589,9 +590,9 @@ async function StoredLoadWStationData(){
         upsert: true  // Make this update into an upsert
       });
     }
-  }catch(error){
-    console.log(error.message)
-  }
+  // }catch(error){
+  //   console.log("Error " + error)
+  // }
 }
 
 
@@ -605,7 +606,7 @@ async function getLoadW(station, date){
                                       timestamp: {$gte: start, $lte: end } 
                                   })      
   for (let j = 0; j < 288; j++) {
-    sum = 0, count = 0, avg = 0
+    let sum = 0; let count = 0; let avg = 0
     let start1 = moment(start).startOf('minute')
     let end1 = moment(start).add(5, 'minutes').startOf('minute')
     let a1 = hisStations.map(x => {
@@ -628,3 +629,7 @@ async function getLoadW(station, date){
   return data;
 }
 
+//StoredLoadWStationData()
+//StoredWDeviceData()
+
+//StoredStationData()

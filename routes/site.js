@@ -23,6 +23,7 @@ const calc_kwh_today = require('../function/calc_kwh_today')
 const random = require('random')
 const moment = require('moment'); // require
 const { E40001 } = require('../common/err')
+const WDeviceData = require('../models/WDeviceData')
 
 
 const router = express.Router()
@@ -433,35 +434,21 @@ router.get('/site/trend', auth, async(req, res) => {
       let today = moment().startOf('day');
 
       if (start < today) {
-        hisStations = await HistoryStationData.find({ station: id, 
-                                                    timestamp: {$gte: start, $lte: end } 
-                                                  })
-        for (let j = 0; j < 288; j++) {
-          sum = 0, count = 0, avg = 0
-          let start1 = moment(start).startOf('minute')
-          let end1 = moment(start).add(5, 'minutes').startOf('minute')
-          //console.log(start1, end1)
-          let a1 = hisStations.map(x => {
-            if (x.timestamp <= end1 && x.timestamp >= start1) {
-              sum +=  x.paras.Watts
-              count++
-
-              if (count > 0) {
-                avg = sum/count
-              }else{
-                avg = 0
-              }
-            }
-            return avg
+        let w_devices = await WDeviceData.find({station: id, timestamp: start});
+        var arrs = Array(288).fill(0).map((e,i)=>0)
+        let arrs2 = Array(288).fill(0).map((e,i)=>0)
+        for (let i = 0; i < w_devices.length; i++) {
+          const w_device = w_devices[i];
+          
+          w_device.watts.map(async function (e, idx){
+            arrs2[idx] = e + arrs[idx];
+            return
           })
-
-          if (start1 > moment().subtract(10, 'minutes')) {
-            avg = undefined
-          }
-          data.push(avg)
-          //console.log(start1, avg)
-          start = end1
         }
+        
+        //
+        data = arrs2
+        
       }else{
         device_datas = await DeviceData.find({ device: { $in: ids}, 
                                               timestamp: {$gte: start, $lte: end } 
@@ -523,8 +510,6 @@ router.get('/site/trend', auth, async(req, res) => {
         let _whs = await WhDeviceData.find({  station: id,
                                               timestamp: { $gte : StartMonth, $lte : EndMonth }
                                             })
-                            //.sort({'timestamp': -1})
-                            //.limit(1)
                             .exec()
         for (let j = 1; j <= EndMonth.date(); j++) {
           data[j] = 0
@@ -569,21 +554,10 @@ router.get('/site/trend', auth, async(req, res) => {
       }
 
 
-      
-
-
-
-      //console.log(a)
-      //let startDate = req.query.date + " " + j  + ":00:00";
-      //let endDate = req.query.date + " " + j + ":59:59";
-      //data[0] = "Phuc is processing please wait to update. :)))"
     }else if (basedTime === 'year' && type === 'energy') {
       let StartYear = moment(req.query.date).startOf('year');
       let EndYear = moment(req.query.date).endOf('year');
       
-      // hisStations = await HistoryStationData.find({ station: id, 
-      //                                               timestamp: {$gte: StartYear, $lte: EndYear } 
-      //                                             })
       let _whs = await WhDeviceData.find({  station: id,
                                                 timestamp: { $gte : StartYear, $lte : EndYear }
                                             }).exec()

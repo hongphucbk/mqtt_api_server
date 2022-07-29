@@ -350,25 +350,30 @@ module.exports.getReportManu = async function(req, res) {
 
   
 
-    let electric = {
-      kwh_td: invoice.kwh_td,
-      kwh_bt: invoice.kwh_bt,
-      kwh_cd: invoice.kwh_cd,
-      price_td: number_format(kwh_td * invoice.unit_price_td),
-      price_bt: number_format(kwh_bt* invoice.unit_price_bt),
-      price_cd: number_format(kwh_cd * invoice.unit_price_cd),
+  let electric = {
+    kwh_td: invoice.kwh_td,
+    kwh_bt: invoice.kwh_bt,
+    kwh_cd: invoice.kwh_cd,
+    price_td: number_format(kwh_td * invoice.unit_price_td),
+    price_bt: number_format(kwh_bt* invoice.unit_price_bt),
+    price_cd: number_format(kwh_cd * invoice.unit_price_cd),
 
-      total_kwh: invoice.total_kwh,
-      total_price_before: number_format(total_price_before),
-      total_kwh: number_format(total_kwh),
+    total_kwh: invoice.total_kwh,
+    total_price_before: number_format(total_price_before),
+    total_kwh: number_format(total_kwh),
 
-      discount: number_format(invoice.price_discount.toFixed(0)),
-      total_price_discounted: number_format(invoice.price_after_discount.toFixed(0)),
-      vat: number_format(invoice.price_vat.toFixed(0)),
-      total_price_vated: number_format(invoice.price_after_vat.toFixed(0)),
+    discount: number_format(invoice.price_discount.toFixed(0)),
+    total_price_discounted: number_format(invoice.price_after_discount.toFixed(0)),
+    vat: number_format(invoice.price_vat.toFixed(0)),
+    total_price_vated: number_format(invoice.price_after_vat.toFixed(0)),
 
-      read_number: rvn.readNumber(config, number1),
-    }
+    read_number: rvn.readNumber(config, number1),
+  }
+
+  //---------------------------------------------------------------------------------------
+  // Index
+
+  let index_station = await IndexStation.findOne({_id: site_id}).sort({ timestamp: -1})
 
 	console.log('Hello menu')
 	// Read HTML Template
@@ -443,6 +448,7 @@ module.exports.getReportManu = async function(req, res) {
       arr_device: arr_device,
       station: station,
       electric: electric,
+      index: index,
 	    users: users,
 	    logo: logo,
       start: start.format('DD/MM/yyyy'),

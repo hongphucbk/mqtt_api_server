@@ -84,6 +84,7 @@ const WhStation3PriceSchema = mongoose.Schema({
     },
     kwh_3:{
         type: Number,
+        default: 0,
     },
 
     infors: {
