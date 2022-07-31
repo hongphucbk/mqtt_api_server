@@ -28,21 +28,26 @@ const stationSchema = mongoose.Schema({
     },
     discount: {
         type: Number,
+        default: 0,
     },
     vat: {
         type: Number,
+        default: 0,
     },
     kwh_init: {
         type: Number,
+        default: 0,
     },
     kwh_sum: {
         type: Number,
     },
     price_init: {
         type: Number,
+        default: 0,
     },
     price_sum: {
         type: Number,
+        default: 0,
     },
     currency: {
         type: String,

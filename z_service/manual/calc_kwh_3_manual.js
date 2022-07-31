@@ -33,8 +33,8 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('01-07-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
-  let end =  moment('29-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('21-07-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
+  let end =  moment('30-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
 
   setInterval(async function() {
@@ -57,7 +57,7 @@ async function StoredWhDeviceData3(date){
   //console.log(date)
   //try{
     //let start = moment(start1).startOf('days')
-    let station = "6237b1c479f5fbbe6a6086a5"; //
+    let station = "62c6e706d5b1b9149d447679"; //
     let strDate = moment(date).format('DD-MM-YYYY') + " "
     let hours = [
       {code: 1, name: 'BT', description: '4h00->9h30',  min: strDate +'04:00:00', max: strDate +'09:30:00' },

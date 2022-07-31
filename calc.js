@@ -502,7 +502,7 @@ StoredWDeviceJob.start();
 
 async function CalcLoadWStation(){
   try{
-  let start_condtion = moment().subtract(10,'minutes')
+  let start_condtion = moment().subtract(15,'minutes')
   let a = await StationData.findOneAndUpdate({is_update: null},{is_update: 0}).exec()
 
   let station_data = await StationData.findOne({is_update: 0, timestamp: { $lte: start_condtion}}).exec(); // {is_update: { $ne: null }}
@@ -561,7 +561,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(30000)); // 1 minutes
+}, parseInt(10000)); // 1 minutes
 
 
 //-----------------------------
@@ -628,8 +628,3 @@ async function getLoadW(station, date){
   }
   return data;
 }
-
-//StoredLoadWStationData()
-//StoredWDeviceData()
-
-//StoredStationData()

@@ -34,8 +34,8 @@ const WhStation3Price = require('../../models/WhStation3Price')
 manu()
 
 function manu(argument) {
-  let start = moment('27-07-2022 07:00:00', "DD-MM-YYYY hh:mm:ss");
-  let end = moment('27-07-2022 13:00:00', "DD-MM-YYYY hh:mm:ss");
+  let start = moment('31-07-2022 05:00:00', "DD-MM-YYYY hh:mm:ss");
+  let end = moment('31-07-2022 13:00:00', "DD-MM-YYYY hh:mm:ss");
 
   fnc(start, end)
   

@@ -799,7 +799,6 @@ router.get('/site/events/:id', auth, async(req, res) => {
   }
 })
 
-
 router.delete('/site', auth, role(['SA']), async(req, res) => {
   try{
     let site_id = req.query.id;
