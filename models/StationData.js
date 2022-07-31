@@ -36,6 +36,10 @@ const stationDataSchema = mongoose.Schema({
         type: Number,
         default: 0,
     },
+    is_recalc: {
+        type: Number,
+        default: 0,
+    },
     infor: {
         type: Object,
     },

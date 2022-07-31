@@ -436,18 +436,18 @@ router.get('/site/trend', auth, async(req, res) => {
       if (start < today) {
         let w_devices = await WDeviceData.find({station: id, timestamp: start});
         var arrs = Array(288).fill(0).map((e,i)=>0)
-        let arrs2 = Array(288).fill(0).map((e,i)=>0)
         for (let i = 0; i < w_devices.length; i++) {
           const w_device = w_devices[i];
           
-          w_device.watts.map(async function (e, idx){
-            arrs2[idx] = e + arrs[idx];
-            return
+          await w_device.watts.map(async function (e, idx){
+            arrs[idx] = e + arrs[idx];
+            
           })
+          console.log(arrs)
         }
         
         //
-        data = arrs2
+        data = arrs
         
       }else{
         device_datas = await DeviceData.find({ device: { $in: ids}, 
@@ -522,19 +522,19 @@ router.get('/site/trend', auth, async(req, res) => {
         data.splice(0, 1);
         console.log(data)
 
-        let _whs1 = await WhStation3Price.find({  station: id,
-                                                timestamp: { $gte : StartMonth, $lte : EndMonth }
-                                              })
-        for (let j = 1; j <= EndMonth.date(); j++) {
-          data[j] = 0
-          _whs1.map(await function(item){
-            if (moment(item.timestamp).date() == j && item.total_kwh > 0) {
-              data[j] += item.total_kwh
-            }
-          })
-          console.log(j, data[j] )
-        }        
-        console.log(data)                              
+        // let _whs1 = await WhStation3Price.find({  station: id,
+        //                                         timestamp: { $gte : StartMonth, $lte : EndMonth }
+        //                                       })
+        // for (let j = 1; j <= EndMonth.date(); j++) {
+        //   data[j] = 0
+        //   _whs1.map(await function(item){
+        //     if (moment(item.timestamp).date() == j && item.total_kwh > 0) {
+        //       data[j] += item.total_kwh
+        //     }
+        //   })
+        //   console.log(j, data[j] )
+        // }        
+        // console.log(data)                              
 
       } else {
         // date <= 2021-06-30
