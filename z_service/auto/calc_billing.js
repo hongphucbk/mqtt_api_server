@@ -380,7 +380,7 @@ async function calc_invoice_send_mail(date){
 
 //========================================
 
-//calc_billing(moment())
+calc_billing(moment())
 
 //calc_invoice_send_mail(moment())
 
