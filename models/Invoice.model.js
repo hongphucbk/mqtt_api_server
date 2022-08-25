@@ -166,7 +166,15 @@ const InvoiceSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    
+    email_to: {
+        type: Array,
+    },
+    email_cc: {
+        type: Array,
+    },
+    email_bcc: {
+        type: Array,
+    },
     station_name: {
         type: String,
         trim: true,
@@ -181,6 +189,9 @@ const InvoiceSchema = mongoose.Schema({
     is_active: {
         type: Number,
         default: 1,
+    },
+    file_name: {
+        type: String,
     },
     //device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
     station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },

@@ -26,7 +26,8 @@ const StationData = require('../../models/StationData')
 const LoadWStationData = require('../../models/LoadWStationData')
 const LoadWhStationData = require('../../models/LoadWhStationData')
 const WhDeviceData3 = require('../../models/WhDeviceData3')
-const WhStation3Price = require('../../models/WhStation3Price')
+const WhStation3Price = require('../../models/WhStation3Price');
+const StationDataRaw = require('../../models/StationDataRaw');
 
 
 // Tính lại giá trị w khi is_update = 0
@@ -34,7 +35,7 @@ StoredLoadWStationData()
 //-----------------------------
 async function StoredLoadWStationData(){
   try{
-    let start = moment('2022-05-23 18:07:23').subtract(2, 'hours').startOf('days')
+    let start = moment('2022-07-29 18:07:23').subtract(2, 'hours').startOf('days')
 
     let stations = await Station.find({is_active: 1});
     for (let j = 0; j < stations.length; j++) {
@@ -55,6 +56,7 @@ async function StoredLoadWStationData(){
         new: true,
         upsert: true  // Make this update into an upsert
       });
+      console.log(doc)
     }
   }catch(error){
     console.log(error.message)
@@ -68,7 +70,7 @@ async function getLoadW(station, date){
 
   let data = []
 
-  hisStations = await StationData.find({  station: station, 
+  hisStations = await StationDataRaw.find({  station: station, 
                                       timestamp: {$gte: start, $lte: end } 
                                   })      
   for (let j = 0; j < 288; j++) {

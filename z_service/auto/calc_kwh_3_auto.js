@@ -1,15 +1,16 @@
 require('dotenv').config();
 require('express-group-routes');
-var moment = require('moment'); // require
+var moment = require('moment');
 
 var bodyParser = require('body-parser')
 
 const express = require('express')
-
 //-------------------------------------------------------------------
 var mongoose = require('mongoose');
-//mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true});
-mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+mongoose.connect(process.env.MONGO_URL, 
+  {useNewUrlParser: true, 
+    useUnifiedTopology: true, 
+    useFindAndModify: false});
 
 const User = require('../../models/User')
 const Station = require('../../models/Station')
@@ -18,7 +19,6 @@ const role = require('../../middlewares/role')
 const Device = require('../../models/Device')
 const DeviceData = require('../../models/DeviceData')
 const HistoryDeviceData = require('../../models/HistoryDeviceData')
-const HistoryDeviceRawData = require('../../models/HistoryDeviceRawData')
 const HistoryStationData = require('../../models/HistoryStationData')
 const WhDeviceData = require('../../models/WhDeviceData')
 const WDeviceData = require('../../models/WDeviceData')
@@ -27,22 +27,41 @@ const StationData = require('../../models/StationData')
 const LoadWStationData = require('../../models/LoadWStationData')
 const LoadWhStationData = require('../../models/LoadWhStationData')
 const WhDeviceData3 = require('../../models/WhDeviceData3')
-const WhStation3Price = require('../../models/WhStation3Price')
+const WhStation3Price = require('../../models/WhStation3Price');
+const delay = require('delay');
+const HistoryDeviceRawData = require('../../models/HistoryDeviceRawData')
 
-manu()
+//calc_kwh_sum()
 
-function manu(argument) {
+// Tính tổng kwh (3 khung giờ) theo cho tất cả station
+
+//index()
+// Update vào bảng stations
+async function index(){
+  //console.log(new Date())
+  let stations = await Station.find({is_active: 1})
+  let start = moment().subtract(20, 'hours').startOf('days')
+  
+  for (var i = 0; i < stations.length; i++) {
+    let station = stations[i]
+    console.log('====>', start, moment(), station.name )
+    await StoredWhDeviceData3(station, start)
+    await delay(5000)
+  }
+}
+
+function auto(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('10-08-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
-  let end =  moment('25-08-2022 17:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('26-07-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
+  let end =  moment('23-08-2022 17:59:59',"DD-MM-YYYY hh:mm:ss")
 
-  let station = "62c6e706d5b1b9149d447679"; //
+
 
   setInterval(async function() {
     
     console.log('------> ', date);
     if(date <= end){
-      await StoredWhDeviceData3(station, date)
+      
       console.log('-> done: ->', date);
       date = date.add(1, 'days')
     }
@@ -52,12 +71,11 @@ function manu(argument) {
   
 }
 
-
 async function StoredWhDeviceData3(station, date){
   //console.log(date)
   //try{
     //let start = moment(start1).startOf('days')
-    
+    //let station = "6299b165d5b1b9149d44744c"; //
     let strDate = moment(date).format('DD-MM-YYYY') + " "
     let hours = [
       {code: 1, name: 'BT', description: '4h00->9h30',  min: strDate +'04:00:00', max: strDate +'09:30:00' },
@@ -121,7 +139,7 @@ async function StoredWhDeviceData3(station, date){
           dt.kwh = 0
         }
 
-        console.log(dt.timestamp, dt.device_name, dt.type_number, dt.kwh_min, dt.kwh_max, dt.kwh)
+        //console.log(dt.timestamp, dt.device_name, dt.type_number, dt.kwh_min, dt.kwh_max, dt.kwh)
 
         const filter = {timestamp: dt.timestamp, device: devices[j]._id, type_number: hours[i].code};
         const update = dt;
@@ -138,45 +156,6 @@ async function StoredWhDeviceData3(station, date){
   // }catch(error){
   //   console.log(error.message)
   // }
-}
-
-async function getkWhNotUse(device, start1, end1){
-  let start = moment(start1, "DD-MM-YYYY hh:mm:ss")
-  let end = moment(end1, "DD-MM-YYYY hh:mm:ss")
-
-  //console.log(start, end)
-  //let data = []
-
-  hisStations = await HistoryDeviceData.find({  device: device, 
-                                                timestamp: {$gte: start, $lte: end } 
-                                            })      
-  let TotalWh = 0
-  let minWh = 9000000000
-  let maxWh = 0
-  let minAt
-  let maxAt
-  hisStations.map(await function(item){
-      let strWh = item.paras.WH
-      //console.log(item)
-      
-      let WH = parseInt(strWh)
-      if (WH > 0) {
-        if (WH <= minWh) {
-          minAt = item.timestamp
-        }
-        if (WH >= maxWh) {
-          maxAt = item.timestamp
-        }
-
-        minWh = WH <= minWh ? WH : minWh
-        maxWh = WH >= maxWh ? WH : maxWh
-        
-      }
-    })
-  TotalWh = maxWh > minWh ?  maxWh - minWh : 0
-  
-  
-  return {wh: TotalWh/1000, min: minWh, minAt: minAt, max: maxWh, maxAt: maxAt }   
 }
 
 async function getPoint(hours_arrs, now){
@@ -230,7 +209,6 @@ async function getPoint(hours_arrs, now){
     
   })
 
-
   let d = {
     current_start : moment(point.min,  "DD-MM-YYYY hh:mm:ss"),
     current_end : moment(point.max,  "DD-MM-YYYY hh:mm:ss"),
@@ -238,11 +216,7 @@ async function getPoint(hours_arrs, now){
     pre_end: pre_end,
     infor: point,
   }
-  //console.log(point.code, '--> ', d)
   return  d;
-
-  
-  
 }
 
 async function getkWhMax(device, start, end){
@@ -304,3 +278,5 @@ async function getkWhMin(device, start, end){
 
   return {min: minWh, minAt: minAt } 
 }
+
+module.exports = { index }

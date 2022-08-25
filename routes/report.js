@@ -23,11 +23,34 @@ const apiLimiter = rateLimit({
   message: err.E41001
 });
 
-router.get('/report/manual', apiLimiter, controller.getReportManual);
+const apiLimiter1s = rateLimit({
+  windowMs: 1 * 1000, // 10s
+  max: 1,
+  message: err.E41001
+});
+
+//router.get('/report/manual', apiLimiter, controller.getReportManual);
+
+router.get('/report/list', auth, controller.getList);
+
 
 router.post('/download-excel', controller.postDownloadExcel);
 
+// 2022-08-09: Get invoice download
+router.get('/invoice/download/:invoice_id', apiLimiter1s, controller.getInvoiceDownload);
+// 2022-08-10: Get report download manual
+router.get('/report/download/auto/:auto_email_id', controller.getReportAutoDownload);
+router.get('/report/download/manual/:manual_email_id', controller.getReportManualDownload);
 
+router.get('/report/manual', auth ,apiLimiter, controller.getReportManualNew);
+
+
+
+
+//===========================
+// Use for manual process
+//New 2022-04-20: Use to export invoice by Manual
+router.get('/report/manual/:number', apiLimiter, controller.getReportManu);
 router.get('/report', async (req, res) => {
   let before3d = moment().subtract(3, 'days');
 
@@ -234,12 +257,6 @@ router.get('/report', async (req, res) => {
   res.attachment('Report.xlsx'); // This is sails.js specific (in general you need to set headers)
   return res.send(report);
 })
-
-//New 2022-04-20
-router.get('/report/manual/:number', apiLimiter, controller.getReportManu);
-
-
-
 
 
 

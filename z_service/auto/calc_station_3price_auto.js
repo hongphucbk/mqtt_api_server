@@ -27,37 +27,52 @@ const LoadWStationData = require('../../models/LoadWStationData')
 const LoadWhStationData = require('../../models/LoadWhStationData')
 const WhDeviceData3 = require('../../models/WhDeviceData3')
 const WhStation3Price = require('../../models/WhStation3Price')
-
+const delay = require('delay');
+const HistoryDeviceRawData = require('../../models/HistoryDeviceRawData')
 const CONST_MIN = 999999999999;
 
 //StoredStationDataManual()
 
-manu()
+//manu()
 
-function manu(argument) {
-  //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('24-08-2022',"DD-MM-YYYY")
-  let end =  moment('25-08-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+// function manu(argument) {
+//   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
+//   let date = moment('26-07-2022',"DD-MM-YYYY")
+//   let end =  moment('23-08-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
 
-  let station_id = "62c6e706d5b1b9149d447679";
+//   setInterval(async function() {
+//     if(date <= end){
+//       console.log('---> ', date);
 
-  setInterval(async function() {
-    if(date <= end){
-      console.log('---> ', date);
+//       await StoredWhStation3Price(date)
+//       console.log('-> done: --->', date);
+//       date = date.add(1, 'days')
+//     }
+//   }, 40000);
 
-      await StoredWhStation3Price(station_id, date)
-      console.log('-> done: --->', date);
-      date = date.add(1, 'days')
-    }
-  }, 40000);
+// }
 
+//index()
+// Update vào bảng stations
+async function index(){
+  //console.log(new Date())
+  let stations = await Station.find({is_active: 1})
+  let start = moment().subtract(20, 'hours').startOf('days')
+  
+  for (var i = 0; i < stations.length; i++) {
+    let station = stations[i]
+    console.log('====>', start, moment(), station.name )
+    await StoredWhStation3Price(station._id, start)
+    await delay(10000)
+  }
 }
 
 
-async function StoredWhStation3Price(station_id ,date){
-  console.log(date)
+async function StoredWhStation3Price(station_id, date){
+  //console.log(date)
   try{
     //let start = moment(start1).startOf('days')
+    //let station_id = "6299b165d5b1b9149d44744c";
     let strDate = moment(date).format('DD-MM-YYYY') + " "
     
     //let devices = await Device.find({is_active: 1, station: station});
@@ -169,3 +184,5 @@ async function get_kwh(device_id, date){
     
   return Math.floor( (max - min)/1000 )
 }
+
+module.exports = { index }

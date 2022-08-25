@@ -1,5 +1,10 @@
 require('dotenv').config();
 var moment = require('moment'); // require
+const axios = require('axios');
+const delay = require('delay');
+var fs = require("fs");
+var path = require("path");
+
 //-------------------------------------------------------------------
 var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true});
@@ -23,35 +28,13 @@ const WhStation3Price = require('../../models/WhStation3Price')
 const BillingSchedule = require('../../models/BillingSchedule');
 const Invoice = require('../../models/Invoice.model');
 const IndexStation = require('../../models/IndexStation');
+const AutoEmail = require('../../models/AutoEmail');
 //const Customer = require('../../models/Customer.model');
+const mailer = require('../../mailer/mailer')
 
 
-//manu()
-
-// function manu(argument) {
-//   let date = moment('17-06-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
-//   let end =  moment('10-07-2022 00:59:59',"DD-MM-YYYY hh:mm:ss")
-
-
-//   setInterval(async function() {
-    
-//     console.log('------> ', date);
-//     if(date <= end){
-//       await StoredPrice3PlantAuto(date)
-//       console.log('-> done: ->', date);
-//       date = date.add(1, 'days')
-//     }
-
-    
-//   }, 10000);
-
-  
-// }
-
-calc_billing(moment())
 
 //=======================================================
-//module.exports.calc_billing = async function(date){
 async function calc_billing(date){
   try{
     let billings = await BillingSchedule.find({is_active: 1})
@@ -61,6 +44,8 @@ async function calc_billing(date){
       return
     }
     for (var i = 0; i < billings.length; i++) {
+      await delay(2000);
+
       let bill = billings[i]       
       if(bill.run_day == "Last"){
         bill.run_day = moment().endOf("month").date()
@@ -113,6 +98,8 @@ async function calc_billing(date){
           kwh_td += price.kwh_td
           kwh_cd += price.kwh_cd
           total_kwh += price.total_kwh
+
+          console.log(j, price.kwh_bt + price.kwh_diff)
         }
 
         let price_bt = kwh_bt * station.unit_price_bt
@@ -187,6 +174,11 @@ async function calc_billing(date){
           old_kwh_bt_index: old_kwh_bt_index,
           old_kwh_cd_index: old_kwh_cd_index,
 
+          file_name: bill.code + '_' + moment().startOf('day').format('YYYY_MM_DD'),
+
+          email_cc: bill.email_cc,
+          email_bcc: bill.email_bcc,
+          email_to: bill.email_to,
           // customer_name : customer.name,
           // customer_code : customer.code,
           // customer_address : customer.address,
@@ -217,9 +209,18 @@ async function calc_billing(date){
           timestamp: moment().startOf('day')
         }
 
-        let rs = await Invoice.findOneAndUpdate(filter, update,  {upsert: true})
-        
-        console.log(update)
+        let rs = await Invoice.findOneAndUpdate(filter, update,  {upsert: true, new: true})
+        console.log(rs)
+        // Stored pdf
+        const res1 = await axios.get(`http://127.0.0.1:5001/invoice/download/${rs._id}`,{
+          // site_id: site_id,
+          // date_start: date_start,
+          // date_end : date_end,
+        });
+        await delay(200);
+
+
+        //console.log(update)
       }
     }
       
@@ -227,7 +228,6 @@ async function calc_billing(date){
     console.log(error)
   }
 }
-
 
 //=======================================================
 // my function
@@ -319,4 +319,73 @@ async function getkWhMin(device_code, start, end){
 
   return {min: minWh, minAt: minAt } 
 }
+
+//===================================================
+
+async function calc_invoice_send_mail(date){
+  try{
+    let strDate = moment(date).startOf('day')
+    let invoices = await Invoice.find({timestamp: strDate})
+
+    if (invoices.length < 1) {
+      return
+    }
+    for (var i = 0; i < invoices.length; i++) {
+      let invoice = invoices[i] 
+      
+      let users = await AutoEmail.find({is_active: 1, type: 'invoice', station: invoice.station})
+
+      console.log(invoice._id)
+      
+      let from = 'NTV'
+      let to = invoice.email_to
+      let cc = invoice.email_cc
+      let bcc = invoice.email_bcc
+      let subject = 'NTV-THÔNG BÁO HÓA ĐƠN'
+      let body =  `
+        Chào quý khách ${invoice.station_name}, <br>
+        NTV New Energy gửi quý khách hóa đơn ${invoice.name} 
+        từ ngày ${moment(invoice.start_date).format('YYYY-MM-DD')} 
+        đến ngày ${moment(invoice.end_date).format('YYYY-MM-DD') }
+        
+        <br>Đính kèm là hoá đơn trong kỳ
+        <br>
+        <br>NTV New Energy.`
+
+      let attachments = [
+          {
+              'filename': invoice.file_name,
+              'path':  path.join(__dirname, `../../exports/invoices/${invoice.file_name}.pdf`),
+              'contentType': 'application/pdf'
+          },
+          // {
+          //     'filename': 'a.xlsx',
+          //     'path':  path.join(__dirname, '../exports/a.xlsx'),
+          //     'contentType': 'application/pdf'
+          // }
+      ]        
+      await mailer.sendMail(from, to, subject, body, attachments, cc, bcc)
+      // Quá trình gửi email thành công thì gửi về thông báo success cho người dùng
+      return ('<h3>Your email has been sent successfully.</h3>')
+      
+    
+    }
+      
+  }catch(error){
+    console.log(error)
+  }
+}
+
+//========================================
+
+//========================================
+
+//calc_billing(moment())
+
+//calc_invoice_send_mail(moment())
+
+
+
+module.exports = { calc_billing, calc_invoice_send_mail }
+
   

@@ -192,7 +192,6 @@ async function StoredStationData(){
   }
 }
 
-
 //---------------------------------------
 // Calc Wh device data -> save
 async function StoredWhDeviceData(){
@@ -561,7 +560,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(5000)); // 1 minutes
+}, parseInt(10000)); // 1 minutes
 
 
 //-----------------------------

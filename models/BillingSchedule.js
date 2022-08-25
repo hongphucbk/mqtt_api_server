@@ -23,7 +23,15 @@ const BillingScheduleSchema = mongoose.Schema({
     infors: {
         type: Array,
     },
-    
+    email_to: {
+        type: Array,
+    },
+    email_cc: {
+        type: Array,
+    },
+    email_bcc: {
+        type: Array,
+    },
     timestamp: {
         type: Date,
     },

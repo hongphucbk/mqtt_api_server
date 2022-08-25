@@ -1,13 +1,13 @@
 const mongoose = require('mongoose')
-const validator = require('validator')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
 
-const autoEmailSchema = mongoose.Schema({
+const manualEmailSchema = mongoose.Schema({
     
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     report: {type: mongoose.Schema.Types.ObjectId, ref: 'Report' },
+    type: {
+        type: String,       //  Report/Invoice
+    },
     
     send_date: {
         type: String,
@@ -20,7 +20,6 @@ const autoEmailSchema = mongoose.Schema({
     run_day: {
         type: String,
     },
-    
 
     email_to: {
         type: String,
@@ -43,7 +42,7 @@ const autoEmailSchema = mongoose.Schema({
     },
     range: {
         type: Number,
-        default: 7,
+        //default: 7,
     },
 
     updated_at: {
@@ -56,6 +55,6 @@ const autoEmailSchema = mongoose.Schema({
 })
 
 
-const AutoEmail = mongoose.model('AutoEmail', autoEmailSchema,'auto_emails')
+const ManualEmail = mongoose.model('ManualEmail', manualEmailSchema,'manual_emails')
 
-module.exports = AutoEmail
+module.exports = ManualEmail
