@@ -473,7 +473,7 @@ module.exports.getReportManu = async function(req, res) {
 };
 
 //==========================================================
-// Get invoice report manual
+// Get invoice report download
 module.exports.getInvoiceDownload = async function(req, res) {
 	try{
     let invoice_id = req.params.invoice_id
@@ -559,7 +559,8 @@ module.exports.getInvoiceDownload = async function(req, res) {
         end: moment(invoice.end_date).format('DD/MM/yyyy')
         
       },
-      path: `./exports/invoices/${invoice.file_name}.pdf`,  //-${invoice.name}-${moment().format("hhmmss")}
+      //path: `./exports/invoices/${invoice.file_name}.pdf`,  //-${invoice.name}-${moment().format("hhmmss")}
+      path: path.join(__dirname, `./exports/invoices/${invoice.file_name}.pdf`),
       type: "",
     };
 
@@ -571,6 +572,7 @@ module.exports.getInvoiceDownload = async function(req, res) {
       .catch((error) => {
         console.error(error);
       });
+	  console.log(document.path)
       res.send('successed')
       return 
   }catch(e){
