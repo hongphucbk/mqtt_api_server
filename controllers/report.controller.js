@@ -560,7 +560,7 @@ module.exports.getInvoiceDownload = async function(req, res) {
         
       },
       //path: `./exports/invoices/${invoice.file_name}.pdf`,  //-${invoice.name}-${moment().format("hhmmss")}
-      path: path.join(__dirname, `./exports/invoices/${invoice.file_name}.pdf`),
+      path: path.join(__dirname, `../exports/invoices/${invoice.file_name}.pdf`),
       type: "",
     };
 
@@ -572,7 +572,7 @@ module.exports.getInvoiceDownload = async function(req, res) {
       .catch((error) => {
         console.error(error);
       });
-	  console.log(document.path)
+	  //console.log(document.path)
       res.send('successed')
       return 
   }catch(e){
