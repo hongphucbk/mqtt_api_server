@@ -572,7 +572,7 @@ module.exports.getInvoiceDownload = async function(req, res) {
       .catch((error) => {
         console.error(error);
       });
-	  //console.log(document.path)
+	    console.log(document.path)
       res.send('successed')
       return 
   }catch(e){
