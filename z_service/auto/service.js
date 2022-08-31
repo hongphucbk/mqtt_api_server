@@ -27,7 +27,7 @@ var jobCalc0h40 = new CronJob('40 0 * * *', async function() {
   
 }, null, true, 'Asia/Ho_Chi_Minh');
 
-var jobCalc0h45 = new CronJob('45 0 * * *', async function() {
+var jobCalc0h45 = new CronJob('45 1 * * *', async function() {
   await calc_billing.calc_invoice_send_mail(moment()) // Tính price_sum
 
 }, null, true, 'Asia/Ho_Chi_Minh');
