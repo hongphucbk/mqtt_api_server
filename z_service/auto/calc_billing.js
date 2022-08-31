@@ -56,7 +56,7 @@ async function calc_billing(date){
         let start_day           = bill.start_day
         let start_day_premonth  = bill.start_day_premonth
         if(bill.start_day == "Last"){
-          bill.start_day = moment().endOf("month").date()
+          bill.start_day = moment().endOf("months").date()
         }
         let start_date = moment().set({'date': bill.start_day}).startOf('day');
         if(start_day_premonth){
@@ -67,12 +67,12 @@ async function calc_billing(date){
         let end_day           = bill.end_day
         let end_day_premonth  = bill.end_day_premonth
         if(bill.end_day == "Last"){
-          bill.end_day = moment().endOf("month").date()
+          bill.end_day = moment().endOf('months').date()
         }
 
         let end_date = moment().set({'date': bill.end_day}).startOf('day');
         if(end_day_premonth){
-          end_date = end_date.subtract(1, 'months')
+          end_date = end_date.startOf('month').subtract(1, 'days')
         }
       
 
@@ -114,7 +114,9 @@ async function calc_billing(date){
         let price_vat = Math.round(price_after_discount * station.vat / 100)
         let price_after_vat = price_after_discount + price_vat //     Math.round(price_after_discount * (100 + station.vat) /100);
 
-        let index_station = await IndexStation.findOne({station: bill.station, timestamp: {$lt: moment().startOf('day') }}).sort({created_at: -1})
+        let index_station = await IndexStation.findOne({station: bill.station, timestamp: {$lt: moment().startOf('day') }}).sort({timestamp: -1})
+
+        console.log(index_station)
 
         let kwh_td_index, old_kwh_td_index
         let kwh_cd_index
