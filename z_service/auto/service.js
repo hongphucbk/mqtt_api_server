@@ -10,13 +10,18 @@ var calc_station_3price_auto = require('./calc_station_3price_auto')
 
 var calc_station_load_w = require('./calc_station_load_w')
 var calc_billing = require('./calc_billing')
+var check_status = require('./check_status')
+
 
 var jobCalc0h30 = new CronJob('30 0 * * *', async function() {
-  await calc_kwh_3_auto.index                // Tính lại kwh_3
+  let start = moment().subtract(22, 'hours').startOf('days')
+  await calc_kwh_3_auto.index(start)                // Tính lại kwh_3
 }, null, true, 'Asia/Ho_Chi_Minh');
 
 var jobCalc0h40 = new CronJob('40 0 * * *', async function() {
-  await calc_station_3price_auto.index()
+  let start = moment().subtract(22, 'hours').startOf('days')
+
+  await calc_station_3price_auto.index(start)
   await calc_price_sum.calc_price_sum() // Tính price_sum
 }, null, true, 'Asia/Ho_Chi_Minh');
 
@@ -35,7 +40,9 @@ var jobCalc1h30 = new CronJob('30 1 * * *', async function() {
 //================================================================
   // Every
   var jobCalcEvery10 = new CronJob('*/10 * * * *', async function() {
-    await calc_load_kwh_station.calc_load_kwh_station() // Tính load_kwh_station
+    await calc_load_kwh_station.calc_load_kwh_station()
+    await check_status.station_status()
+    await check_status.device_status()
   }, null, true, 'Asia/Ho_Chi_Minh');
 
   //Every 1h
@@ -43,6 +50,13 @@ var jobCalc1h30 = new CronJob('30 1 * * *', async function() {
     await calc_station_load_w.index()     //Update again load_w for station
 
   }, null, true, 'Asia/Ho_Chi_Minh');
+
+  //Every 30s
+  var jobCalcEvery30s = new CronJob('*/20 * * * * *', async function() {
+    await calc_station_load_w.CalcLoadWStation()  
+
+  }, null, true, 'Asia/Ho_Chi_Minh');
+  
 //================================================================
 
 jobCalc0h30.start()
@@ -53,4 +67,3 @@ jobCalc1h30.start()
 jobCalcEvery10.start()
 jobCalcEvery1h.start()
 
-calc_station_3price_auto.index()

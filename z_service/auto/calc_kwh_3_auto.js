@@ -37,10 +37,10 @@ const HistoryDeviceRawData = require('../../models/HistoryDeviceRawData')
 
 //index()
 // Update vào bảng stations
-async function index(){
+async function index(start){
   //console.log(new Date())
   let stations = await Station.find({is_active: 1})
-  let start = moment().subtract(22, 'hours').startOf('days')
+  //let start = moment().subtract(22, 'hours').startOf('days')
   
   for (var i = 0; i < stations.length; i++) {
     let station = stations[i]
