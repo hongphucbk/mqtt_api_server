@@ -500,12 +500,31 @@ router.get('/site/trend', auth, async(req, res) => {
 
     }else if (basedTime === 'month' && type === 'energy') {
       var date1 = moment("2021-06-30")
+      var date2 = moment("2022-09-01")
       var now = moment(req.query.date);
 
       let StartMonth = moment(req.query.date).startOf('month');
       let EndMonth = moment(req.query.date).endOf('month');
       
-      if (now > date1) {
+      if (now > date2){
+        let _whs1 = await WhStation3Price.find({  station: id,
+                                                timestamp: { $gte : StartMonth, $lte : EndMonth }
+                                              })
+        for (let j = 1; j <= EndMonth.date(); j++) {
+          data[j] = 0
+          _whs1.map(await function(item){
+            if (moment(item.timestamp).date() == j && item.total_kwh > 0) {
+              data[j] += item.total_kwh * 1000
+            }
+          })
+          //console.log(j, data[j] )
+        }        
+        //console.log(data)                              
+
+        data.splice(0, 1);
+        console.log(data)
+      }
+      else if (now > date1) {
         // date >= 2021-07-01
         let _whs = await WhDeviceData.find({  station: id,
                                               timestamp: { $gte : StartMonth, $lte : EndMonth }
@@ -520,21 +539,8 @@ router.get('/site/trend', auth, async(req, res) => {
           })
         }
         data.splice(0, 1);
-        // console.log(data)
+        console.log(data)
 
-        // let _whs1 = await WhStation3Price.find({  station: id,
-        //                                         timestamp: { $gte : StartMonth, $lte : EndMonth }
-        //                                       })
-        // for (let j = 1; j <= EndMonth.date(); j++) {
-        //   data[j] = 0
-        //   _whs1.map(await function(item){
-        //     if (moment(item.timestamp).date() == j && item.total_kwh > 0) {
-        //       data[j] += item.total_kwh
-        //     }
-        //   })
-        //   console.log(j, data[j] )
-        // }        
-        // console.log(data)                              
 
       } else {
         // date <= 2021-06-30

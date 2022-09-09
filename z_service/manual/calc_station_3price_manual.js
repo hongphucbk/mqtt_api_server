@@ -36,10 +36,10 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('25-07-2022',"DD-MM-YYYY")
-  let end =  moment('27-07-2022 22:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('01-09-2022',"DD-MM-YYYY")
+  let end =  moment('08-09-2022 22:59:59',"DD-MM-YYYY hh:mm:ss")
 
-  let station_id = "6299b165d5b1b9149d44744c";
+  let station_id = "6237b1c479f5fbbe6a6086a5";
 
   setInterval(async function() {
     if(date <= end){
