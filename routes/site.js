@@ -510,7 +510,7 @@ router.get('/site/trend', auth, async(req, res) => {
         let _whs = await WhDeviceData.find({  station: id,
                                               timestamp: { $gte : StartMonth, $lte : EndMonth }
                                             })
-                            .exec()
+                                      .exec()
         for (let j = 1; j <= EndMonth.date(); j++) {
           data[j] = 0
           _whs.map(await function(item){
@@ -520,21 +520,21 @@ router.get('/site/trend', auth, async(req, res) => {
           })
         }
         data.splice(0, 1);
-        console.log(data)
+        // console.log(data)
 
-        let _whs1 = await WhStation3Price.find({  station: id,
-                                                timestamp: { $gte : StartMonth, $lte : EndMonth }
-                                              })
-        for (let j = 1; j <= EndMonth.date(); j++) {
-          data[j] = 0
-          _whs1.map(await function(item){
-            if (moment(item.timestamp).date() == j && item.total_kwh > 0) {
-              data[j] += item.total_kwh
-            }
-          })
-          console.log(j, data[j] )
-        }        
-        console.log(data)                              
+        // let _whs1 = await WhStation3Price.find({  station: id,
+        //                                         timestamp: { $gte : StartMonth, $lte : EndMonth }
+        //                                       })
+        // for (let j = 1; j <= EndMonth.date(); j++) {
+        //   data[j] = 0
+        //   _whs1.map(await function(item){
+        //     if (moment(item.timestamp).date() == j && item.total_kwh > 0) {
+        //       data[j] += item.total_kwh
+        //     }
+        //   })
+        //   console.log(j, data[j] )
+        // }        
+        // console.log(data)                              
 
       } else {
         // date <= 2021-06-30

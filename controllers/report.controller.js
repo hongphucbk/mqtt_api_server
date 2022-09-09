@@ -66,7 +66,7 @@ module.exports.getReportManual = async function(req, res) {
 		let StartDate = moment(date_start).startOf('days');
     let EndDate 	= moment(date_end).endOf('days');
     let DateLengh = EndDate.diff(StartDate, 'days');
-    if (DateLengh > 60) {
+    if (DateLengh > 90) {
     	res.send(err.E41000)
     }
 
@@ -695,7 +695,7 @@ module.exports.getReportManualNew = async function(req, res) {
 		let StartDate = moment(date_start).startOf('days');
     let EndDate 	= moment(date_end).endOf('days');
     let DateLengh = EndDate.diff(StartDate, 'days');
-    if (DateLengh > 60) {
+    if (DateLengh > 90) {
     	res.send(err.E41000)
     }
 
