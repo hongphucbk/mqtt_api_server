@@ -67,3 +67,4 @@ jobCalc1h30.start()
 jobCalcEvery10.start()
 jobCalcEvery1h.start()
 
+calc_billing.calc_billing(moment())

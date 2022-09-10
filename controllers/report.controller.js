@@ -1078,11 +1078,11 @@ async function Report_REPORT_03(site_id, date_start, date_end, report_code, type
     console.log('===============================> ', date, StartDate)
     console.log(device._id, device.name)
     console.log('------------------------')
-    for (let j = 1; j <= DateLengh; j++) {
+    for (let j = 1; j <= DateLengh + 1; j++) {
        let rs = await GetWhStation31(date, device._id)
        console.log(rs)
        dt.push(rs)
-      await delay(20)
+      await delay(10)
       date = date.add(1, 'days')
       
        

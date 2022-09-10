@@ -346,6 +346,7 @@ router.get('/site/devices', auth, async(req, res) => {
         name : devices[i].name,
         //code: devices[i].code,
         //describe : devices[i].describe,
+        
         status : devices[i].is_active == 1 ? devices[i].status : "offline",
         curActPower: 0,   //power
         todayEnergy: 0    //kwh - powerGenerated
@@ -578,20 +579,36 @@ router.get('/site/trend', auth, async(req, res) => {
     }else if (basedTime === 'year' && type === 'energy') {
       let StartYear = moment(req.query.date).startOf('year');
       let EndYear = moment(req.query.date).endOf('year');
-      
-      let _whs = await WhDeviceData.find({  station: id,
-                                                timestamp: { $gte : StartYear, $lte : EndYear }
-                                            }).exec()
-      for (let j = 0; j <= 11; j++) {
-        
+      var now = moment(req.query.date);
+      var date2 = moment("2022-09-01")
+      if(now >= date2 ){
+        let _whs = await WhDeviceData.find({  station: id,
+                                          timestamp: { $gte : StartYear, $lte : EndYear }
+                                      }).exec()
+        for (let j = 0; j <= 11; j++) {
           let _total = 0
           _whs.map(await function(item){
             if (moment(item.timestamp).month() == j && item.wh > 0) {
-              _total += item.wh
+            _total += item.wh
             }
           })
           data[j] = _total
+        }
+      }else{
+        let _whs = await WhDeviceData.find({  station: id,
+                                          timestamp: { $gte : StartYear, $lte : EndYear }
+                                      }).exec()
+        for (let j = 0; j <= 11; j++) {
+          let _total = 0
+          _whs.map(await function(item){
+            if (moment(item.timestamp).month() == j && item.wh > 0) {
+            _total += item.wh
+            }
+          })
+          data[j] = _total
+        }
       }
+      
       //console.log(a)
       //let startDate = req.query.date + " " + j  + ":00:00";
       //let endDate = req.query.date + " " + j + ":59:59";
