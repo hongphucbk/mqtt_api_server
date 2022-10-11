@@ -33,10 +33,10 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('07-09-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
-  let end =  moment('10-09-2022 13:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('08-09-2022 00:00:00',"DD-MM-YYYY hh:mm:ss")
+  let end =  moment('30-09-2022 13:59:59',"DD-MM-YYYY hh:mm:ss")
 
-  let station = "62c6e706d5b1b9149d447679"; //
+  let station = "6237b1c479f5fbbe6a6086a5"; //
 
   setInterval(async function() {
     

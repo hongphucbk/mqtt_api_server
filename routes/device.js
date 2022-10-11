@@ -99,20 +99,13 @@ router.get('/devices', auth, async(req, res) => {
     // “curActPower”: <power_value>,
     // “todayEnergy”: <energy_value>},
 
-
-
     //     res.status(201).send({result: 1, data: devices })
     // }
     // catch (error) {
     //     res.status(400).send({result: 0,error})
     // }
-    
-
-    
-
     //res.send(station.devices)
 })
-
 
 router.get('/station/show/:id', auth, async(req, res) => {
     let id = req.params.id;

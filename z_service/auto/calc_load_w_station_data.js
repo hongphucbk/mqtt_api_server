@@ -36,58 +36,11 @@ const Report = require('../../models/Report');
 station_status()
 device_status()
 //=======================================================
-async function station_status(){
-  try{
-    let stations = await Station.find({is_active: 1})
-    //let start = moment().subtract(22, 'hours').startOf('days')
-    
-    for (var i = 0; i < stations.length; i++) {
-      let station = stations[i]
-      let rs = await DeviceData.findOne({device: {"$in": station.devices}}).sort({timestamp: -1})
-      if((rs??0) && rs?.timestamp > moment().subtract(60, 'minutes')){
-        //console.log('====>', rs.timestamp, moment(), station.name, "ONLINE" )
-        let rs1 = await Station.findByIdAndUpdate(station._id, {status: "normal"})
-
-      }else{
-        //console.log('====>', moment(), station.name, " --->OFFLINE" )
-        let rs1 = await Station.findByIdAndUpdate(station._id, {status: "offline"})
-      }
-
-      await delay(1000)
-    }
-      
-  }catch(error){
-    console.log(error)
-  }
-}
-
-async function device_status(){
-  try{
-    let devices = await Device.find({is_active: 1})
-    //let start = moment().subtract(22, 'hours').startOf('days')
-    
-    for (var i = 0; i < devices.length; i++) {
-      let device = devices[i]
-
-      if(device.updated_at > moment().subtract(60, 'minutes')){
-        
-        let rs1 = await Device.findByIdAndUpdate(device._id, {status: "normal"})
-      }else{
-        let rs1 = await Device.findByIdAndUpdate(device._id, {status: "offline"})  //fault
-        //console.log("Device: ", device.updated_at, moment().subtract(60, 'minutes'))
-      }
-
-      await delay(500)
-    }
-      
-  }catch(error){
-    console.log(error)
-  }
-}
 
 
 
 
-module.exports = { station_status, device_status }
+
+
 
   
