@@ -78,7 +78,7 @@ async function calc_billing(date){
 
         //console.log(bill)
 
-        start_date = moment('27-09-2022 00:00:00', "DD-MM-YYYY hh:mm:ss");
+        //start_date = moment('27-09-2022 00:00:00', "DD-MM-YYYY hh:mm:ss");
 
         console.log('start date ' + start_date.format('YYYY-MM-DD HH:mm:ss'))
         console.log('end   date ' + end_date.format('YYYY-MM-DD HH:mm:ss'))
