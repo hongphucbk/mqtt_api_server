@@ -16,7 +16,7 @@ const DeviceData = require('../../models/DeviceData')
 
 // 2022-07-31
 // Update is_update = 0 to recalc load_w for station
-module.exports.index = async function(){
+async function index(){
   let start = moment().subtract(1, 'hours')
   let end = moment()
 
@@ -87,7 +87,7 @@ async function CalcLoadWStation(){
   }
 }
 
-module.exports = { CalcLoadWStation }
+module.exports = { CalcLoadWStation, index }
 
 
 
