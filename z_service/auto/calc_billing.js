@@ -77,6 +77,9 @@ async function calc_billing(date){
       
 
         //console.log(bill)
+
+        start_date = moment('27-09-2022 00:00:00', "DD-MM-YYYY hh:mm:ss");
+
         console.log('start date ' + start_date.format('YYYY-MM-DD HH:mm:ss'))
         console.log('end   date ' + end_date.format('YYYY-MM-DD HH:mm:ss'))
 
@@ -142,7 +145,7 @@ async function calc_billing(date){
 
         let update = {
           billing_code: bill.code,
-          name: bill.name + " "+ start_date.format("MM-YYYY"),
+          name: bill.name + " "+ end_date.format("MM-YYYY"),
           start_date: start_date,
           end_date: end_date,
           total_kwh :total_kwh,
@@ -368,7 +371,7 @@ async function calc_invoice_send_mail(date){
       ]        
       await mailer.sendMail(from, to, subject, body, attachments, cc, bcc)
       // Quá trình gửi email thành công thì gửi về thông báo success cho người dùng
-      return ('<h3>Your email has been sent successfully.</h3>')
+      //return ('<h3>Your email has been sent successfully.</h3>')
       
     
     }
