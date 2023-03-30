@@ -303,8 +303,8 @@ module.exports.getReportManu = async function(req, res) {
     let invoice = await Invoice.findOne({station: site_id}).sort({timestamp: -1});
     let email_to = req.query.email_to; 
     let email_cc = req.query.email_cc; 
-    let date_start = '2022-06-10' // req.query.date_start ? req.query.date_start : moment().startOf('months').format('YYYY-MM-DD')
-    let date_end = '2022-07-25' // req.query.date_end ? req.query.date_end : moment().endOf('months').format('YYYY-MM-DD')
+    let date_start = '2023-02-01' // req.query.date_start ? req.query.date_start : moment().startOf('months').format('YYYY-MM-DD')
+    let date_end = '2023-02-28' // req.query.date_end ? req.query.date_end : moment().endOf('months').format('YYYY-MM-DD')
 
     let start = moment(date_start).startOf('days');
     let end   = moment(date_end).endOf('days');

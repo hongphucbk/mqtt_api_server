@@ -71,11 +71,11 @@ var jobCalc19h40 = new CronJob('40 19 * * *', async function() {
 }, null, true, 'Asia/Ho_Chi_Minh');
 
 // Job Call billing
-var jobCalc19h50 = new CronJob('50 20 * * *', async function() {
+var jobCalc19h50 = new CronJob('00 20 * * *', async function() {
   await calc_billing.calc_billing(moment()) //  
 }, null, true, 'Asia/Ho_Chi_Minh');
 
-var jobCalc20h00 = new CronJob('30 21 * * *', async function() {
+var jobCalc20h00 = new CronJob('30 20 * * *', async function() {
   await calc_billing.calc_invoice_send_mail(moment())
 
 }, null, true, 'Asia/Ho_Chi_Minh');
