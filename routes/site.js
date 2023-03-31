@@ -85,6 +85,7 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
 
 router.get('/site/list', auth, async(req, res) => {
   try{
+    console.log("Hello")
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
     
@@ -173,14 +174,16 @@ router.get('/site/list', auth, async(req, res) => {
           let WH = deviceData[0].paras.filter(function(item){
             return item.name == 'WH'
           })
-          jsonStation.product += parseInt(WH[0].value)
+          if(WH[0]?.value){
+            jsonStation.product += parseInt(WH[0]?.value)
+          }
 
 
           let nameplateWatts = deviceData[0].paras.filter(function(item){
             return item.name == 'nameplateWatts' //WattsMax
           })
 
-          let workingHour = parseFloat(WH[0].value)/parseFloat(devices[i].nameplateWatts)
+          let workingHour = parseFloat(WH[0]?.value)/parseFloat(devices[i].nameplateWatts)
           jsonStation.workingHours += workingHour
           jsonStation.workingHours.toFixed(3)
         }
@@ -203,6 +206,7 @@ router.get('/site/list', auth, async(req, res) => {
       res.send({sites: stationData})
     }
   }catch(error){
+    console.log(error)
     res.send({...E40001, message: error.message})
   }
 })
