@@ -36,10 +36,10 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('08-09-2022',"DD-MM-YYYY")
-  let end =  moment('30-09-2022 22:59:59',"DD-MM-YYYY hh:mm:ss")
+  let date = moment('14-08-2023',"DD-MM-YYYY")
+  let end =  moment('18-08-2023 22:59:59',"DD-MM-YYYY hh:mm:ss")
 
-  let station_id = "6237b1c479f5fbbe6a6086a5";
+  let station_id = "630035ce511cb094223a23b1";
 
   setInterval(async function() {
     if(date <= end){
@@ -49,7 +49,7 @@ function manu(argument) {
       console.log('-> done: --->', date);
       date = date.add(1, 'days')
     }
-  }, 40000);
+  }, 30000);
 
 }
 

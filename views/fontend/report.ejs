@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>RP | REPORT</title>
+
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <!-- Popper JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gojs/2.1.2/go.js"></script>
+
+  <link rel="stylesheet" href="/fontend/style/style.css">
+  <style type="text/css">
+  	td{
+  		padding: 4px !important;
+  		font-size: 20px !important;
+  	}
+  </style>
+</head>
+
+<body>
+  <div id="wrapper" class="container-fluid">
+    <div style="text-align: center;font-size: 30px;">
+      NTV REPORT
+    </div>
+
+    <form method="post" action="/report/manual/w">
+      <div class="form-row">
+        
+        <div class="col-md-4 mb-3">
+          <label>Station</label>
+          <select class="form-control" name="site_id" readonly>
+            <% stations.forEach(function(station) { %>
+                <option value="<%= station._id %>"><%= station.name %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="col-md-4 mb-3 col-sm-6">
+          <label>From</label>
+          <input type="date" class="form-control" name="date_start" placeholder=""
+            value="" required>
+        </div>
+    
+        <div class="col-md-4 mb-3 col-sm-6">
+          <label>To</label>
+          <input type="date" class="form-control" name="date_end" placeholder=""
+            value="" >
+        </div>
+
+        
+       </div>
+        
+      <div class="form-row">
+        <div class="col-md-12 mb-3 col-sm-6">
+        <br>
+          <button class="btn btn-success" type="submit">Get report </button>
+        </div>
+      </div>
+     
+    </form>
+    <!-- Footer -->
+  </div>
+
+
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+
+  
+  
+	<script type="text/javascript">
+	  $.ajax({
+	    url: '/api/parameter',
+	    method: 'post',
+	    data: {"station_id": station_obj_id}
+	    }).done(function(res) {
+	      if (true) {
+	        console.log(res);
+	        parameters = res;
+	      } else {
+	          console.log('error...ajax');
+	      }
+	  });
+	</script>
+
+	
+
+</body>
+
+</html>

@@ -14,6 +14,8 @@ const rateLimit = require("express-rate-limit");
 
 const router = express.Router()
 var controller = require('../controllers/report.controller');
+var controller_web = require('../controllers/report_web.controller');
+
 //var validate = require('../validate/station.validate');
 
 
@@ -44,6 +46,11 @@ router.get('/report/download/manual/:manual_email_id', controller.getReportManua
 
 router.get('/report/manual', auth ,apiLimiter, controller.getReportManualNew);
 
+
+//router.get('/report/manual/pl' ,apiLimiter, controller_web.getReportManualNew);
+
+router.get('/report/manual/w', controller_web.getReport);
+router.post('/report/manual/w', controller_web.postReport);
 
 
 

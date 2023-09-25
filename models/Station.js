@@ -53,13 +53,15 @@ const stationSchema = mongoose.Schema({
         type: String,
         //required: false,
     },
-    is_active: {
-        type: Number,
-    },
+    
     status: {
         type: String,
         //required: false,
     },
+    is_report: {
+        type: Number,
+    },
+    
     devices: [{type: mongoose.Schema.Types.ObjectId, ref: 'Device'}],
     users: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
     // password: {

@@ -1248,7 +1248,7 @@ async function GetWhStation31(date, device_id){
         let sum_bt = 0;
         let sum_cd = 0;
         
-        let min = 999999999
+        let min = 999999999999
         let max = 0
 
         await data.forEach(e => {
@@ -1268,6 +1268,7 @@ async function GetWhStation31(date, device_id){
             sum_cd += e.kwh
           }
         })
+
         
         //console.log(moment(date).format('DD-MM-YYYY'),",", min, ",", max)
         let dts = {
