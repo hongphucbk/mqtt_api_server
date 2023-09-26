@@ -61,6 +61,9 @@ const stationSchema = mongoose.Schema({
     is_report: {
         type: Number,
     },
+    is_active: {
+        type: Number,
+    },
     
     devices: [{type: mongoose.Schema.Types.ObjectId, ref: 'Device'}],
     users: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
