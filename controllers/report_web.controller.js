@@ -47,7 +47,7 @@ module.exports.getReport = async function(req, res) {
 };
 
 module.exports.postReport = async function(req, res) {
-	//try{
+	try{
 		let site_id = req.body.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
 		let date_end = req.body.date_end ? req.body.date_end : moment().endOf('days').format('YYYY-MM-DD')
 		let date_start = req.body.date_start ? req.body.date_start : moment(date_end).subtract(30, 'day').format('YYYY-MM-DD')
@@ -211,12 +211,12 @@ module.exports.postReport = async function(req, res) {
 	  
 		  wb.write('RP_' + site.name + ' From ' + date_start + ' To ' + date_end + '.xlsx', res); // moment().format('YYYYMMDD_Hmmss')
       return "OK"
-    //return
-	// }catch(e){
-  //   console.log(e.message)
-	// 	res.send(e)
-  //   return
-	// }
+    return
+	}catch(e){
+    console.log(e.message)
+		res.send(e)
+    return
+	}
 };
 
 
