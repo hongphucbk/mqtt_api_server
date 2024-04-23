@@ -31,7 +31,7 @@ manu()
 
 function manu(argument) {
   //let start1 = moment('02-12-2021 10:00:00', "DD-MM-YYYY hh:mm:ss");
-  let date = moment('14-04-2022',"DD-MM-YYYY")
+  let date = moment('19-04-2024',"DD-MM-YYYY")
 
   setInterval(function() {
     date = date.add(1, 'days')
@@ -48,7 +48,7 @@ async function StoredWhStation3Price(date){
   console.log(date)
   try{
     //let start = moment(start1).startOf('days')
-    let station_id = "6237b1c479f5fbbe6a6086a5";
+    let station_id = "66136822cb8a798bae774269";
     let strDate = moment(date).format('DD-MM-YYYY') + " "
     
     //let devices = await Device.find({is_active: 1, station: station});

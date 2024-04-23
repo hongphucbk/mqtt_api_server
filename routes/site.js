@@ -85,7 +85,7 @@ router.post('/site/role', auth, role(['SA']),async (req, res) => {
 
 router.get('/site/list', auth, async(req, res) => {
   try{
-    console.log("Hello")
+    //console.log("Hello")
     let limit = parseInt(req.query.limit); // perpage số lượng sản phẩm xuất hiện trên 1 page
     let nextPageToken = parseInt(req.query.nextPageToken) || 1; 
     
@@ -183,7 +183,9 @@ router.get('/site/list', auth, async(req, res) => {
             return item.name == 'nameplateWatts' //WattsMax
           })
 
-          let workingHour = parseFloat(WH[0]?.value)/parseFloat(devices[i].nameplateWatts)
+          let kwh_init = devices[i].kwh_init ? devices[i].kwh_init : 0
+          let workingHour = (parseFloat(WH[0]?.value) -  kwh_init )/parseFloat(devices[i].nameplateWatts)
+          //console.log(WH[0]?.value, kwh_init, workingHour)
           jsonStation.workingHours += workingHour
           jsonStation.workingHours.toFixed(3)
         }
@@ -278,7 +280,10 @@ router.get('/site/overview', auth, async(req, res) => {
           return item.name == 'nameplateWatts' //WattsMax
         })
 
-        let workingHour = parseFloat(WH[0].value)/parseFloat(devices[i].nameplateWatts)
+        let kwh_init = devices[i].kwh_init ? devices[i].kwh_init : 0
+        let workingHour = (parseFloat(WH[0]?.value) -  kwh_init )/parseFloat(devices[i].nameplateWatts)
+
+        // let workingHour = parseFloat(WH[0].value)/parseFloat(devices[i].nameplateWatts)
         d.workingHours += workingHour
         d.workingHours.toFixed(3)
       }

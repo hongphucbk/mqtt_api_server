@@ -40,6 +40,11 @@ const deviceSchema = mongoose.Schema({
     deviceAddress: {
         type: Number,
     },
+
+    kwh_init: {
+        type: Number,
+        default: 0,
+    },
     nameplateWatts: {
         type: Number,
     },
