@@ -165,6 +165,8 @@ router.get('/site/list', auth, async(req, res) => {
         }
           
         let deviceData = await DeviceData.find({device: devices[i]._id}).sort({_id: -1}).limit(1)
+
+        //console.log(deviceData);
         
         if(deviceData[0]){
           let Watts = deviceData[0].paras.filter(function(item){

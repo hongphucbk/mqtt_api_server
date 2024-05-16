@@ -82,9 +82,9 @@ app.use(eventRouter)
 app.use(reportRouter)
 app.use(emailRouter)
 
-//var authRouter = require('./routes/auth.route');
-//var stationRouter = require('./routes/station.route');
-//var datainforRouter = require('./routes/datainfor.route');
+var authRouter = require('./routes/auth.route');
+var reportWebRouter = require('./routes/report.route');
+var fontendRouter = require('./routes/fontend.route');
 //-------------------------------------------------------------------
 
 // app.get('/', function(req, res) {
@@ -99,12 +99,15 @@ app.use(emailRouter)
 // app.use('/', fontendRouter);
 // app.use('/email', emailRouter);
 
-app.group("/admin", (router) => {
-  //router.use('/users', userRouter);
+app.group("/member", (router) => {
+  router.use('/auth', authRouter);
+  router.use('/report', reportWebRouter);
   //router.use('/station', stationRouter);
   //router.use('/datainfor', datainforRouter);
   //router.get("/users", loginController.store); // /api/v1/login 
 });
+
+app.use('/', fontendRouter);
 
 //app.use('*', fontendRouter);
 //-------------------------------------------------------------------

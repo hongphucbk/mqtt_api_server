@@ -1,14 +1,54 @@
-var User = require('../models/user.model')
+var User = require('../models/User')
+const err = require('../common/err')
 
 module.exports.login = function(req, res) {
 	res.render('admin/auth/login')
 };
 
-module.exports.postLogin = function(req, res) {
+module.exports.postLogin = async function(req, res) {
 	var email = req.body.email;
 	var password = req.body.password;
 	console.log(email)
-	User.findOne({email: email}).then(function(user){
+
+	try {
+        const user = await User.findByCredentials(email, password)
+        
+        if (user && user.code == 1) { //user
+          return res.status(401).send(err.E40020)
+        }
+
+        if (user && user.code == 2) { //password
+          return res.status(401).send(err.E40021)
+        }
+
+        if (!user) {
+            return res.status(401).send({error: 'Login failed! Check authentication credentials'})
+        }
+        const token = await user.generateAuthToken()
+
+        //console.log(token)
+        user.tokens = user.tokens.filter((tk) => {
+            return tk.token == token
+        })
+        await user.save()
+		res.cookie('userId', user.id);
+
+		res.redirect('/member/report');
+		return
+        //console.log('-->', user.tokens)
+
+        let jsonUser = {
+          _id: user._id,
+          name : user.name,
+          email : user.email,
+          role : user.role.toUpperCase()
+        }
+        res.send({ 'user': jsonUser, token })
+    } catch (error) {
+      res.status(400).send(err.E40001)
+    }
+
+	User.findOne({email: email}).then(async function(user){
 		console.log('user: ' + user)
 		if (!user) {
 			res.render('auth/login',{
@@ -19,7 +59,9 @@ module.exports.postLogin = function(req, res) {
 			return;
 		}
 
-		if (user.password !==  password) {
+		const isPasswordMatch = bcrypt.compare(user.password, password)
+
+		if (!isPasswordMatch) {
 			res.render('auth/login',{
 				errors: [
 					'Wrong password.'
@@ -69,7 +111,19 @@ module.exports.apiPostLogin = function(req, res) {
 
 };
 
+module.exports.logout = function(req, res) {
+	
 
+	if (req.cookies.userId) {
+		res.clearCookie("userId");
+		//res.end();
+		res.redirect('/');
+		return;
+	}
+
+	
+	res.render('admin/auth/login')
+};
 
 module.exports.add = function(req, res) {
 	User.find().then(function(users){

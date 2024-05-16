@@ -16,6 +16,7 @@ router.post('/apiPostLogin', controller.apiPostLogin);
 
 // router.get('/delete/:id', controller.getDelete);
 
+router.get('/logout', controller.logout);
 
 // router.get('/', function(req, res) {
 // 	res.render('users/list');

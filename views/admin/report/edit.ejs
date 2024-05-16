@@ -1,0 +1,71 @@
+<% layout('../layout/index') %>
+
+<div class="panel-heading">
+	Station Edit: <%= station.name %>
+	<span style="float: right;"><a href="admin/station">Home</a></span>
+</div>
+<div class="panel-body">
+
+<form method="post" action="/admin/station/edit/<%= station.id %>">
+  <div class="form-row">
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Name</label>
+      <input type="text" class="form-control" name="name" placeholder="Name..."
+        value="<%= station.name %>">
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Description</label>
+      <input type="text" class="form-control" name="description" placeholder="Description..."
+        value="<%= station.description %>" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label>Address</label>
+      <input type="text" class="form-control" name="address" placeholder="Address..."
+        value="<%= station.address %>">
+    </div>
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Information</label>
+      <input type="text" class="form-control" name="information" placeholder="Information..."
+        value="<%= station.information %>">
+    </div>
+    <div class="col-md-3 mb-3 col-sm-6">
+      <label>Type</label>
+      <input type="text" class="form-control" name="type" placeholder="station_2_1..."
+        value="<%= station.type %>">
+    </div>
+    <div class="col-md-3 mb-3 col-sm-6">
+      <label>Is Main Station</label>
+      <input type="text" class="form-control" name="is_main" placeholder="Main station?"
+        value="<%= station.is_main %>">
+    </div>
+    <div class="col-md-2 mb-3 col-sm-6">
+      <label>Active</label>
+      <select class="form-control" name="active">
+        <option value="1">1</option>
+        <option value="0">0</option>
+      </select>
+    </div>
+
+    <div class="col-md-2 mb-3 col-sm-6">
+      <label>Priority</label>
+      <input type="text" class="form-control" name="priority" placeholder="Priority..."
+        value="<%= station.priority %>">
+    </div>
+
+    <div class="col-md-4 mb-3 col-sm-6">
+      <label>Note</label>
+      <input type="text" class="form-control" name="note" placeholder="Note..."
+        value="<%= station.note %>">
+    </div>
+   </div>
+    
+  <div class="form-row">
+    <div class="col-md-12 mb-3 col-sm-6">
+    <br>
+      <button class="btn btn-success" type="submit">Submit </button>
+    </div>
+  </div>
+ 
+</form>
+</div>
+
