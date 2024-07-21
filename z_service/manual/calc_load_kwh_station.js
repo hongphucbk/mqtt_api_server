@@ -29,12 +29,14 @@ const WhStation3Price = require('../../models/WhStation3Price')
 // Update vào bảng load_wh_station_data
 // Hàng ngày
 
-module.exports.calc_load_kwh_station = async function(){
+async function calc_load_kwh_station(){
   try{
     let start = moment().subtract(10, 'minutes').startOf('days')
     let end = moment().subtract(10, 'minutes').endOf('days')
 
-    let stations = await Station.find({is_active: 1});
+    let stations = await Station.find({is_active: 1, _id: "66613b6549e92b482c543cf9"});
+
+    
     for (let j = 0; j < stations.length; j++) {
       let jsStation = {
         station: stations[j]._id,
@@ -57,6 +59,7 @@ module.exports.calc_load_kwh_station = async function(){
           return it.name.toUpperCase() == 'KWH'
         })
         let WH = parseInt(strWh[0].value)
+        //console.log(WH, moment(item.timestamp))
         if (WH > 100) {
           // if (WH < minWh) {
           //   console.log("-->", minWh, strWh, WH, item.timestamp)
@@ -68,9 +71,12 @@ module.exports.calc_load_kwh_station = async function(){
           }
           if (WH > maxWh) {
             maxAt = new Date()
-            console.log(maxAt)
+            
           }
+
+
         }
+      console.log(WH, minWh, maxWh, maxAt)
       })
 
       TotalWh = maxWh > minWh ?  maxWh - minWh : 0
@@ -122,4 +128,5 @@ async function getTotalkWhStation(station, start) {
   return sum;
 }
 
+calc_load_kwh_station()
 

@@ -663,7 +663,7 @@ router.get('/site/load/trend', auth, async(req, res) => {
           sum = 0, count = 0, avg = 0
           let start1 = moment(start).startOf('minute')
           let end1 = moment(start).add(5, 'minutes').startOf('minute')
-          //console.log(start1, end1)
+          
           let a1 = hisStations.map(x => {
             if (x.timestamp <= end1 && x.timestamp >= start1) {
               sum +=  x.load_w
@@ -677,6 +677,8 @@ router.get('/site/load/trend', auth, async(req, res) => {
             }
             return avg
           })
+
+          console.log(start1, end1, avg)
 
           if (start1 > moment().subtract(10, 'minutes')) {
             avg = undefined
