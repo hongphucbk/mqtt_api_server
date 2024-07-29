@@ -57,7 +57,7 @@ module.exports.calc_load_kwh_station = async function(){
           return it.name.toUpperCase() == 'KWH'
         })
         let WH = parseInt(strWh[0].value)
-        if (WH > 100) {
+        if (WH > 1000) {
           // if (WH < minWh) {
           //   console.log("-->", minWh, strWh, WH, item.timestamp)
           // }
