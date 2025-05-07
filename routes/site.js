@@ -311,7 +311,11 @@ router.get('/site/overview', auth, async(req, res) => {
     let consum = await LoadWhStationData.findOne({station: id}).sort({ timestamp: -1 }).limit(1)
     d.comsumeEnergy = consum.load_kwh
 
+    console.log(d)
+
     let station_price = await WhStation3Price.findOne({ station: id, timestamp: moment().startOf('day')})
+    console.log(station_price)
+
     d.kwh_td = station_price.kwh_td
     d.kwh_bt = station_price.kwh_bt + station_price.kwh_diff
     d.kwh_cd = station_price.kwh_cd
@@ -329,7 +333,7 @@ router.get('/site/overview', auth, async(req, res) => {
     
     res.send({site: d})
   }catch(error){
-    res.send({error: error.message})
+    res.send({error: error.message, description: error})
   }
 })
 

@@ -102,34 +102,63 @@ client.on("connect", ack => {
   });
 });
 
-setInterval(async function(){
-  //console.log(_queue.getSize())
-  //console.log('Station: ' + _queue_station.getSize())
-  try{
-    if(_queue.getSize() > 0){
-      let data =  _queue.dequeue()
-      //console.log(a)
+// setInterval(async function(){
+//   console.log(_queue.getSize())
+//   //console.log('Station: ' + _queue_station.getSize())
+//   try{
+//     if(_queue.getSize() > 0){
+//       let data =  _queue.dequeue()
+//       //console.log(a)
    
-      //console.log('start: ' + new Date())
-      await DeviceData.insertMany(data)
-      await HistoryDeviceRawData.insertMany(data)
-      await Device.findOneAndUpdate({_id: data.device}, {updated_at: new Date()}, function(){})
-      //console.log('stop: ' + new Date())
+//       //console.log('start: ' + new Date())
+//       await DeviceData.insertMany(data)
+//       await HistoryDeviceRawData.insertMany(data)
+//       await Device.findOneAndUpdate({_id: data.device}, {updated_at: new Date()}, function(){})
+//       //console.log('stop: ' + new Date())
    
-     }
+//      }
    
-     if(_queue_station.getSize() > 0){
-       let ds =  _queue_station.dequeue()
-       //console.log(a)
-       await StationData.insertMany(ds)
-        await StationDataRaw.insertMany(ds)
-      }
+//      if(_queue_station.getSize() > 0){
+//        let ds =  _queue_station.dequeue()
+//        //console.log(a)
+//        await StationData.insertMany(ds)
+//         await StationDataRaw.insertMany(ds)
+//       }
     
-  } catch {
+//   } catch {
 
-  }
+//   }
   
-}, 2000)
+// }, 2000)
+
+async function processQueues() {
+  try {
+    //console.log(_queue.getSize())
+    if (_queue.getSize() > 0) {
+      let data = _queue.dequeue();
+      if (data) {
+        await DeviceData.insertMany(data);
+        await HistoryDeviceRawData.insertMany(data);
+        await Device.findOneAndUpdate({ _id: data.device }, { updated_at: new Date() });
+      }
+    }
+
+    if (_queue_station.getSize() > 0) {
+      let ds = _queue_station.dequeue();
+      if (ds) {
+        await StationData.insertMany(ds);
+        await StationDataRaw.insertMany(ds);
+      }
+    }
+  } catch (err) {
+    console.error('Queue processing error:', err);
+  } finally {
+    setTimeout(processQueues, 3000);
+  }
+}
+
+processQueues(); // Start
+
 
 
 async function processEvent(data, str_topic){
