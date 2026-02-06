@@ -224,6 +224,8 @@ module.exports.postReport = async function(req, res) {
 	}
 };
 
+
+
 function convertViToEn(str, toUpperCase = false) {
   str = str.toLowerCase();
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -239,6 +241,9 @@ function convertViToEn(str, toUpperCase = false) {
 
   return toUpperCase ? str.toUpperCase() : str;
 }
+
+
+
 
 
 //==========================================================
@@ -412,7 +417,6 @@ module.exports.getReportManualNew = async function(req, res) {
     return
 	}
 };
-
 
 //-- Version 2
 module.exports.getReport2 = async function(req, res) {
@@ -599,3 +603,246 @@ module.exports.postReport2 = async function(req, res) {
     return
 	}
 };
+
+module.exports.getReportDetail = async function(req, res) {
+	let stations = await Station.find({is_report: 1});
+	user = res.user
+	console.log(user.stations)
+	res.render('admin/report/detail', {
+		stations: stations,
+		user : user,
+	})
+};
+
+module.exports.postReportDetail = async function(req, res) {
+	try{
+    let site_id = req.body.site_id; //'607c7e23ba23121608c8fc69' //req.query.site_id
+		let date_end = req.body.date_end ? req.body.date_end : moment().endOf('days').format('YYYY-MM-DD')
+		let date_start = req.body.date_start ? req.body.date_start : moment(date_end).subtract(30, 'day').format('YYYY-MM-DD')
+    let report_id = req.body.report_id
+		
+    let StartDate = moment(date_start).startOf('days');
+    let EndDate 	= moment(date_end).endOf('days');
+
+    console.log(StartDate, EndDate)
+  
+    let DateLengh = EndDate.diff(StartDate, 'days');
+    
+    let site = await Station.findOne({_id: site_id})
+    //--------------------
+    let devices = await Device.find({station: site_id, is_active: 1})
+    console.log(devices)
+    let dt = []
+    let date
+
+    for (let i = 0; i < devices.length; i++) {
+      const device = devices[i];
+      date = moment(date_start).startOf('days')
+      //moment('29-07-2022 23:59:59',"DD-MM-YYYY hh:mm:ss")
+      console.log('===============================> ', date, StartDate)
+      console.log(device._id, device.name)
+      console.log('------------------------')
+      for (let j = 1; j <= DateLengh + 1; j++) {
+        let rs = await GetWhStation31(date, device._id, device.name)
+        console.log(rs)
+        dt.push(rs)
+        await delay(10)
+        date = date.add(1, 'days')
+      }
+      await delay(500)
+    }
+  
+    //--------------------
+    var wb = new xl.Workbook();
+    var ws = wb.addWorksheet('Sheet 1');
+    ws.addImage({
+      path: './public/img/ntv.png',
+      type: 'picture',
+      position: {
+        type: 'twoCellAnchor',
+        from: {
+        col: 1,
+        colOff: 0,
+        row: 1,
+        rowOff: 0,
+        },
+        to: {
+        col: 3,
+        colOff: '0.5in',
+        row: 5,
+        rowOff: 0,
+        },
+  
+      },
+  
+    });
+  
+    // Create a reusable style
+    var style = wb.createStyle({
+    font: {
+      color: '#000000',
+      size: 13,
+    },
+    });
+
+    var HeaderStyle = wb.createStyle({
+    font: {
+      color: '#022154',
+      size: 13,
+      name: 'Arial',
+    },
+    alignment: {
+      wrapText: true,
+      horizontal: 'left',
+    },
+    });
+  
+    ws.column(3).setWidth(16);
+    ws.column(4).setWidth(18);
+    ws.column(5).setWidth(15);
+  
+    //Title---------------------
+    // Set value of cell A7.
+      ws.cell(1, 4).string('CÔNG TY TNHH TM NTV')
+      .style({font: {
+        color: '#022154',
+        size: 16,
+        name: 'Arial'
+      }})
+  
+      // Set value of cell B7.
+      ws.cell(2, 4).string('BÁO CÁO NĂNG LƯỢNG THEO THIẾT BỊ')
+      .style({
+        font: {
+          color: '#060b9c',
+          size: 14,
+          name: 'Arial'
+        },
+        });
+  
+      // Set value of cell B7.
+      ws.cell(3, 4).string('Từ ngày:').style(HeaderStyle)
+      ws.cell(4, 4).string('Đến ngày:').style(HeaderStyle)
+      ws.cell(5, 4).string('Trạm:').style(HeaderStyle)
+      //Header---------------------
+        let header_row = 7
+        // Set value of cell A7.
+        ws.cell(header_row, 1).string('STT').style(HeaderStyle);
+        ws.cell(header_row, 2).string('Tên device').style(HeaderStyle)
+        ws.cell(header_row, 3).string('Ngày').style(HeaderStyle)
+        ws.cell(header_row, 4).string('Min (Wh)').style(HeaderStyle)  
+        ws.cell(header_row, 5).string('Max (Wh)').style(HeaderStyle) 
+        ws.cell(header_row, 6).string('Max - Min (Wh)').style(HeaderStyle) 
+        ws.cell(header_row, 7).string('-').style(HeaderStyle) 
+      
+      //Fill to report
+      // Fill from date.
+        ws.cell(3, 5)
+        .string(moment(date_start).startOf('days')
+                                  .format('DD-MM-YYYY'))
+        .style(HeaderStyle)
+  
+        // Set value of cell B7.
+        ws.cell(4, 5)
+        .string(moment(date_end).startOf('days')
+                                .format('DD-MM-YYYY'))
+        .style(HeaderStyle)
+  
+        // Set value of cell B7.
+        ws.cell(5, 5, 5, 10, true)
+        .string(site.name)
+        .style(HeaderStyle)
+        .style({font : {
+          color: '#0a9103',
+          bold: true,
+  
+        }})
+
+        
+      let arrWh = new Array(500).fill(0)
+  
+      for (var k = 0; k < dt.length; k++) {
+        d = dt[k]
+        //console.log(price3)
+        let row = k + header_row + 1;
+                
+        //let localDate = moment(price3.timestamp).add(7, 'hours')
+
+        ws.cell(row, 1).number(k+1).style(style);
+        ws.cell(row, 2).string(`${d.code}`) //.style({numberFormat: 'dd-mm-yyyy'})
+        ws.cell(row, 3).string(d.date) //.style({numberFormat: 'dd-mm-yyyy'})
+        ws.cell(row, 4).number(d.min)
+          .style({style, numberFormat: '#,###; (#,###); -'});
+        ws.cell(row, 5).number(d.max)
+          .style({style, numberFormat: '#,###; (#,###); -'});
+
+        ws.cell(row, 6).number(d.max - d.min)
+          .style({style, numberFormat: '#,###; (#,###); -'});
+        ws.cell(row, 7).number(1)
+          .style({style, numberFormat: '#,###; (#,###); -'});
+        
+      }
+
+	  
+		  wb.write('RPDT_' + convertViToEn(site.name,true) + ' From ' + date_start + ' To ' + date_end + '.xlsx', res); // moment().format('YYYYMMDD_Hmmss')
+      return "OK"
+    return
+	}catch(e){
+    console.log(e)
+		res.send(e)
+    return
+	}
+};
+
+
+async function GetWhStation31(date, device_id, device_code){
+  try{
+    let strDate = moment(date).format('DD-MM-YYYY') + " "
+    let dt = {
+      timestamp : moment(strDate + '00:00:00', "DD-MM-YYYY hh:mm:ss"),
+      updated_at: new Date(),
+    }
+    
+      let data = await WhDeviceData3.find({device: device_id, timestamp: dt.timestamp});
+
+        let sum_td = 0;
+        let sum_bt = 0;
+        let sum_cd = 0;
+        
+        let min = 999999999999
+        let max = 0
+
+        await data.forEach(e => {
+          if (e.kwh_min > 0) {
+            min = e.kwh_min <= min ? e.kwh_min : min
+            max = e.kwh_max >= max ? e.kwh_max : max
+            
+          }
+
+          if (e.type_name == 'TD') {
+            sum_td += e.kwh
+          }
+          if (e.type_name == 'BT') {
+            sum_bt += e.kwh
+          }
+          if (e.type_name == 'CD') {
+            sum_cd += e.kwh
+          }
+        })
+
+        
+        //console.log(moment(date).format('DD-MM-YYYY'),",", min, ",", max)
+        let dts = {
+          name: device_id,
+          code: device_code,
+          date: moment(date).format('DD-MM-YYYY'),
+          min: min,
+          max: max
+        }
+        return dts
+        
+      
+  }catch(error){
+    console.log(error.message)
+  }
+}

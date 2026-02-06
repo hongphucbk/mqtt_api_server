@@ -19,7 +19,8 @@ var middleware = require('../middlewares/auth_web');
 router.get('/', middleware.requireAuth, controller.getReport2);
 router.post('/', middleware.requireAuth, controller.postReport2);
 
-//router.get('/', controller.list);
+router.get('/detail', middleware.requireAuth, controller.getReportDetail);
+router.post('/detail', middleware.requireAuth, controller.postReportDetail);
 
 
 module.exports = router;

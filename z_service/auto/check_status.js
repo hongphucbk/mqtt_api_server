@@ -55,7 +55,6 @@ async function station_status(){
 
       await delay(1000)
     }
-      
   }catch(error){
     console.log(error)
   }
@@ -70,16 +69,12 @@ async function device_status(){
       let device = devices[i]
 
       if(device.updated_at > moment().subtract(60, 'minutes')){
-        
         let rs1 = await Device.findByIdAndUpdate(device._id, {status: "normal"})
       }else{
         let rs1 = await Device.findByIdAndUpdate(device._id, {status: "offline"})  //fault
-        //console.log("Device: ", device.updated_at, moment().subtract(60, 'minutes'))
       }
-
       await delay(500)
     }
-      
   }catch(error){
     console.log(error)
   }

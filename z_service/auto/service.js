@@ -25,21 +25,10 @@ var jobCalc0h40 = new CronJob('40 0 * * *', async function() {
   await calc_price_sum.calc_price_sum() // Tính price_sum
 }, null, true, 'Asia/Ho_Chi_Minh');
 
-// Job Call billing
-//var jobCalc0h50 = new CronJob('50 0 * * *', async function() {
-  //await calc_billing.calc_billing(moment()) //
-  //await calc_billing.calc_invoice_send_mail(moment()) // Tính price_sum
-  
-//}, null, true, 'Asia/Ho_Chi_Minh');
-
-// var jobCalc1h30 = new CronJob('30 1 * * *', async function() {
-//   await calc_billing.calc_invoice_send_mail(moment()) // Tính price_sum
-
-// }, null, true, 'Asia/Ho_Chi_Minh');
 
 //================================================================
-  // Every
-  var jobCalcEvery10 = new CronJob('*/10 * * * *', async function() {
+  // Every 10 minutes
+  var jobCalcEvery15 = new CronJob('*/10 * * * *', async function() {
     await calc_load_kwh_station.calc_load_kwh_station()
     await check_status.station_status()
     await check_status.device_status()
@@ -89,10 +78,10 @@ jobCalcEvery10.start()
 jobCalcEvery1h.start()
 jobCalcEvery30s.start()
 
-jobCalc19h30.start()
-jobCalc19h40.start()
-jobCalc19h50.start()
-jobCalc20h00.start()
+// jobCalc19h30.start()
+// jobCalc19h40.start()
+// jobCalc19h50.start()
+// jobCalc20h00.start()
 
 
 calc_billing.calc_billing(moment())

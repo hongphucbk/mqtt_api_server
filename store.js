@@ -133,7 +133,7 @@ client.on("connect", ack => {
 
 async function processQueues() {
   try {
-    //console.log(_queue.getSize())
+    console.log(_queue.getSize())
     if (_queue.getSize() > 0) {
       let data = _queue.dequeue();
       if (data) {
