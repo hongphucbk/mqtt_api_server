@@ -642,11 +642,39 @@ module.exports.postReportDevice = async function(req, res) {
       console.log('===============================> ', date, StartDate)
       console.log(device._id, device.name)
       console.log('------------------------')
+
+      let _sum_td = 0;
+      let _sum_bt = 0;
+      let _sum_cd = 0;
+      let _sum_total = 0;
+
       for (let j = 1; j <= DateLengh + 1; j++) {
+        
         let rs = await GetWhDevice(date, device._id, device.name)
         console.log(rs)
         dt.push(rs)
+
+        _sum_td = _sum_td + rs.sum_td;
+        _sum_bt = _sum_bt + rs.sum_bt;
+        _sum_cd = _sum_cd + rs.sum_cd;
+        _sum_total = _sum_total + rs.sum_total;
+
         await delay(10)
+        if(j == DateLengh + 1){
+          let dts = {
+            name: device._id,
+            code: "TỔNG:",
+            date: "===",
+            sum_td: _sum_td,
+            sum_bt: _sum_bt,
+            sum_cd: _sum_cd,
+            sum_total: _sum_total,
+            min: 0,
+            max: 0
+          }
+          dt.push(dts)
+        }
+
         date = date.add(1, 'days')
       }
       await delay(10)
@@ -696,6 +724,18 @@ module.exports.postReportDevice = async function(req, res) {
       horizontal: 'left',
     },
     });
+
+    
+    var TotalStyle = wb.createStyle({
+      fill: {
+        type: 'pattern',
+        patternType: 'solid',
+        fgColor: '#99c291'
+      },
+      numberFormat: '#,###; (#,###); -'
+    });
+
+
   
     ws.column(3).setWidth(16);
     ws.column(4).setWidth(18);
@@ -770,17 +810,20 @@ module.exports.postReportDevice = async function(req, res) {
         let row = k + header_row + 1;
                 
         //let localDate = moment(price3.timestamp).add(7, 'hours')
+        let isTotal = d.date == '===';
+        let rowStyle = isTotal ? TotalStyle : style;
+
 
         ws.cell(row, 1).number(k+1).style(style);
-        ws.cell(row, 2).string(`${d.code}`) //.style({numberFormat: 'dd-mm-yyyy'})
-        ws.cell(row, 3).string(d.date) //.style({numberFormat: 'dd-mm-yyyy'})
+        ws.cell(row, 2).string(`${d.code}`).style(rowStyle) //.style({numberFormat: 'dd-mm-yyyy'})
+        ws.cell(row, 3).string(d.date).style(rowStyle)
         
         ws.cell(row, 4).number(d.sum_td)
-          .style({style, numberFormat: '#,###; (#,###); -'});
+          .style(rowStyle);
         ws.cell(row, 5).number(d.sum_bt)
-          .style({style, numberFormat: '#,###; (#,###); -'});
+          .style(rowStyle);
         ws.cell(row, 6).number(d.sum_cd)
-          .style({style, numberFormat: '#,###; (#,###); -'});
+          .style(rowStyle);
         
         // ws.cell(row, 4).number(d.min)
         //   .style({style, numberFormat: '#,###; (#,###); -'});
@@ -790,7 +833,7 @@ module.exports.postReportDevice = async function(req, res) {
         // ws.cell(row, 6).number(d.max - d.min)
         //   .style({style, numberFormat: '#,###; (#,###); -'});
         ws.cell(row, 7).number(d.sum_total)
-          .style({style, numberFormat: '#,###; (#,###); -'});
+          .style(rowStyle);
         
       }
 
