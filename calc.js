@@ -219,21 +219,23 @@ async function StoredWhDeviceData(){
       let minAt
       let maxAt
       infors.map(await function(item){
-        let strWh = item.paras.filter(function(it){
-          return it.name == 'WH'
-        })
-        let WH = parseInt(strWh[0].value)
-        if (WH > 0) {
-          // if (WH < minWh) {
-          //   console.log("-->", minWh, strWh, WH, item.timestamp)
-          // }
-          minWh = WH < minWh ? WH : minWh
-          maxWh = WH > maxWh ? WH : maxWh
-          if (WH < minWh) {
-            minAt = new Date()
-          }
-          if (WH > maxWh) {
-            maxAt = new Date()
+        if(item.paras.length > 5){
+          let strWh = item.paras.filter(function(it){
+            return it.name == 'WH'
+          })
+          let WH = parseInt(strWh[0].value)
+          if (WH > 0) {
+            // if (WH < minWh) {
+            //   console.log("-->", minWh, strWh, WH, item.timestamp)
+            // }
+            minWh = WH < minWh ? WH : minWh
+            maxWh = WH > maxWh ? WH : maxWh
+            if (WH < minWh) {
+              minAt = new Date()
+            }
+            if (WH > maxWh) {
+              maxAt = new Date()
+            }
           }
         }
       })
