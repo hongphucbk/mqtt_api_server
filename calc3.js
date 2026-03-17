@@ -224,10 +224,14 @@ async function StoredWhDeviceData(){
       infors.map(await function(item){
         console.log(item._id)
         if(item.paras.length > 5){
+          
+
           let strWh = item.paras.filter(function(it){
             return it.name == 'WH'
           })
-          let WH = parseInt(strWh[0].value)
+          //let WH = parseInt(strWh[0].value)
+          let WH = strWh[0] ? parseInt(strWh[0].value) : 0
+
           if (WH > 0) {
           // if (WH < minWh) {
           //   console.log("-->", minWh, strWh, WH, item.timestamp)
