@@ -288,8 +288,11 @@ async function StoredWDeviceData(){
         watts: []
       }
       
+      //console.log(devices[j].name)
       jsonDevice.watts = await getWatts(devices[j]._id, start.format('YYYY-MM-DD'))
       
+            //console.log(devices[j].name, " -> Done")
+
       const filter = {timestamp: start, device: devices[j]._id};
       const update = jsonDevice;
 
@@ -303,7 +306,7 @@ async function StoredWDeviceData(){
   }
 }
 
-async function getWatts(device, date){
+async function getWattsOld(device, date){
   let start = moment(date).startOf('day')
   let end = moment(date).endOf('day')
 
@@ -338,6 +341,49 @@ async function getWatts(device, date){
   return data;
 }
 
+
+async function getWatts(device, date){
+  let start = moment(date).startOf('day')
+  let end = moment(date).endOf('day')
+
+  let data = []
+
+  let device_datas = await DeviceData.find({
+    device: device,
+    timestamp: { $gte: start, $lte: end }
+  })
+
+  for (let j = 0; j < 288; j++) {
+    let sum = 0, count = 0, avg = 0
+
+    let start1 = moment(start)
+    let end1 = moment(start).add(5, 'minutes')
+
+    device_datas.forEach(item => {
+      if (item.timestamp <= end1 && item.timestamp >= start1) {
+        let str_w = item.paras.find(it => it.name === 'Watts')
+
+        let watts = str_w ? parseInt(str_w.value) : 0
+
+        sum += watts
+        count++
+      }
+    })
+
+    avg = count > 0 ? sum / count : 0
+
+    if (start1 > moment().subtract(10, 'minutes')) {
+      avg = undefined
+    }
+
+    data.push(avg)
+    start = end1
+  }
+
+  return data
+}
+
+// StoredWDeviceData()
 //---------------------------------------------------------------------
 
 
