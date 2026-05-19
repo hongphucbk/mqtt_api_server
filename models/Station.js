@@ -40,6 +40,7 @@ const stationSchema = mongoose.Schema({
     },
     kwh_sum: {
         type: Number,
+        default: 0,
     },
     price_init: {
         type: Number,

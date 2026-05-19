@@ -466,52 +466,54 @@ router.get('/site/trend', auth, async(req, res) => {
         data = arrs
         
       }else{
-        device_datas = await DeviceData.find({ device: { $in: ids}, 
-                                              timestamp: {$gte: start, $lte: end } 
-                                            })
-      
+        device_datas = await DeviceData.find({
+          device: { $in: ids },
+          timestamp: { $gte: start.toDate(), $lte: end.toDate() }
+        })
+
+        let data = []
+        let baseStart = moment(start).startOf('day') // giữ cố định
+
         for (let j = 0; j < 288; j++) {
-          sum = 0, count = 0, avg = 0
-          let start1 = moment(start).startOf('minute')
-          let end1 = moment(start).add(5, 'minutes').startOf('minute')
-          //console.log(start1, end1)
-          await device_datas.map(await function(item){
-            if (item.timestamp <= end1 && item.timestamp >= start1) {
-              let str_w = item.paras.filter(function(it){
-                return it.name == 'Watts'
-              })
-              //console.log(str_w[0])
-              if(!str_w[0]){
+          let sum = 0, count = 0, avg = 0
+
+          let start1 = moment(baseStart).add(j * 5, 'minutes')
+          let end1 = moment(start1).add(5, 'minutes')
+
+          device_datas.forEach(item => {
+            let ts = moment(item.timestamp)
+
+            if (ts.isSameOrAfter(start1) && ts.isBefore(end1)) {
+
+              let str_w = item.paras.find(it => it.name === 'Watts')
+
+              if (!str_w) {
                 console.log(item)
               }
 
-              let watts = str_w[0] ? parseInt(str_w[0].value) : 0
+              let watts = str_w ? parseInt(str_w.value) : 0
 
-              if(count < ids.length){
-                sum +=  watts
-              }
+              // ⚠️ nên bỏ limit này nếu muốn đúng tổng
+              sum += watts
               count++
-              // if(start1.hours() >= 10 && start1.hours() <= 11 ){
-              //   console.log(start1, item.timestamp, item.device, watts, count)
-              // }
             }
           })
 
-          
+          // nếu bạn muốn tổng → giữ như này
+          //avg = count > 0 ? sum : 0
 
-          if (count > 0) {
-            avg = sum
-          }else{
-            avg = 0
+          // nếu muốn trung bình → dùng dòng này thay
+          avg = count > 0 ? sum / count : 0
+
+          // realtime cut
+          if (start1.isAfter(moment().subtract(10, 'minutes'))) {
+            avg = null
           }
 
-          if (start1 > moment().subtract(10, 'minutes')) {
-            avg = undefined
-          }
-          //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg, sum, count)
           data.push(avg)
-          start = end1
         }
+
+        console.log(data)
       }
 
     }else if (basedTime === 'month' && type === 'energy') {

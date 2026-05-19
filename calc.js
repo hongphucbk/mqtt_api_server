@@ -273,96 +273,72 @@ async function deleteData() {
 }
 //---------------------------------------------------------------------
 
-async function StoredWDeviceData(){
-  try{
-    let start = moment().subtract(15, 'hours').startOf('days')
+async function StoredWDeviceData() {
+  try {
+    // ✅ luôn lấy ngày hôm qua
+    const start = moment().subtract(1, 'day').startOf('day')
 
-    let devices = await Device.find({is_active: 1});
-    for (let j = 0; j < devices.length; j++) {
-      let jsonDevice = {
-        device: devices[j]._id,
-        device_name : devices[j].name,
-        station: devices[j].station,
-        timestamp : start,
-        updated_at: new Date(),
-        watts: []
+    const devices = await Device.find({ is_active: 1 })
+
+    // 🚀 chạy song song
+    const tasks = devices.map(async (dev) => {
+
+      const watts = await getWatts(dev._id, start.format('YYYY-MM-DD'))
+
+      const filter = {
+        timestamp: start.toDate(),
+        device: dev._id
       }
-      
-      //console.log(devices[j].name)
-      jsonDevice.watts = await getWatts(devices[j]._id, start.format('YYYY-MM-DD'))
-      
-            //console.log(devices[j].name, " -> Done")
 
-      const filter = {timestamp: start, device: devices[j]._id};
-      const update = jsonDevice;
+      const update = {
+        device: dev._id,
+        device_name: dev.name,
+        station: dev.station,
+        timestamp: start.toDate(),
+        updated_at: new Date(),
+        watts: watts
+      }
 
-      let doc = await WDeviceData.findOneAndUpdate(filter, update, {
-        new: true,
-        upsert: true  // Make this update into an upsert
-      });
-    }
-  }catch(error){
+      return WDeviceData.findOneAndUpdate(filter, update, {
+        upsert: true,
+        new: true
+      })
+    })
+
+    await Promise.all(tasks)
+
+    console.log('Stored WDeviceData DONE:', start.format('YYYY-MM-DD'))
+
+  } catch (error) {
     console.log(error.message)
   }
 }
 
-async function getWattsOld(device, date){
-  let start = moment(date).startOf('day')
-  let end = moment(date).endOf('day')
+async function getWatts(device, date) {
+  const start = moment(date).startOf('day')
+  const end = moment(date).endOf('day')
 
   let data = []
 
-  hisStations = await HistoryDeviceData.find({  device: device, 
-                                                timestamp: {$gte: start, $lte: end } 
-                                            })      
-  for (let j = 0; j < 288; j++) {
-    let sum = 0; let count = 0; let avg = 0
-    let start1 = moment(start).startOf('minute')
-    let end1 = moment(start).add(5, 'minutes').startOf('minute')
-    let a1 = hisStations.map(x => {
-      if (x.timestamp <= end1 && x.timestamp >= start1) {
-        if(count <= 1){
-          sum +=  x.paras.Watts
-        }
-        count++
-        if (count > 0) {
-          avg = sum
-        }else{
-          avg = 0
-        }
-      }
-      return avg
-    })
-
-    //console.log(j, '-->', start1.format('H:mm:ss'), end1.format('H:mm:ss'), avg)
-    data.push(avg)
-    start = end1
-  }
-  return data;
-}
-
-
-async function getWatts(device, date){
-  let start = moment(date).startOf('day')
-  let end = moment(date).endOf('day')
-
-  let data = []
-
-  let device_datas = await DeviceData.find({
+  const device_datas = await DeviceData.find({
     device: device,
-    timestamp: { $gte: start, $lte: end }
+    timestamp: { $gte: start.toDate(), $lte: end.toDate() }
   })
 
   for (let j = 0; j < 288; j++) {
-    let sum = 0, count = 0, avg = 0
 
-    let start1 = moment(start)
-    let end1 = moment(start).add(5, 'minutes')
+    let sum = 0
+    let count = 0
+
+    let start1 = moment(start).add(j * 5, 'minutes')
+    let end1 = moment(start1).add(5, 'minutes')
 
     device_datas.forEach(item => {
-      if (item.timestamp <= end1 && item.timestamp >= start1) {
-        let str_w = item.paras.find(it => it.name === 'Watts')
+      let ts = moment(item.timestamp)
 
+      if (ts.isSameOrAfter(start1) && ts.isBefore(end1)) {
+
+        let str_w = item.paras.find(it => it.name === 'Watts')
         let watts = str_w ? parseInt(str_w.value) : 0
 
         sum += watts
@@ -370,20 +346,24 @@ async function getWatts(device, date){
       }
     })
 
-    avg = count > 0 ? sum / count : 0
+    let avg = null
 
-    if (start1 > moment().subtract(10, 'minutes')) {
-      avg = undefined
+    if (count > 0) {
+      avg = sum / count
+    }
+
+    // realtime cut (tránh dữ liệu chưa đủ)
+    if (start1.isAfter(moment().subtract(10, 'minutes'))) {
+      avg = null
     }
 
     data.push(avg)
-    start = end1
   }
 
   return data
 }
 
-// StoredWDeviceData()
+StoredWDeviceData()
 //---------------------------------------------------------------------
 
 
@@ -400,44 +380,6 @@ setInterval(function(){
 }, parseInt(process.env.STATION_CALC) * 60000);
 
 //----------------------------------------------------
-
-//========================================================
-async function sendAutoMail() {
-  let emails = await AutoEmail.find({'is_active': 1})
-
-  for (var i = 0; i < emails.length; i++) {
-    email = emails[i]
-
-    let date_start = moment().subtract(email.range, 'days').startOf('days').format('YYYY-MM-DD')
-    let date_end = moment().endOf('days').format('YYYY-MM-DD')
-
-    let site = await Station.findOne({_id: email.station})
-
-    const res1 = await axios.post('http://127.0.0.1:5001/download-excel',{
-      site_id: email.station,
-      date_start: date_start,
-      date_end : date_end,
-    });
-    await delay(500);
-
-    const res_sendmail = await axios.post('http://127.0.0.1:5001/sendmail', {
-      site_id: email.station,
-      site_name: site.name,
-      email_cc: '',
-      email_to: email.email_to,
-      file_name : res1.data.file_name,
-      is_auto : 1,
-    })
-    await delay(15000);
-  }
-}
-
-var jobSendMail = new CronJob('0 23 * * *', function() {
-  //console.log('You will see this message every minute ' + moment().format('H mm ss'));
-  sendAutoMail()
-}, null, true, 'Asia/Ho_Chi_Minh');
-
-jobSendMail.start();
 
 //========================================================
 // Run job stored w device (0h20p)
@@ -560,6 +502,32 @@ async function CalcLoadWStation(){
       return
   }
   let kw = station_data.paras.filter((para) => para.name === 'kiloWatts')
+  if (!kw) {
+      console.log('Missing kiloWatts')
+      await StationData.deleteOne({_id: station_data._id})
+      return
+  }
+
+  if (!kw.length) {
+    console.log('==>', station_data)
+    await StationData.deleteOne({_id: station_data._id})
+    return
+  }
+
+  if (!(kw[0].value >= -99999)) {
+    console.log('==>', station_data)
+    await StationData.deleteOne({_id: station_data._id})
+    return
+  }
+
+
+  try{
+    
+  }catch(e){
+    console.log('====>', kw)
+    return
+  }
+  
 
   let devices = await Device.find({station: station_data.station})
   let arr_device = devices.map((device) => {
@@ -609,7 +577,7 @@ async function CalcLoadWStation(){
 
 setInterval(function(){
   CalcLoadWStation()
-}, parseInt(10000)); // 1 minutes
+}, parseInt(6000)); // 1 minutes
 
 
 //-----------------------------
