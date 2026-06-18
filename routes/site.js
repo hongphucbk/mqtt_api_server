@@ -448,6 +448,7 @@ router.get('/site/trend', auth, async(req, res) => {
       let end = moment(date).endOf('day')
 
       let today = moment().startOf('day');
+      
 
       if (start < today) {
         let w_devices = await WDeviceData.find({station: id, timestamp: start});
@@ -466,10 +467,13 @@ router.get('/site/trend', auth, async(req, res) => {
         data = arrs
         
       }else{
+        let ids_del = []
         device_datas = await DeviceData.find({
           device: { $in: ids },
           timestamp: { $gte: start.toDate(), $lte: end.toDate() }
         })
+
+        
 
         let data = []
         let baseStart = moment(start).startOf('day') // giữ cố định
@@ -480,10 +484,12 @@ router.get('/site/trend', auth, async(req, res) => {
           let start1 = moment(baseStart).add(j * 5, 'minutes')
           let end1 = moment(start1).add(5, 'minutes')
 
+          
           device_datas.forEach(item => {
             let ts = moment(item.timestamp)
 
             if (ts.isSameOrAfter(start1) && ts.isBefore(end1)) {
+
 
               let str_w = item.paras.find(it => it.name === 'Watts')
 
@@ -492,6 +498,13 @@ router.get('/site/trend', auth, async(req, res) => {
               }
 
               let watts = str_w ? parseInt(str_w.value) : 0
+              if (isNaN(watts)) {
+                ids_del.push(item.id);
+                console.log(str_w.value,  str_w, item.device, item.id)
+                watts = 0;
+              }
+
+              //console.log(start1, end1, ts, watts )
 
               // ⚠️ nên bỏ limit này nếu muốn đúng tổng
               sum += watts
@@ -511,7 +524,11 @@ router.get('/site/trend', auth, async(req, res) => {
           }
 
           data.push(avg)
+          //console.log(str_w.value,  str_w, item.device, item.id)
+          await DeviceData.deleteMany({_id: {$in: ids_del } });
         }
+
+        
 
         console.log(data)
       }
