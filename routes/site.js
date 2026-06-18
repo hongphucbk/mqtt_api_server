@@ -528,9 +528,9 @@ router.get('/site/trend', auth, async(req, res) => {
           await DeviceData.deleteMany({_id: {$in: ids_del } });
         }
 
-        
-
         console.log(data)
+        res.send({siteID: id, type: type, series: data})
+        return
       }
 
     }else if (basedTime === 'month' && type === 'energy') {
@@ -652,6 +652,8 @@ router.get('/site/trend', auth, async(req, res) => {
       res.json(err.E40010)
       return
     }
+
+    //console.log(data)
     res.send({siteID: id, type: type, series: data})
   }catch(error){
     var mess = {...err.E40001,...{'description': error.message} }
