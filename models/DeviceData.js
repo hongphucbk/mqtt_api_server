@@ -28,10 +28,7 @@ const deviceDataSchema = mongoose.Schema({
     updated_at: {
         type: Date,
     },
-    watts: {
-        type: Number,
-    },
-
+    
     Watts: {
         type: Number,
         default:0,
