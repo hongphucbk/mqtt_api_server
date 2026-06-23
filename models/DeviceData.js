@@ -31,6 +31,16 @@ const deviceDataSchema = mongoose.Schema({
     watts: {
         type: Number,
     },
+
+    Watts: {
+        type: Number,
+        default:0,
+    },
+    WH: {
+        type: Number,
+        default:0,
+    },
+
     device: {type: mongoose.Schema.Types.ObjectId, ref: 'Device' },
     //station: {type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
     // password: {

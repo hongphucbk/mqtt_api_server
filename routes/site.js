@@ -448,7 +448,6 @@ router.get('/site/trend', auth, async(req, res) => {
       let end = moment(date).endOf('day')
 
       let today = moment().startOf('day');
-      
 
       if (start < today) {
         let w_devices = await WDeviceData.find({station: id, timestamp: start});
@@ -525,7 +524,7 @@ router.get('/site/trend', auth, async(req, res) => {
 
           data.push(avg)
           //console.log(str_w.value,  str_w, item.device, item.id)
-          await DeviceData.deleteMany({_id: {$in: ids_del } });
+          //await DeviceData.deleteMany({_id: {$in: ids_del } });
         }
 
         console.log(data)
