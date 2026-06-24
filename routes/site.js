@@ -449,7 +449,7 @@ router.get('/site/trend', auth, async(req, res) => {
 
       let today = moment().startOf('day');
 
-      if (start < today && false) {
+      if (start <= today) {
         let w_devices = await WDeviceData.find({station: id, timestamp: start});
         var arrs = Array(288).fill(0).map((e,i)=>0)
         for (let i = 0; i < w_devices.length; i++) {

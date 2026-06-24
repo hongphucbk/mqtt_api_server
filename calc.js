@@ -657,7 +657,7 @@ async function StoredWDeviceDataToday() {
     // 🚀 chạy song song
     const tasks = devices.map(async (dev) => {
 
-      const watts = await getWatts(dev._id, start.format('YYYY-MM-DD'))
+      const watts = await getWattsToday(dev._id, start.format('YYYY-MM-DD'))
 
       const filter = {
         timestamp: start.toDate(),
@@ -689,3 +689,60 @@ async function StoredWDeviceDataToday() {
 }
 
 StoredWDeviceDataToday()
+
+async function getWattsToday(device, date) {
+  const start = moment(date).startOf('day')
+  const end = moment(date).endOf('day')
+
+  let data = []
+
+  const device_datas = await DeviceData.find({
+    device: device,
+    timestamp: { $gte: start.toDate(), $lte: end.toDate() }
+  })
+
+  for (let j = 0; j < 288; j++) {
+
+    let sum = 0
+    let count = 0
+
+    let start1 = moment(start).add(j * 5, 'minutes')
+    let end1 = moment(start1).add(5, 'minutes')
+
+    device_datas.forEach(item => {
+      let ts = moment(item.timestamp)
+
+      if (ts.isSameOrAfter(start1) && ts.isBefore(end1)) {
+
+        let str_w = item.paras.find(it => it.name === 'Watts')
+        let watts = str_w ? parseInt(str_w.value) : 0
+
+        if (isNaN(watts)) watts = 0
+        if(watts > 0){
+          sum += watts
+          count++
+        }
+      }
+    })
+
+    let avg = null
+
+    if (count > 0) {
+      avg = sum / count
+    }
+
+    // Các khoảng thời gian đã qua nhưng không có dữ liệu => 0
+    if (avg === null && start1.isBefore(moment().subtract(10, 'minutes'))) {
+      avg = 0
+    }
+
+    // realtime cut (tránh dữ liệu chưa đủ)
+    if (start1.isAfter(moment().subtract(10, 'minutes'))) {
+      avg = null
+    }
+
+    data.push(avg)
+  }
+
+  return data
+}
