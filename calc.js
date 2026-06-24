@@ -646,7 +646,7 @@ async function getLoadW(station, date){
 }
 
 
-//===================
+//===Stored W Device Data = Phuc add 20260624===
 async function StoredWDeviceDataToday() {
   try {
     // ✅ luôn lấy ngày hôm qua
@@ -746,3 +746,9 @@ async function getWattsToday(device, date) {
 
   return data
 }
+
+setInterval(function(){
+  StoredWDeviceDataToday()
+}, parseInt(10 * 60000));
+
+//====================
