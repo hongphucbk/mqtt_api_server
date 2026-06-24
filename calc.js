@@ -644,3 +644,48 @@ async function getLoadW(station, date){
   }
   return data;
 }
+
+
+//===================
+async function StoredWDeviceDataToday() {
+  try {
+    // ✅ luôn lấy ngày hôm qua
+    const start = moment().startOf('day')
+
+    const devices = await Device.find({ is_active: 1 })
+
+    // 🚀 chạy song song
+    const tasks = devices.map(async (dev) => {
+
+      const watts = await getWatts(dev._id, start.format('YYYY-MM-DD'))
+
+      const filter = {
+        timestamp: start.toDate(),
+        device: dev._id
+      }
+
+      const update = {
+        device: dev._id,
+        device_name: dev.name,
+        station: dev.station,
+        timestamp: start.toDate(),
+        updated_at: new Date(),
+        watts: watts
+      }
+
+      return WDeviceData.findOneAndUpdate(filter, update, {
+        upsert: true,
+        new: true
+      })
+    })
+
+    await Promise.all(tasks)
+
+    console.log('Stored WDeviceData DONE:', start.format('YYYY-MM-DD'))
+
+  } catch (error) {
+    console.log(error.message)
+  }
+}
+
+StoredWDeviceDataToday()
