@@ -478,7 +478,7 @@ router.get('/site/trend', auth, async(req, res) => {
           //console.log(arrs)
         }
 
-        const cutoff = moment().subtract(10, 'minutes');
+        const cutoff = moment().subtract(20, 'minutes');
 
         arrs = arrs.map((value, idx) => {
 
